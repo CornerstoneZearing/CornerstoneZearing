@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="CornerstoneZearing.Common/CornerstoneZearing.Common.csproj" Id="60e630d1-a511-4362-9f8e-3a82461705d1" />
+  <Project Path="CornerstoneZearing.Data/CornerstoneZearing.Data.csproj" Id="420ed143-4e9f-422a-97e7-20d05f8ea6f0" />
+  <Project Path="CornerstoneZearing.Website/CornerstoneZearing.Website.csproj" />
+</Solution>
