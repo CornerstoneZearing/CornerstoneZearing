@@ -51,11 +51,17 @@ app.UseAuthorization();
 // Turn on static file handling
 app.MapStaticAssets();
 
+// Configure admin area route
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "Admin/{controller=Home}/{action=Index}/{id?}"
+);
+
 // Configure default route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 // Turn on Razor Pages
 app.MapRazorPages()
