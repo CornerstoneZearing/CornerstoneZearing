@@ -1,5 +1,7 @@
 using CornerstoneZearing.Website.Identity;
+using CornerstoneZearing.Website.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 // Create the web application builder
@@ -21,6 +23,9 @@ builder.Services
     .AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Configure SMTP Service
+builder.Services.AddTransient<IEmailSender, SmtpService>();
 
 // Turn on MVC services
 builder.Services.AddControllersWithViews();
