@@ -164,3 +164,4 @@ MSBuild_Logs/
 .history/
 
 appsettings.Development.json
+CornerstoneZearing.Website/App_Data/Files/*
