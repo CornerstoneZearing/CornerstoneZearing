@@ -16,7 +16,7 @@ namespace CornerstoneZearing.Website.Packager
                 if (package is not null)
                 {
                     var output = processor.GetOrBuild(package);
-                    var etag = $"\"{output.Hash}\"";
+                    var etag = $"\"{output.hash}\"";
 
                     if (context.Request.Headers.IfNoneMatch == etag)
                     {
@@ -24,10 +24,10 @@ namespace CornerstoneZearing.Website.Packager
                         return;
                     }
 
-                    context.Response.ContentType = output.ContentType;
+                    context.Response.ContentType = output.contentType;
                     context.Response.Headers.ETag = etag;
                     context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
-                    await context.Response.WriteAsync(output.Content);
+                    await context.Response.WriteAsync(output.content);
                     return;
                 }
             }
