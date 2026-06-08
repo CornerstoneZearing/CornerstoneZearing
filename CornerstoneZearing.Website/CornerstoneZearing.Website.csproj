@@ -1,17 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <MvcRazorExcludeViewFilesFromPublish>false</MvcRazorExcludeViewFilesFromPublish>
-    <MvcRazorExcludeRefAssembliesFromPublish>false</MvcRazorExcludeRefAssembliesFromPublish>
-  </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Cofoundry.Web.Admin" Version="0.13.2" />
-    <PackageReference Include="Cofoundry.Plugins.Imaging.SkiaSharp" Version="0.13.2" />
-    <PackageReference Include="Cofoundry.Plugins.ErrorLogging.Admin" Version="0.13.2" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<MvcRazorExcludeViewFilesFromPublish>false</MvcRazorExcludeViewFilesFromPublish>
+		<MvcRazorExcludeRefAssembliesFromPublish>false</MvcRazorExcludeRefAssembliesFromPublish>
+	</PropertyGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\images\" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Cofoundry.Web.Admin" Version="0.13.2" />
+		<PackageReference Include="Cofoundry.Plugins.Imaging.SkiaSharp" Version="0.13.2" />
+		<PackageReference Include="Cofoundry.Plugins.ErrorLogging.Admin" Version="0.13.2" />
+	</ItemGroup>
 </Project>
