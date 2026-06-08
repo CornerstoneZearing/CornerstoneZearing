@@ -24,7 +24,7 @@ namespace CornerstoneZearing.Website.Packager
             }
 
             var result = processor.GetOrBuild(package);
-            var url = $"{package.VirtualPath}?v={result.Hash}";
+            var url = $"{package.VirtualPath}?v={result.hash}";
             var tag = package.Type == PackageType.Style ? $"""<link rel="stylesheet" href="{url}" />""" : $"""<script src="{url}"></script>""";
             output.Content.SetHtmlContent(tag);
         }

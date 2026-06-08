@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CornerstoneZearing.Website.Packager
 {
-    public sealed record PackageOutput(string Content, string ContentType, string Hash);
+    public sealed record PackageOutput(string content, string contentType, string hash);
 
-    public sealed class PackageProcessor(IWebHostEnvironment environment, ILogger<PackageProcessor> logger)
+    public sealed class PackageProcessor(IWebHostEnvironment environment)
     {
         private readonly ConcurrentDictionary<string, PackageOutput> _Cache = new(StringComparer.OrdinalIgnoreCase);
 
@@ -50,15 +50,13 @@ namespace CornerstoneZearing.Website.Packager
                 var file = environment.WebRootFileProvider.GetFileInfo(path);
                 if (!file.Exists || file.IsDirectory)
                 {
-                    logger.LogWarning("Package '{VirtualPath}': file not found — {Path}", package.VirtualPath, path);
-                    continue;
+                    throw new FileNotFoundException($"File '{path}' not found for package '{package.VirtualPath}'.");
                 }
                 using var reader = new StreamReader(file.CreateReadStream());
                 sb.AppendLine(reader.ReadToEnd());
             }
 
             var raw = sb.ToString();
-            bool minify = !environment.IsDevelopment();
 
             string content;
             string contentType;
@@ -66,12 +64,12 @@ namespace CornerstoneZearing.Website.Packager
             if (package.Type == PackageType.Style)
             {
                 contentType = "text/css; charset=utf-8";
-                content = minify ? PackageMinifier.MinifyCss(raw) : raw;
+                content = PackageMinifier.MinifyCss(raw);
             }
             else
             {
                 contentType = "application/javascript; charset=utf-8";
-                content = minify ? PackageMinifier.MinifyJs(raw) : raw;
+                content = PackageMinifier.MinifyJs(raw);
             }
 
             var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)))[..8].ToLowerInvariant();
