@@ -1,21 +1,30 @@
+using CornerstoneZearing.Areas.Admin.Models;
+using CornerstoneZearing.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using CornerstoneZearing.Areas.Admin.Models;
-using CornerstoneZearing.Data;
 
 namespace CornerstoneZearing.Areas.Admin.Controllers;
 
 [Area("Admin")]
 public class AccountController : Controller
 {
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly SignInManager<ApplicationUser> _SignInManager;
 
+    /// <summary>
+    /// Initialization constructor.
+    /// </summary>
+    /// <param name="signInManager"></param>
     public AccountController(SignInManager<ApplicationUser> signInManager)
     {
-        _signInManager = signInManager;
+        _SignInManager = signInManager;
     }
 
+    /// <summary>
+    /// Login page.
+    /// </summary>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
@@ -28,6 +37,11 @@ public class AccountController : Controller
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
 
+    /// <summary>
+    /// Login form submission.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
@@ -38,8 +52,7 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var result = await _signInManager.PasswordSignInAsync(
-            model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
+        var result = await _SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
@@ -47,6 +60,7 @@ public class AccountController : Controller
             {
                 return Redirect(model.ReturnUrl);
             }
+
             return RedirectToAction("Index", "Home", new { area = "Admin" });
         }
 
@@ -62,12 +76,16 @@ public class AccountController : Controller
         return View(model);
     }
 
+    /// <summary>
+    /// Logout submission.
+    /// </summary>
+    /// <returns></returns>
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await _SignInManager.SignOutAsync();
         return RedirectToAction("Login");
     }
 }
