@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@(ViewData["Title"] != null ? ViewData["Title"] : "Cornerstone Zearing") - Cornerstone Zearing</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link href="~/styles/admin.css" rel="stylesheet" />
+</head>
+<body>
+	<aside class="sidebar">
+		<div class="sidebar-brand">
+			<a asp-area="Admin" asp-controller="Home" asp-action="Index">
+				<span class="brand-icon"><i class="fas fa-church"></i></span>
+				Cornerstone
+			</a>
+		</div>
+		<nav class="sidebar-nav">
+			<div class="sidebar-section-label">Main</div>
+			<a asp-area="Admin" asp-controller="Home" asp-action="Index"
+			   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+				<i class="fas fa-gauge-high"></i>
+				Dashboard
+			</a>
+			@if (User.IsInRole("Administrator") || User.IsInRole("Editor"))
+			{
+				<div class="sidebar-section-label">Content</div>
+				<a asp-area="Admin" asp-controller="Pages" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "active" : "")">
+					<i class="fas fa-file-lines"></i>
+					Pages
+				</a>
+				<a asp-area="Admin" asp-controller="Events" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+					<i class="fas fa-calendar-days"></i>
+					Events
+				</a>
+			}
+			@if (User.IsInRole("Administrator"))
+			{
+				<div class="sidebar-section-label">System</div>
+				<a asp-area="Admin" asp-controller="Users" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
+					<i class="fas fa-users"></i>
+					Users
+				</a>
+			}
+		</nav>
+		<div class="sidebar-footer">
+			<a href="/" target="_blank" style="display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:8px;color:#94a3b8;text-decoration:none;font-size:.875rem;font-weight:500;transition:background .15s,color .15s;">
+				<i class="fas fa-arrow-up-right-from-square" style="width:18px;text-align:center;font-size:.875rem;opacity:.8;"></i>
+				View Website
+			</a>
+		</div>
+	</aside>
+	<div class="main-wrapper">
+		<header class="topbar">
+			<span class="topbar-title">@(ViewData["Section"] ?? "Dashboard")</span>
+			<div class="topbar-right">
+				<div class="topbar-user">
+					<div class="avatar">@(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")</div>
+					<span>@User.Identity?.Name</span>
+				</div>
+				<form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post">
+					<button type="submit" class="btn-logout">
+						<i class="fas fa-right-from-bracket"></i> Sign out
+					</button>
+				</form>
+			</div>
+		</header>
+		<main class="page-content">
+			@if (TempData["Success"] != null)
+			{
+				<div class="alert alert-success">
+					<i class="fas fa-circle-check"></i>
+					@TempData["Success"]
+				</div>
+			}
+			@if (TempData["Error"] != null)
+			{
+				<div class="alert alert-danger">
+					<i class="fas fa-circle-exclamation"></i>
+					@TempData["Error"]
+				</div>
+			}
+			@RenderBody()
+		</main>
+	</div>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
