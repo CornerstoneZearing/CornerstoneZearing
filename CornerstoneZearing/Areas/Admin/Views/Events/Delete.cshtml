@@ -1,0 +1,70 @@
+@model CornerstoneZearing.Data.Event
+@using CornerstoneZearing.Data
+@{
+    ViewData["Section"] = "Events";
+    ViewData["Title"] = "Delete Event";
+    var start = Model.StartDateTime.ToLocalTime();
+    var end = Model.EndDateTime.ToLocalTime();
+}
+
+<div class="page-header">
+    <h1>Delete Event</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div style="max-width:560px;">
+    <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header">Event Details</div>
+        <div class="card-body">
+            <table style="width:100%;font-size:.875rem;border-collapse:collapse;">
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;width:120px;">Name</td>
+                    <td style="padding:.4rem 0;"><strong>@Model.Name</strong></td>
+                </tr>
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <tr>
+                        <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Location</td>
+                        <td style="padding:.4rem 0;">@Model.Location</td>
+                    </tr>
+                }
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Start</td>
+                    <td style="padding:.4rem 0;">@(Model.IsAllDay ? start.ToString("MMM d, yyyy") : start.ToString("MMM d, yyyy h:mm tt"))</td>
+                </tr>
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">End</td>
+                    <td style="padding:.4rem 0;">@(Model.IsAllDay ? end.ToString("MMM d, yyyy") : end.ToString("MMM d, yyyy h:mm tt"))</td>
+                </tr>
+                @if (Model.RecurrenceType != RecurrenceType.None)
+                {
+                    <tr>
+                        <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Recurrence</td>
+                        <td style="padding:.4rem 0;">@Model.RecurrenceType</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="border-color:#fecaca;">
+        <div class="card-header" style="background:#fef2f2;color:#b91c1c;">
+            <i class="fas fa-triangle-exclamation"></i> Confirm Deletion
+        </div>
+        <div class="card-body">
+            <p style="margin-bottom:1.25rem;font-size:.875rem;color:var(--text-secondary);">
+                Are you sure you want to delete <strong>@Model.Name</strong>? This action cannot be undone.
+            </p>
+            <form asp-action="Delete" asp-route-id="@Model.EventID" method="post">
+                <div style="display:flex;gap:.75rem;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Event
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

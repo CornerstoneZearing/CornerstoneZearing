@@ -1,0 +1,59 @@
+@{
+    ViewData["Section"] = "Dashboard";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-file-lines"></i></div>
+        <div>
+            <div class="stat-value">@ViewBag.TotalPages</div>
+            <div class="stat-label">Total Pages</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-globe"></i></div>
+        <div>
+            <div class="stat-value">@ViewBag.PublishedPages</div>
+            <div class="stat-label">Published</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-pen-to-square"></i></div>
+        <div>
+            <div class="stat-value">@ViewBag.DraftPages</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-eye-slash"></i></div>
+        <div>
+            <div class="stat-value">@ViewBag.WithdrawnPages</div>
+            <div class="stat-label">Withdrawn</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        Quick Links
+    </div>
+    <div class="card-body" style="display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a asp-area="Admin" asp-controller="Pages" asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Page
+        </a>
+        <a asp-area="Admin" asp-controller="Pages" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-file-lines"></i> Manage Pages
+        </a>
+        @if (User.IsInRole("Administrator"))
+        {
+            <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-users"></i> Manage Users
+            </a>
+        }
+    </div>
+</div>

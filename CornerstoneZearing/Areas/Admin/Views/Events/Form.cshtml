@@ -1,0 +1,318 @@
+@model CornerstoneZearing.Areas.Admin.Models.EventFormViewModel
+@{
+    var isEdit = Model.EventID != Guid.Empty;
+	ViewData["Section"] = "Events";
+    ViewData["Title"] = isEdit ? "Edit Event" : "Add Event";
+}
+
+<div class="page-header">
+    <h1>@(isEdit ? "Edit Event" : "Add Event")</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @if (isEdit)
+    {
+        <input type="hidden" asp-for="EventID" />
+    }
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:1.25rem;align-items:start;">
+
+        <!-- Left column -->
+        <div>
+            <!-- Event Details -->
+            <div class="card" style="margin-bottom:1.25rem;">
+                <div class="card-header">Event Details</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="field-validation-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Location"></label>
+                        <input asp-for="Location" class="form-control" placeholder="Optional" />
+                        <span asp-validation-for="Location" class="field-validation-error"></span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label asp-for="Description"></label>
+                        <textarea asp-for="Description" class="form-control" style="min-height:120px;"></textarea>
+                        <span asp-validation-for="Description" class="field-validation-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="card" style="margin-bottom:1.25rem;">
+                <div class="card-header">Date &amp; Time</div>
+                <div class="card-body">
+                    <div class="form-group" style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+                        <label class="form-check">
+                            <input asp-for="IsAllDay" id="IsAllDay" />
+                            <span style="font-size:.875rem;font-weight:500;color:var(--text-primary);">All-Day Event</span>
+                        </label>
+                        <label class="form-check">
+                            <input asp-for="IsPrivate" />
+                            <span style="font-size:.875rem;font-weight:500;color:var(--text-primary);">Private</span>
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label asp-for="StartDateTime"></label>
+                            <input asp-for="StartDateTime" id="StartDateTime"
+                                   type="@(Model.IsAllDay ? "date" : "datetime-local")"
+                                   class="form-control"
+                                   value="@(Model.IsAllDay ? Model.StartDateTime.ToString("yyyy-MM-dd") : Model.StartDateTime.ToString("yyyy-MM-ddTHH:mm"))" />
+                            <span asp-validation-for="StartDateTime" class="field-validation-error"></span>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label asp-for="EndDateTime"></label>
+                            <input asp-for="EndDateTime" id="EndDateTime"
+                                   type="@(Model.IsAllDay ? "date" : "datetime-local")"
+                                   class="form-control"
+                                   value="@(Model.IsAllDay ? Model.EndDateTime.ToString("yyyy-MM-dd") : Model.EndDateTime.ToString("yyyy-MM-ddTHH:mm"))" />
+                            <span asp-validation-for="EndDateTime" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recurrence -->
+            <div class="card">
+                <div class="card-header">Recurrence</div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="RecurrenceType"></label>
+                        <select asp-for="RecurrenceType" id="RecurrenceType" class="form-control">
+                            <option value="0">None (single occurrence)</option>
+                            <option value="1">Daily</option>
+                            <option value="2">Weekly</option>
+                            <option value="3">Monthly</option>
+                            <option value="4">Yearly</option>
+                        </select>
+                    </div>
+
+                    <!-- Interval (shown for all recurring types) -->
+                    <div id="interval-group" style="display:none;">
+                        <div class="form-group">
+                            <label>Interval</label>
+                            <div style="display:flex;align-items:center;gap:.75rem;">
+                                <span style="color:var(--text-secondary);font-size:.875rem;white-space:nowrap;">Every</span>
+                                <input asp-for="RecurrenceInterval" type="number" min="1" max="999" class="form-control" style="width:80px;" />
+                                <span id="interval-unit" style="color:var(--text-secondary);font-size:.875rem;white-space:nowrap;">day(s)</span>
+                            </div>
+                            <span asp-validation-for="RecurrenceInterval" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Weekly: days of week -->
+                    <div id="weekly-opts" style="display:none;">
+                        <div class="form-group">
+                            <label>Occurs On</label>
+                            <div class="checkbox-grid">
+                                <label class="form-check"><input asp-for="RecurSunday" /><span>Sun</span></label>
+                                <label class="form-check"><input asp-for="RecurMonday" /><span>Mon</span></label>
+                                <label class="form-check"><input asp-for="RecurTuesday" /><span>Tue</span></label>
+                                <label class="form-check"><input asp-for="RecurWednesday" /><span>Wed</span></label>
+                                <label class="form-check"><input asp-for="RecurThursday" /><span>Thu</span></label>
+                                <label class="form-check"><input asp-for="RecurFriday" /><span>Fri</span></label>
+                                <label class="form-check"><input asp-for="RecurSaturday" /><span>Sat</span></label>
+                            </div>
+                            <span asp-validation-for="RecurSunday" class="field-validation-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Monthly / Yearly: pattern -->
+                    <div id="monthly-yearly-opts" style="display:none;">
+                        <div class="form-group">
+                            <label>Pattern</label>
+                            <div style="display:flex;flex-direction:column;gap:.6rem;">
+                                <label class="form-check">
+                                    <input type="radio" name="MonthlyYearlyPattern" id="mp-specific" value="0"
+                                           @(Model.MonthlyYearlyPattern == MonthlyYearlyPattern.SpecificDate ? "checked" : "") />
+                                    <span id="pattern-specific-label" style="font-size:.875rem;">On a specific date</span>
+                                </label>
+                                <label class="form-check">
+                                    <input type="radio" name="MonthlyYearlyPattern" id="mp-position" value="1"
+                                           @(Model.MonthlyYearlyPattern == MonthlyYearlyPattern.DayOfWeekPosition ? "checked" : "") />
+                                    <span id="pattern-position-label" style="font-size:.875rem;">On a day of the week</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recurrence end (shown for all recurring types) -->
+                    <div id="recurrence-end" style="display:none;">
+                        <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0 1.25rem;" />
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>End Recurrence</label>
+                            <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:.75rem;">
+                                <label class="form-check">
+                                    <input type="radio" name="recurrence-end-type" id="rend-never" value="never"
+                                           @(Model.RecurrenceEndDate == null ? "checked" : "") />
+                                    <span style="font-size:.875rem;">Never</span>
+                                </label>
+                                <label class="form-check">
+                                    <input type="radio" name="recurrence-end-type" id="rend-on" value="on"
+                                           @(Model.RecurrenceEndDate != null ? "checked" : "") />
+                                    <span style="font-size:.875rem;">On a specific date</span>
+                                </label>
+                            </div>
+                            <div id="recurrence-end-date-group" style="@(Model.RecurrenceEndDate != null ? "" : "display:none;")">
+                                <input asp-for="RecurrenceEndDate" id="RecurrenceEndDate" type="date" class="form-control" />
+                                <span asp-validation-for="RecurrenceEndDate" class="field-validation-error"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+            <div class="card">
+                <div class="card-header">Save</div>
+                <div class="card-body">
+                    <button type="submit" class="btn btn-primary" style="width:100%;">
+                        <i class="fas fa-floppy-disk"></i> Save Event
+                    </button>
+                    <div style="margin-top:.6rem;">
+                        <a asp-action="Index" class="btn btn-secondary" style="width:100%;justify-content:center;">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (isEdit)
+            {
+                <div class="card" style="margin-top:1.25rem;">
+                    <div class="card-body">
+                        <a asp-action="Delete" asp-route-id="@Model.EventID"
+                           class="btn btn-danger" style="width:100%;justify-content:center;">
+                            <i class="fas fa-trash"></i> Delete Event
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const recTypeEl = document.getElementById('RecurrenceType');
+            const allDayEl = document.getElementById('IsAllDay');
+            const startEl = document.getElementById('StartDateTime');
+            const endEl = document.getElementById('EndDateTime');
+            const intervalUnit = document.getElementById('interval-unit');
+            const rendNever = document.getElementById('rend-never');
+            const rendOn = document.getElementById('rend-on');
+            const endDateGroup = document.getElementById('recurrence-end-date-group');
+            const endDateInput = document.getElementById('RecurrenceEndDate');
+
+            const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'];
+            const ORDS = ['', '1st', '2nd', '3rd', '4th'];
+
+            function weekPos(date) {
+                const d = date.getDate();
+                const dim = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                if (d + 7 > dim) return 'last';
+                return ORDS[Math.ceil(d / 7)];
+            }
+
+            function dayOrd(n) {
+                const s = ['th', 'st', 'nd', 'rd'];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            }
+
+            function updatePatternLabels() {
+                const type = parseInt(recTypeEl.value);
+                if (type !== 3 && type !== 4) return;
+
+                const raw = startEl.value;
+                if (!raw) return;
+                const date = new Date(raw);
+                if (isNaN(date.getTime())) return;
+
+                const dayName = DAYS[date.getDay()];
+                const pos = weekPos(date);
+                const monthName = MONTHS[date.getMonth()];
+                const dayNum = dayOrd(date.getDate());
+
+                const specEl = document.getElementById('pattern-specific-label');
+                const posEl = document.getElementById('pattern-position-label');
+
+                if (type === 3) {
+                    specEl.textContent = `On the ${dayNum} of the month`;
+                    posEl.textContent = `On the ${pos} ${dayName} of the month`;
+                } else {
+                    specEl.textContent = `On ${monthName} ${date.getDate()} each year`;
+                    posEl.textContent = `On the ${pos} ${dayName} of ${monthName}`;
+                }
+            }
+
+            function updateSections() {
+                const type = parseInt(recTypeEl.value);
+                const units = { 1: 'day(s)', 2: 'week(s)', 3: 'month(s)', 4: 'year(s)' };
+
+                document.getElementById('interval-group').style.display = type !== 0 ? '' : 'none';
+                document.getElementById('weekly-opts').style.display = type === 2 ? '' : 'none';
+                document.getElementById('monthly-yearly-opts').style.display = (type === 3 || type === 4) ? '' : 'none';
+                document.getElementById('recurrence-end').style.display = type !== 0 ? '' : 'none';
+
+                intervalUnit.textContent = units[type] || 'day(s)';
+
+                if (type === 0) {
+                    rendNever.checked = true;
+                    endDateGroup.style.display = 'none';
+                    endDateInput.value = '';
+                }
+
+                updatePatternLabels();
+            }
+
+            function updateAllDay() {
+                const isAllDay = allDayEl.checked;
+                if (isAllDay) {
+                    const sv = startEl.value ? startEl.value.split('T')[0] : '';
+                    const ev = endEl.value ? endEl.value.split('T')[0] : '';
+                    startEl.setAttribute('type', 'date');
+                    endEl.setAttribute('type', 'date');
+                    startEl.value = sv;
+                    endEl.value = ev;
+                } else {
+                    const sv = startEl.value;
+                    const ev = endEl.value;
+                    startEl.setAttribute('type', 'datetime-local');
+                    endEl.setAttribute('type', 'datetime-local');
+                    if (sv && !sv.includes('T')) startEl.value = sv + 'T00:00';
+                    if (ev && !ev.includes('T')) endEl.value = ev + 'T00:00';
+                }
+            }
+
+            function updateRecurrenceEnd() {
+                endDateGroup.style.display = rendOn.checked ? '' : 'none';
+                if (rendNever.checked) endDateInput.value = '';
+            }
+
+            recTypeEl.addEventListener('change', updateSections);
+            allDayEl.addEventListener('change', updateAllDay);
+            startEl.addEventListener('change', updatePatternLabels);
+            startEl.addEventListener('input', updatePatternLabels);
+            rendNever.addEventListener('change', updateRecurrenceEnd);
+            rendOn.addEventListener('change', updateRecurrenceEnd);
+
+            // Initialize
+            updateSections();
+            updatePatternLabels();
+        })();
+    </script>
+}

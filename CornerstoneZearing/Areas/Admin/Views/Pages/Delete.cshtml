@@ -1,0 +1,46 @@
+@model CornerstoneZearing.Data.Page
+@{
+    ViewData["Section"] = "Pages";
+    ViewData["Title"] = "Delete Page";
+}
+
+<div class="page-header">
+    <h1>Delete Page</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card" style="max-width:520px;">
+    <div class="card-body">
+        <p style="font-size:.95rem;color:#475569;margin-bottom:1.25rem;">
+            Are you sure you want to permanently delete this page? This action cannot be undone.
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+            <div style="font-weight:600;margin-bottom:.25rem;">@Model.Name</div>
+            <div class="text-muted">/@(Model.UrlSlug)</div>
+            <div style="margin-top:.5rem;">
+                @switch (Model.Status)
+                {
+                    case CornerstoneZearing.PageStatus.Published:
+                        <span class="badge badge-success">Published</span>
+                        break;
+                    case CornerstoneZearing.PageStatus.Draft:
+                        <span class="badge badge-warning">Draft</span>
+                        break;
+                    case CornerstoneZearing.PageStatus.Withdrawn:
+                        <span class="badge badge-secondary">Withdrawn</span>
+                        break;
+                }
+            </div>
+        </div>
+        <div class="form-actions">
+            <form asp-action="Delete" asp-route-id="@Model.PageID" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Page
+                </button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>

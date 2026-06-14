@@ -1,0 +1,11 @@
+@model CornerstoneZearing.Data.Page
+@{
+    ViewData["Title"] = Model.MetaTitle ?? Model.Name;
+    ViewData["MetaDescription"] = Model.MetaDescription;
+}
+<article class="page-content">
+    <h1>@Model.Name</h1>
+    <div class="content">
+        @Html.Raw(Model.Content)
+    </div>
+</article>

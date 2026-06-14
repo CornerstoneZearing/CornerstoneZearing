@@ -1,0 +1,76 @@
+@model IEnumerable<CornerstoneZearing.Data.Page>
+@{
+	ViewData["Section"] = "Pages";
+    ViewData["Title"] = "Pages";
+}
+
+<div class="page-header">
+    <h1>Pages</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Page
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>URL Slug</th>
+                    <th>Template</th>
+                    <th>Status</th>
+                    <th>Modified</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pg in Model)
+                {
+                    <tr>
+                        <td><strong>@pg.Name</strong></td>
+                        <td>
+                            <a href="/@pg.UrlSlug" target="_blank" class="text-muted" style="text-decoration:none;">
+                                /@pg.UrlSlug <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;"></i>
+                            </a>
+                        </td>
+                        <td class="text-muted">@pg.TemplateName</td>
+                        <td>
+                            @switch (pg.Status)
+                            {
+                                case CornerstoneZearing.PageStatus.Published:
+                                    <span class="badge badge-success">Published</span>
+                                    break;
+                                case CornerstoneZearing.PageStatus.Draft:
+                                    <span class="badge badge-warning">Draft</span>
+                                    break;
+                                case CornerstoneZearing.PageStatus.Withdrawn:
+                                    <span class="badge badge-secondary">Withdrawn</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-muted">@pg.DateModified.ToLocalTime().ToString("MMM d, yyyy")</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Edit" asp-route-id="@pg.PageID" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@pg.PageID" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" style="text-align:center;color:#64748b;padding:2rem;">
+                            No pages yet. <a asp-action="Create">Create your first page.</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

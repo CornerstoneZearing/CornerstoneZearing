@@ -1,0 +1,130 @@
+@model IEnumerable<CornerstoneZearing.Data.Event>
+@using CornerstoneZearing.Data
+@{
+    ViewData["Section"] = "Events";
+    ViewData["Title"] = "Events";
+
+    string WeekPos(DateTime date)
+    {
+        int d = date.Day;
+        int dim = DateTime.DaysInMonth(date.Year, date.Month);
+        if (d + 7 > dim) return "last";
+        return Math.Ceiling((double)d / 7) switch { 1 => "1st", 2 => "2nd", 3 => "3rd", _ => "4th" };
+    }
+
+    string RecurrenceSummary(Event ev)
+    {
+        if (ev.RecurrenceType == RecurrenceType.None) return "—";
+
+        int n = ev.RecurrenceInterval;
+        DateTime start = ev.StartDateTime.ToLocalTime();
+
+        if (ev.RecurrenceType == RecurrenceType.Daily)
+            return n == 1 ? "Daily" : $"Every {n} days";
+
+        if (ev.RecurrenceType == RecurrenceType.Weekly)
+        {
+            var days = new List<string>();
+            if (ev.RecurSunday) days.Add("Sun");
+            if (ev.RecurMonday) days.Add("Mon");
+            if (ev.RecurTuesday) days.Add("Tue");
+            if (ev.RecurWednesday) days.Add("Wed");
+            if (ev.RecurThursday) days.Add("Thu");
+            if (ev.RecurFriday) days.Add("Fri");
+            if (ev.RecurSaturday) days.Add("Sat");
+            string dayStr = days.Any() ? string.Join(", ", days) : "—";
+            return n == 1 ? $"Weekly on {dayStr}" : $"Every {n} weeks on {dayStr}";
+        }
+
+        if (ev.RecurrenceType == RecurrenceType.Monthly)
+        {
+            string prefix = n == 1 ? "Monthly" : $"Every {n} months";
+            if (ev.MonthlyYearlyPattern == MonthlyYearlyPattern.SpecificDate)
+                return $"{prefix}, day {start.Day}";
+            return $"{prefix}, {WeekPos(start)} {start.DayOfWeek}";
+        }
+
+        if (ev.RecurrenceType == RecurrenceType.Yearly)
+        {
+            string prefix = n == 1 ? "Yearly" : $"Every {n} years";
+            if (ev.MonthlyYearlyPattern == MonthlyYearlyPattern.SpecificDate)
+                return $"{prefix}, {start:MMM d}";
+            return $"{prefix}, {WeekPos(start)} {start.DayOfWeek} of {start:MMMM}";
+        }
+
+        return "—";
+    }
+}
+
+<div class="page-header">
+    <h1>Events</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> Add Event
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Location</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Recurrence</th>
+                    <th>Visibility</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in Model)
+                {
+                    var start = ev.StartDateTime.ToLocalTime();
+                    var end = ev.EndDateTime.ToLocalTime();
+                    <tr>
+                        <td>
+                            <strong>@ev.Name</strong>
+                            @if (ev.IsAllDay)
+                            {
+                                <span class="badge badge-secondary" style="margin-left:.4rem;">All Day</span>
+                            }
+                        </td>
+                        <td class="text-muted">@(string.IsNullOrEmpty(ev.Location) ? "—" : ev.Location)</td>
+                        <td>@(ev.IsAllDay ? start.ToString("MMM d, yyyy") : start.ToString("MMM d, yyyy h:mm tt"))</td>
+                        <td>@(ev.IsAllDay ? end.ToString("MMM d, yyyy") : end.ToString("MMM d, yyyy h:mm tt"))</td>
+                        <td class="text-muted" style="font-size:.82rem;">@RecurrenceSummary(ev)</td>
+                        <td>
+                            @if (ev.IsPrivate)
+                            {
+                                <span class="badge badge-success">Private</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Public</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Edit" asp-route-id="@ev.EventID" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@ev.EventID" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align:center;color:#64748b;padding:2rem;">
+                            No events found. <a asp-action="Create" style="color:var(--primary);">Add the first event.</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
