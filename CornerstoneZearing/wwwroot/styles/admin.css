@@ -15,15 +15,17 @@ bit-notification-bar-root {
 :root {
     --sidebar-width: 260px;
     --topbar-height: 64px;
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
+    --primary: #0073aa;
+    --primary-dark: #005a85;
     --sidebar-bg: #1e293b;
     --sidebar-text: #94a3b8;
     --sidebar-text-active: #f1f5f9;
     --sidebar-hover: #334155;
-    --sidebar-active: #3b82f6;
+    --sidebar-active: #0073aa;
     --body-bg: #f1f5f9;
     --card-bg: #ffffff;
+    --thead-bg: #d4dde6;
+    --thead-text: #475569;
     --border: #e2e8f0;
     --text-primary: #0f172a;
     --text-secondary: #64748b;
@@ -374,10 +376,10 @@ thead th {
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: var(--thead-text);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--body-bg);
+    background: var(--thead-bg);
     border-bottom: 1px solid var(--border);
 }
 
@@ -596,7 +598,7 @@ select.form-control {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     gap: 1rem;
     flex-wrap: wrap;
 }
