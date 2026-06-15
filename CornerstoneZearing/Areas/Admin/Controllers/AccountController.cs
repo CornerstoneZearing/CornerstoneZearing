@@ -34,7 +34,7 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Home", new { area = "Admin" });
         }
 
-        return View(new LoginViewModel { ReturnUrl = returnUrl });
+        return View(new LoginModel { ReturnUrl = returnUrl });
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginModel model)
     {
         if (!ModelState.IsValid)
         {

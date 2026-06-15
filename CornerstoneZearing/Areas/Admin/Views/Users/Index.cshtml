@@ -1,74 +1,63 @@
-@model IEnumerable<UserListItemViewModel>
+@model IEnumerable<UserListModel>
 @{
-    ViewData["Section"] = "Users";
-    ViewData["Title"] = "Users";
+	ViewData["Section"] = "Users";
+	ViewData["Title"] = "Users";
 }
 
 <div class="page-header">
-    <h1>Users</h1>
-    <a asp-action="Create" class="btn btn-primary">
-        <i class="fas fa-user-plus"></i> Add User
-    </a>
+	<h1>Users</h1>
+	<a asp-action="Create" class="btn btn-primary">
+		<i class="fas fa-user-plus"></i> Add User
+	</a>
 </div>
 
 <div class="card">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Email Confirmed</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td><strong>@user.DisplayName</strong></td>
-                        <td class="text-muted">@user.Email</td>
-                        <td>
-                            @foreach (var role in user.Roles)
-                            {
-                                <span class="badge @(role == "Administrator" ? "badge-primary" : role == "Editor" ? "badge-success" : "badge-secondary")">
-                                    @role
-                                </span>
-                                @(" ")
-                            }
-                        </td>
-                        <td>
-                            @if (user.EmailConfirmed)
-                            {
-                                <span class="badge badge-success"><i class="fas fa-check"></i> Yes</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-warning">No</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <a asp-action="Edit" asp-route-id="@user.UserID" class="btn btn-secondary btn-sm">
-                                    <i class="fas fa-pen"></i> Edit
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@user.UserID" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="5" style="text-align:center;color:#64748b;padding:2rem;">
-                            No users found.
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+	<div class="table-wrapper">
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Email</th>
+					<th>Roles</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var user in Model)
+				{
+					<tr>
+						<td><strong>@user.DisplayName</strong></td>
+						<td class="text-muted">@user.Email</td>
+						<td>
+							@foreach (var role in user.Roles)
+							{
+								<span class="badge @(role == "Administrator" ? "badge-primary" : role == "Editor" ? "badge-success" : "badge-secondary")">
+									@role
+								</span>
+								@(" ")
+							}
+						</td>
+						<td>
+							<div class="action-buttons">
+								<a asp-action="Edit" asp-route-id="@user.UserID" class="btn btn-secondary btn-sm">
+									<i class="fas fa-pen"></i> Edit
+								</a>
+								<a asp-action="Delete" asp-route-id="@user.UserID" class="btn btn-danger btn-sm">
+									<i class="fas fa-trash"></i>
+								</a>
+							</div>
+						</td>
+					</tr>
+				}
+				@if (!Model.Any())
+				{
+					<tr>
+						<td colspan="4" style="text-align:center;color:#64748b;padding:2rem;">
+							No users found.
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
 </div>

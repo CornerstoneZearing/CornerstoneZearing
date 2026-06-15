@@ -38,6 +38,11 @@
 					<i class="fas fa-calendar-days"></i>
 					Events
 				</a>
+				<a asp-area="Admin" asp-controller="Media" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
+					<i class="fas fa-images"></i>
+					Media
+				</a>
 			}
 			@if (User.IsInRole("Administrator"))
 			{

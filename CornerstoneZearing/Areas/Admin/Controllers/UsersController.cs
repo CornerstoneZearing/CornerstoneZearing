@@ -1,9 +1,9 @@
+using CornerstoneZearing.Areas.Admin.Models;
+using CornerstoneZearing.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CornerstoneZearing.Areas.Admin.Models;
-using CornerstoneZearing.Data;
 
 namespace CornerstoneZearing.Areas.Admin.Controllers;
 
@@ -11,55 +11,67 @@ namespace CornerstoneZearing.Areas.Admin.Controllers;
 [Authorize(Roles = "Administrator")]
 public class UsersController : Controller
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly UserManager<ApplicationUser> _UserManager;
+    private readonly RoleManager<ApplicationRole> _RoleManager;
 
-    public UsersController(
-        UserManager<ApplicationUser> userManager,
-        RoleManager<ApplicationRole> roleManager)
+    /// <summary>
+    /// Initialization constructor.
+    /// </summary>
+    /// <param name="userManager"></param>
+    /// <param name="roleManager"></param>
+    public UsersController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
     {
-        _userManager = userManager;
-        _roleManager = roleManager;
+        _UserManager = userManager;
+        _RoleManager = roleManager;
     }
 
+    /// <summary>
+    /// List page.
+    /// </summary>
+    /// <returns></returns>
     public async Task<IActionResult> Index()
     {
-        var users = await _userManager.Users.ToListAsync();
-        var viewModels = new List<UserListItemViewModel>();
-
-        foreach (var user in users)
+        var models = new List<UserListModel>();
+        foreach (var user in await _UserManager.Users.ToListAsync())
         {
-            viewModels.Add(new UserListItemViewModel
+            models.Add(new UserListModel
             {
                 UserID = user.Id,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                EmailConfirmed = user.EmailConfirmed,
-                Roles = await _userManager.GetRolesAsync(user)
+                Roles = await _UserManager.GetRolesAsync(user)
             });
         }
-
-        return View(viewModels);
+        return View(models);
     }
 
+    /// <summary>
+    /// Create page.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var vm = new UserFormViewModel
+        var model = new UserFormModel
         {
-            AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync()
+            AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync()
         };
-        return View("Form", vm);
+        return View("Form", model);
     }
 
+    /// <summary>
+    /// Creates a new user.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserFormViewModel model)
+    public async Task<IActionResult> Create(UserFormModel model)
     {
         if (!ModelState.IsValid)
         {
-            model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+            model.AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync();
             return View("Form", model);
         }
 
@@ -72,140 +84,171 @@ public class UsersController : Controller
             EmailConfirmed = true
         };
 
-        var result = await _userManager.CreateAsync(user, model.Password!);
-
+        var result = await _UserManager.CreateAsync(user, model.Password!);
         if (!result.Succeeded)
         {
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-            model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+            model.AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync();
             return View("Form", model);
         }
 
         if (model.SelectedRoles.Count > 0)
         {
-            await _userManager.AddToRolesAsync(user, model.SelectedRoles);
+            await _UserManager.AddToRolesAsync(user, model.SelectedRoles);
         }
 
         TempData["Success"] = $"User {user.Email} created successfully.";
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Edit page.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> Edit(Guid id)
     {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return NotFound();
+        var user = await _UserManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            return NotFound();
+        }
 
-        var currentRoles = await _userManager.GetRolesAsync(user);
-        var vm = new UserFormViewModel
+        var currentRoles = await _UserManager.GetRolesAsync(user);
+        var model = new UserFormModel
         {
             UserID = user.Id,
             Email = user.Email ?? string.Empty,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            SelectedRoles = currentRoles.ToList(),
-            AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync()
+            SelectedRoles = [.. currentRoles],
+            AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync()
         };
 
-        return View("Form", vm);
+        return View("Form", model);
     }
 
+    /// <summary>
+    /// Updates a user.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(UserFormViewModel model)
+    public async Task<IActionResult> Edit(UserFormModel model)
     {
         if (!ModelState.IsValid)
         {
-            model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+            model.AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync();
             return View("Form", model);
         }
 
-        var user = await _userManager.FindByIdAsync(model.UserID.ToString());
-        if (user == null) return NotFound();
+        var user = await _UserManager.FindByIdAsync(model.UserID.ToString());
+        if (user == null)
+        {
+            return NotFound();
+        }
 
         user.Email = model.Email;
         user.UserName = model.Email;
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
 
-        var updateResult = await _userManager.UpdateAsync(user);
+        var updateResult = await _UserManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
             foreach (var error in updateResult.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
-            model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+            model.AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync();
             return View("Form", model);
         }
 
         if (!string.IsNullOrWhiteSpace(model.Password))
         {
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var pwResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+            var token = await _UserManager.GeneratePasswordResetTokenAsync(user);
+            var pwResult = await _UserManager.ResetPasswordAsync(user, token, model.Password);
             if (!pwResult.Succeeded)
             {
                 foreach (var error in pwResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
-                model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
+                model.AvailableRoles = await _RoleManager.Roles.Select(r => r.Name!).ToListAsync();
                 return View("Form", model);
             }
         }
 
-        var currentRoles = await _userManager.GetRolesAsync(user);
-        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+        var currentRoles = await _UserManager.GetRolesAsync(user);
+        await _UserManager.RemoveFromRolesAsync(user, currentRoles);
         if (model.SelectedRoles.Count > 0)
         {
-            await _userManager.AddToRolesAsync(user, model.SelectedRoles);
+            await _UserManager.AddToRolesAsync(user, model.SelectedRoles);
         }
 
         TempData["Success"] = $"User {user.Email} updated successfully.";
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Delete confirmation page.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return NotFound();
+        var user = await _UserManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            return NotFound();
+        }
 
-        var currentUserId = _userManager.GetUserId(User);
+        var currentUserId = _UserManager.GetUserId(User);
         if (user.Id.ToString() == currentUserId)
         {
             TempData["Error"] = "You cannot delete your own account.";
             return RedirectToAction(nameof(Index));
         }
 
-        return View(new UserListItemViewModel
+        return View(new UserListModel
         {
             UserID = user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Roles = await _userManager.GetRolesAsync(user)
+            Roles = await _UserManager.GetRolesAsync(user)
         });
     }
 
+    /// <summary>
+    /// Deletes a user.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null) return NotFound();
+        var user = await _UserManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            return NotFound();
+        }
 
-        var currentUserId = _userManager.GetUserId(User);
+        var currentUserId = _UserManager.GetUserId(User);
         if (user.Id.ToString() == currentUserId)
         {
             TempData["Error"] = "You cannot delete your own account.";
             return RedirectToAction(nameof(Index));
         }
 
-        await _userManager.DeleteAsync(user);
+        await _UserManager.DeleteAsync(user);
         TempData["Success"] = $"User deleted successfully.";
         return RedirectToAction(nameof(Index));
     }

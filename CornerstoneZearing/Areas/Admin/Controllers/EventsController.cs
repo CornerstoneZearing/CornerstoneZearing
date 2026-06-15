@@ -40,17 +40,17 @@ public class EventsController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        return View("Form", new EventFormViewModel());
+        return View("Form", new EventFormModel());
     }
 
     /// <summary>
-    /// Create form submission.
+    /// Creates a new event.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(EventFormViewModel model)
+    public async Task<IActionResult> Create(EventFormModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -86,7 +86,7 @@ public class EventsController : Controller
             return NotFound();
         }
 
-        var model = new EventFormViewModel
+        var model = new EventFormModel
         {
             EventID = evnt.EventID,
             Name = evnt.Name,
@@ -113,13 +113,13 @@ public class EventsController : Controller
     }
 
     /// <summary>
-    /// Edit form submission.
+    /// Updates an event.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(EventFormViewModel model)
+    public async Task<IActionResult> Edit(EventFormModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -158,11 +158,11 @@ public class EventsController : Controller
     }
 
     /// <summary>
-    /// Delete form submission.
+    /// Deletes an event.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [HttpPost]
+    [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
@@ -184,7 +184,7 @@ public class EventsController : Controller
     /// </summary>
     /// <param name="model"></param>
     /// <param name="evnt"></param>
-    private static void ApplyModel(EventFormViewModel model, Event evnt)
+    private static void ApplyModel(EventFormModel model, Event evnt)
     {
         evnt.Name = model.Name;
         evnt.Location = model.Location ?? string.Empty;
