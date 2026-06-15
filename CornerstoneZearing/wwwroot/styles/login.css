@@ -28,30 +28,11 @@ body {
     margin-bottom: 2rem;
 }
 
-.brand-icon {
-    width: 52px;
-    height: 52px;
-    background: #3b82f6;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1.4rem;
-    margin-bottom: 0.875rem;
-}
-
-.login-brand h1 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.login-brand p {
-    font-size: 0.875rem;
-    color: #64748b;
-    margin-top: 0.25rem;
-}
+    .login-brand svg {
+        width: 300px;
+        fill: #000000;
+        opacity: 0.8;
+    }
 
 .card {
     background: #fff;

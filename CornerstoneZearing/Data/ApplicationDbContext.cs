@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<
 
     public DbSet<Page> Pages { get; set; }
     public DbSet<Event> Events { get; set; }
+    public DbSet<MediaImage> MediaImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -75,6 +76,17 @@ public class ApplicationDbContext : IdentityDbContext<
         {
             b.HasKey(e => e.EventID);
             b.Property(e => e.EventID).ValueGeneratedOnAdd();
+        });
+
+        builder.Entity<MediaImage>(b =>
+        {
+            b.ToTable("MediaImages");
+            b.HasKey(m => m.MediaImageID);
+            b.Property(m => m.MediaImageID).ValueGeneratedOnAdd();
+            b.Property(m => m.OriginalFileName).HasMaxLength(260);
+            b.Property(m => m.StoredFileName).HasMaxLength(300);
+            b.Property(m => m.ContentType).HasMaxLength(100);
+            b.Property(m => m.AltText).HasMaxLength(500);
         });
     }
 }

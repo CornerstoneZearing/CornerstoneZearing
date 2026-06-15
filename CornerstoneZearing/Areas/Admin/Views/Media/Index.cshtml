@@ -1,0 +1,320 @@
+@model IEnumerable<CornerstoneZearing.Data.MediaImage>
+@{
+    ViewData["Section"] = "Media";
+    ViewData["Title"] = "Media Library";
+    string search = ViewBag.Search ?? "";
+}
+
+<form id="antiform">@Html.AntiForgeryToken()</form>
+
+<div class="page-header">
+    <h1>Media Library</h1>
+    <label for="fileUpload" class="btn btn-primary" style="cursor:pointer;">
+        <i class="fas fa-upload"></i> Upload Files
+    </label>
+    <input type="file" id="fileUpload" accept=".jpg,.jpeg,.png,.gif,.svg" multiple style="display:none;" />
+</div>
+
+<div id="uploadProgress" style="display:none;" class="alert alert-primary">
+    <i class="fas fa-spinner fa-spin"></i>
+    <span id="uploadProgressText">Uploading&hellip;</span>
+</div>
+
+<div class="media-toolbar">
+    <form method="get" asp-action="Index" style="display:flex;gap:.5rem;align-items:center;">
+        <input type="text" name="search" value="@search" placeholder="Search by filename or alt text&hellip;" class="form-control" style="max-width:280px;" />
+        <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-magnifying-glass"></i></button>
+        @if (!string.IsNullOrEmpty(search))
+        {
+            <a asp-action="Index" class="btn btn-secondary btn-sm"><i class="fas fa-xmark"></i> Clear</a>
+        }
+    </form>
+    <div class="text-muted" style="font-size:.8rem;">@Model.Count() image(s)</div>
+</div>
+
+<div class="media-library-wrap" id="libraryWrap">
+    <div class="media-grid-area">
+        <div class="media-dropzone" id="dropzone">
+            <div class="media-grid" id="mediaGrid">
+                @foreach (var img in Model)
+                {
+                    <div class="media-item"
+                         data-id="@img.MediaImageID"
+                         data-url="/uploads/@img.StoredFileName"
+                         data-name="@Html.Encode(img.OriginalFileName)"
+                         data-type="@img.ContentType"
+                         data-size="@img.FileSize"
+                         data-alt="@Html.Encode(img.AltText)"
+                         data-date="@img.DateUploaded.ToLocalTime().ToString("MMM d, yyyy")">
+                        <img src="/uploads/@img.StoredFileName"
+                             alt="@img.AltText"
+                             loading="lazy"
+                             class="media-thumb-img @(img.ContentType == "image/svg+xml" ? "media-thumb-svg" : "")" />
+                        <div class="media-item-check"><i class="fas fa-check"></i></div>
+                    </div>
+                }
+                @if (!Model.Any())
+                {
+                    <div class="media-empty" id="emptyState">
+                        <i class="fas fa-images"></i>
+                        <p>No images yet.</p>
+                        <label for="fileUpload" style="cursor:pointer;color:var(--primary);">Upload your first image</label>
+                    </div>
+                }
+            </div>
+            <div class="dropzone-overlay" id="dropOverlay">
+                <i class="fas fa-cloud-arrow-up"></i>
+                <span>Drop to upload</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="media-detail-panel" id="detailPanel" style="display:none;">
+        <div class="card">
+            <div class="card-header">
+                Attachment Details
+                <button type="button" id="closeDetail" class="btn btn-secondary btn-sm btn-icon" title="Close">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <div class="media-detail-preview">
+                    <img id="detailImg" src="" alt="" />
+                </div>
+                <div style="padding:1rem;">
+                    <div class="media-detail-meta">
+                        <div class="media-meta-row">
+                            <span>File name</span>
+                            <span id="detailName" style="word-break:break-all;"></span>
+                        </div>
+                        <div class="media-meta-row">
+                            <span>Type</span>
+                            <span id="detailType"></span>
+                        </div>
+                        <div class="media-meta-row">
+                            <span>Size</span>
+                            <span id="detailSize"></span>
+                        </div>
+                        <div class="media-meta-row">
+                            <span>Uploaded</span>
+                            <span id="detailDate"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:1rem;">
+                        <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">Alt Text</label>
+                        <input type="text" id="altInput" class="form-control" placeholder="Describe the image&hellip;" />
+                        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
+                            <button type="button" id="saveAltBtn" class="btn btn-primary btn-sm">Save</button>
+                            <span id="altSaveStatus" style="font-size:.78rem;color:var(--success);display:none;"><i class="fas fa-check"></i> Saved</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">File URL</label>
+                        <div style="display:flex;gap:.4rem;">
+                            <input type="text" id="urlInput" class="form-control" readonly style="font-size:.75rem;" />
+                            <button type="button" id="copyUrlBtn" class="btn btn-secondary btn-sm" style="flex-shrink:0;">Copy</button>
+                        </div>
+                    </div>
+                    <div style="border-top:1px solid var(--border);padding-top:.875rem;margin-top:.25rem;">
+                        <a id="deleteLink" href="#" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Delete permanently
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const token = document.querySelector('#antiform input[name="__RequestVerificationToken"]').value;
+    const fileInput = document.getElementById('fileUpload');
+    const progressBar = document.getElementById('uploadProgress');
+    const progressText = document.getElementById('uploadProgressText');
+    const mediaGrid = document.getElementById('mediaGrid');
+    const emptyState = document.getElementById('emptyState');
+    const dropzone = document.getElementById('dropzone');
+    const dropOverlay = document.getElementById('dropOverlay');
+    const detailPanel = document.getElementById('detailPanel');
+    const libraryWrap = document.getElementById('libraryWrap');
+
+    let currentId = null;
+
+    // File input change
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) uploadFiles(Array.from(fileInput.files));
+    });
+
+    // Drag and drop
+    ['dragenter', 'dragover'].forEach(evt =>
+        document.addEventListener(evt, e => {
+            if (e.dataTransfer.types.includes('Files')) {
+                e.preventDefault();
+                dropOverlay.style.display = 'flex';
+            }
+        })
+    );
+
+    document.addEventListener('dragleave', e => {
+        if (e.relatedTarget === null || e.relatedTarget === document.documentElement) {
+            dropOverlay.style.display = 'none';
+        }
+    });
+
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropOverlay.style.display = 'none';
+        const allowed = Array.from(e.dataTransfer.files).filter(f => /\.(jpe?g|png|gif|svg)$/i.test(f.name));
+        if (allowed.length) uploadFiles(allowed);
+    });
+
+    async function uploadFiles(files) {
+        progressBar.style.display = 'flex';
+        let succeeded = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            progressText.textContent = files.length > 1
+                ? `Uploading ${i + 1} of ${files.length}: ${files[i].name}`
+                : `Uploading: ${files[i].name}`;
+
+            const result = await uploadOne(files[i]);
+            if (result.success) {
+                succeeded++;
+                prependItem(result);
+            } else {
+                showInlineError(`${files[i].name}: ${result.error}`);
+            }
+        }
+
+        progressBar.style.display = 'none';
+        fileInput.value = '';
+
+        if (succeeded > 0 && emptyState) {
+            emptyState.style.display = 'none';
+        }
+    }
+
+    async function uploadOne(file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('__RequestVerificationToken', token);
+        try {
+            const res = await fetch('/Admin/Media/Upload', {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: fd
+            });
+            return await res.json();
+        } catch {
+            return { success: false, error: 'Network error.' };
+        }
+    }
+
+    function showInlineError(msg) {
+        const el = document.createElement('div');
+        el.className = 'alert alert-danger';
+        el.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${escHtml(msg)}`;
+        progressBar.insertAdjacentElement('afterend', el);
+        setTimeout(() => el.remove(), 7000);
+    }
+
+    function prependItem(data) {
+        if (document.querySelector(`.media-item[data-id="${data.id}"]`)) return;
+        const div = document.createElement('div');
+        div.className = 'media-item';
+        div.dataset.id = data.id;
+        div.dataset.url = data.url;
+        div.dataset.name = data.name;
+        div.dataset.type = data.type || '';
+        div.dataset.size = data.size || 0;
+        div.dataset.alt = '';
+        div.dataset.date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const isSvg = (data.type || '').includes('svg');
+        div.innerHTML = `<img src="${escAttr(data.url)}" alt="" loading="lazy" class="media-thumb-img${isSvg ? ' media-thumb-svg' : ''}" /><div class="media-item-check"><i class="fas fa-check"></i></div>`;
+        mediaGrid.prepend(div);
+        attachClick(div);
+    }
+
+    // Click to select
+    function attachClick(item) {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.media-item.selected').forEach(el => el.classList.remove('selected'));
+            item.classList.add('selected');
+            openDetail(item.dataset);
+        });
+    }
+
+    document.querySelectorAll('.media-item').forEach(attachClick);
+
+    function openDetail(d) {
+        currentId = d.id;
+        document.getElementById('detailImg').src = d.url;
+        document.getElementById('detailName').textContent = d.name;
+        document.getElementById('detailType').textContent = d.type;
+        document.getElementById('detailSize').textContent = formatBytes(parseInt(d.size) || 0);
+        document.getElementById('detailDate').textContent = d.date;
+        document.getElementById('altInput').value = d.alt;
+        document.getElementById('urlInput').value = window.location.origin + d.url;
+        document.getElementById('deleteLink').href = `/Admin/Media/Delete/${d.id}`;
+        document.getElementById('altSaveStatus').style.display = 'none';
+        document.getElementById('copyUrlBtn').textContent = 'Copy';
+        detailPanel.style.display = '';
+        libraryWrap.classList.add('has-detail');
+    }
+
+    document.getElementById('closeDetail').addEventListener('click', () => {
+        detailPanel.style.display = 'none';
+        libraryWrap.classList.remove('has-detail');
+        document.querySelectorAll('.media-item.selected').forEach(el => el.classList.remove('selected'));
+        currentId = null;
+    });
+
+    // Save alt text
+    document.getElementById('saveAltBtn').addEventListener('click', async () => {
+        if (!currentId) return;
+        const altText = document.getElementById('altInput').value;
+        const fd = new FormData();
+        fd.append('altText', altText);
+        fd.append('__RequestVerificationToken', token);
+        try {
+            const res = await fetch(`/Admin/Media/UpdateAlt/${currentId}`, { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.success) {
+                const item = document.querySelector(`.media-item[data-id="${currentId}"]`);
+                if (item) item.dataset.alt = altText;
+                const status = document.getElementById('altSaveStatus');
+                status.style.display = 'inline';
+                setTimeout(() => status.style.display = 'none', 2500);
+            }
+        } catch {}
+    });
+
+    // Copy URL
+    document.getElementById('copyUrlBtn').addEventListener('click', async () => {
+        const url = document.getElementById('urlInput').value;
+        try {
+            await navigator.clipboard.writeText(url);
+            const btn = document.getElementById('copyUrlBtn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        } catch {}
+    });
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function escAttr(str) {
+        return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+})();
+</script>
+}
