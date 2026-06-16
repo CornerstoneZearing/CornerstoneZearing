@@ -1,7 +1,7 @@
+using CornerstoneZearing.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CornerstoneZearing.Data;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -9,21 +9,21 @@ namespace CornerstoneZearing.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = "Administrator,Editor")]
-public class MediaController : Controller
+public class DocumentsController : Controller
 {
-    private const long _MaxFileSizeBytes = 10 * 1024 * 1024;
-    private static readonly string[] _AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".svg"];
+    private const long _MaxFileSizeBytes = 25 * 1024 * 1024;
+    private static readonly string[] _AllowedExtensions = [".pdf", ".docx", ".xlsx", ".pptx", ".txt"];
     private readonly ApplicationDbContext _DbContext;
     private readonly IWebHostEnvironment _Environment;
 
-    private string UploadsPath => Path.Combine(_Environment.WebRootPath, "uploads", "images");
+    private string UploadsPath => Path.Combine(_Environment.WebRootPath, "uploads", "documents");
 
     /// <summary>
     /// Initialization constructor.
     /// </summary>
     /// <param name="context"></param>
     /// <param name="environment"></param>
-    public MediaController(ApplicationDbContext context, IWebHostEnvironment environment)
+    public DocumentsController(ApplicationDbContext context, IWebHostEnvironment environment)
     {
         _DbContext = context;
         _Environment = environment;
@@ -36,26 +36,26 @@ public class MediaController : Controller
     /// <returns></returns>
     public async Task<IActionResult> Index(string? search)
     {
-        var query = _DbContext.MediaImages.AsQueryable();
+        var query = _DbContext.MediaDocuments.AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
-            query = query.Where(m => m.OriginalFileName.Contains(term) || m.AltText.Contains(term));
+            query = query.Where(d => d.OriginalFileName.Contains(term) || d.Description.Contains(term));
         }
 
-        var images = await query.OrderByDescending(m => m.DateUploaded).ToListAsync();
+        var docs = await query.OrderByDescending(d => d.DateUploaded).ToListAsync();
         ViewBag.Search = search?.Trim() ?? string.Empty;
-        return View(images);
+        return View(docs);
     }
 
     /// <summary>
-    /// Handles image uploads.
+    /// Handle document uploads.
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [RequestSizeLimit(11 * 1024 * 1024)]
+    [RequestSizeLimit(26 * 1024 * 1024)]
     public async Task<IActionResult> Upload(IFormFile? file)
     {
         if (file == null || file.Length == 0)
@@ -65,19 +65,19 @@ public class MediaController : Controller
 
         if (file.Length > _MaxFileSizeBytes)
         {
-            return UploadError("File exceeds the 10 MB maximum size.");
+            return UploadError("File exceeds the 25 MB maximum size.");
         }
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!_AllowedExtensions.Contains(extension))
         {
-            return UploadError("Only JPG, PNG, GIF, and SVG files are allowed.");
+            return UploadError("Only PDF, DOCX, XLSX, PPTX, and TXT files are allowed.");
         }
 
         await using var stream = file.OpenReadStream();
-        if (!await IsValidImageAsync(stream, extension))
+        if (!await IsValidDocumentAsync(stream, extension))
         {
-            return UploadError("The file content does not match a valid image.");
+            return UploadError("The file content does not match the expected format.");
         }
 
         stream.Position = 0;
@@ -92,52 +92,53 @@ public class MediaController : Controller
 
         var contentType = extension switch
         {
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".png" => "image/png",
-            ".gif" => "image/gif",
-            ".svg" => "image/svg+xml",
+            ".pdf" => "application/pdf",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ".txt" => "text/plain",
             _ => "application/octet-stream"
         };
 
         var userID = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : Guid.Empty;
 
-        var image = new MediaImage
+        var doc = new MediaDocument
         {
-            MediaImageID = Guid.NewGuid(),
+            MediaDocumentID = Guid.NewGuid(),
             OriginalFileName = Path.GetFileName(file.FileName),
             StoredFileName = storedFileName,
             ContentType = contentType,
             FileSize = file.Length,
-            AltText = string.Empty,
+            Description = string.Empty,
             DateUploaded = DateTime.UtcNow,
             UploadedByUserID = userID
         };
 
-        _DbContext.MediaImages.Add(image);
+        _DbContext.MediaDocuments.Add(doc);
         await _DbContext.SaveChangesAsync();
 
         if (IsAjaxRequest())
         {
-            return Json(new { success = true, id = image.MediaImageID, url = $"/uploads/images/{image.StoredFileName}", name = image.OriginalFileName, size = image.FileSize, type = image.ContentType });
+            return Json(new { success = true, id = doc.MediaDocumentID, url = $"/uploads/documents/{doc.StoredFileName}", name = doc.OriginalFileName, size = doc.FileSize, type = doc.ContentType });
         }
 
-        TempData["Success"] = $"\"{image.OriginalFileName}\" uploaded successfully.";
+        TempData["Success"] = $"\"{doc.OriginalFileName}\" uploaded successfully.";
         return RedirectToAction(nameof(Index));
     }
 
     /// <summary>
-    /// Updates the alt text for an image.
+    /// Updates the description for a document.
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="altText"></param>
+    /// <param name="description"></param>
     /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateAlt(Guid id, string? altText)
+    public async Task<IActionResult> UpdateDescription(Guid id, string? description)
     {
-        var image = await _DbContext.MediaImages.FindAsync(id);
-        if (image == null) return NotFound();
-        image.AltText = (altText ?? string.Empty).Trim();
+        var doc = await _DbContext.MediaDocuments.FindAsync(id);
+        if (doc == null) return NotFound();
+        doc.Description = (description ?? string.Empty).Trim();
         await _DbContext.SaveChangesAsync();
         return Json(new { success = true });
     }
@@ -150,13 +151,13 @@ public class MediaController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var image = await _DbContext.MediaImages.FindAsync(id);
-        if (image == null) return NotFound();
-        return View(image);
+        var doc = await _DbContext.MediaDocuments.FindAsync(id);
+        if (doc == null) return NotFound();
+        return View(doc);
     }
 
     /// <summary>
-    /// Deletes an image.
+    /// Deletes a document.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -164,22 +165,17 @@ public class MediaController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id)
     {
-        var image = await _DbContext.MediaImages.FindAsync(id);
-        if (image == null)
-        {
-            return NotFound();
-        }
+        var doc = await _DbContext.MediaDocuments.FindAsync(id);
+        if (doc == null) return NotFound();
 
-        var filePath = Path.Combine(UploadsPath, image.StoredFileName);
+        var filePath = Path.Combine(UploadsPath, doc.StoredFileName);
         if (System.IO.File.Exists(filePath))
-        {
             System.IO.File.Delete(filePath);
-        }
 
-        _DbContext.MediaImages.Remove(image);
+        _DbContext.MediaDocuments.Remove(doc);
         await _DbContext.SaveChangesAsync();
 
-        TempData["Success"] = $"\"{image.OriginalFileName}\" deleted successfully.";
+        TempData["Success"] = $"\"{doc.OriginalFileName}\" deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -200,7 +196,7 @@ public class MediaController : Controller
     }
 
     /// <summary>
-    /// Generates a unique file name for uploaded image.
+    /// Generates a unique file name for uploaded document.
     /// </summary>
     /// <param name="baseName"></param>
     /// <param name="extension"></param>
@@ -208,7 +204,10 @@ public class MediaController : Controller
     private string UniqueFileName(string baseName, string extension)
     {
         var slug = Regex.Replace(baseName.ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-        if (string.IsNullOrEmpty(slug)) slug = "image";
+        if (string.IsNullOrEmpty(slug))
+        {
+            slug = "document";
+        }
 
         var candidate = $"{slug}{extension}";
         if (!System.IO.File.Exists(Path.Combine(UploadsPath, candidate)))
@@ -236,36 +235,34 @@ public class MediaController : Controller
     }
 
     /// <summary>
-    /// Validates the uploaded content stream to ensure it's actually an image.
+    /// Validates the uploaded content stream to ensure it's actually a document.
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="extension"></param>
     /// <returns></returns>
-    private static async Task<bool> IsValidImageAsync(Stream stream, string extension)
+    private static async Task<bool> IsValidDocumentAsync(Stream stream, string extension)
     {
-        if (extension == ".svg")
+        if (extension == ".txt")
         {
-            var buffer = new byte[1024];
-            var bytesRead = await stream.ReadAsync(buffer);
-            var header = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead).TrimStart();
-            return header.StartsWith("<svg", StringComparison.OrdinalIgnoreCase) || (header.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase) && header.Contains("<svg", StringComparison.OrdinalIgnoreCase));
+            var buffer = new byte[512];
+            var read = await stream.ReadAsync(buffer);
+            if (read == 0) return false;
+            // Reject if any null bytes — strong indicator of binary content
+            return !buffer.Take(read).Any(b => b == 0);
         }
 
+        // PDF: %PDF  |  DOCX/XLSX/PPTX: PK\x03\x04 (ZIP local file header)
         var signatures = new Dictionary<string, byte[]>
         {
-            [".jpg"] = new byte[] { 0xFF, 0xD8, 0xFF },
-            [".jpeg"] = new byte[] { 0xFF, 0xD8, 0xFF },
-            [".png"] = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
-            [".gif"] = new byte[] { 0x47, 0x49, 0x46, 0x38 },
+            [".pdf"] = [0x25, 0x50, 0x44, 0x46],
+            [".docx"] = [0x50, 0x4B, 0x03, 0x04],
+            [".xlsx"] = [0x50, 0x4B, 0x03, 0x04],
+            [".pptx"] = [0x50, 0x4B, 0x03, 0x04],
         };
 
-        if (!signatures.TryGetValue(extension, out var sig))
-        {
-            return false;
-        }
-
+        if (!signatures.TryGetValue(extension, out var sig)) return false;
         var magic = new byte[sig.Length];
-        var read = await stream.ReadAsync(magic);
-        return read == sig.Length && sig.SequenceEqual(magic);
+        var bytesRead = await stream.ReadAsync(magic);
+        return bytesRead == sig.Length && sig.SequenceEqual(magic);
     }
 }

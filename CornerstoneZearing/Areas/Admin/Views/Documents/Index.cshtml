@@ -1,0 +1,389 @@
+@model IEnumerable<CornerstoneZearing.Data.MediaDocument>
+@{
+	ViewData["Section"] = "Documents";
+	ViewData["Title"] = "Document Library";
+	string search = ViewBag.Search ?? "";
+
+	string DocIconClass(string contentType) => contentType switch
+	{
+		var t when t.Contains("pdf")          => "fa-file-pdf",
+		var t when t.Contains("word")         => "fa-file-word",
+		var t when t.Contains("sheet")        => "fa-file-excel",
+		var t when t.Contains("presentation") => "fa-file-powerpoint",
+		_                                     => "fa-file-lines"
+	};
+	string DocIconColor(string contentType) => contentType switch
+	{
+		var t when t.Contains("pdf")          => "var(--danger)",
+		var t when t.Contains("word")         => "var(--primary)",
+		var t when t.Contains("sheet")        => "var(--success)",
+		var t when t.Contains("presentation") => "var(--warning)",
+		_                                     => "var(--text-secondary)"
+	};
+	string DocTypeName(string contentType) => contentType switch
+	{
+		var t when t.Contains("pdf")          => "PDF",
+		var t when t.Contains("word")         => "Word Document",
+		var t when t.Contains("sheet")        => "Excel Spreadsheet",
+		var t when t.Contains("presentation") => "PowerPoint",
+		_                                     => "Text File"
+	};
+	string FormatSize(long bytes)
+	{
+		if (bytes < 1024) return $"{bytes} B";
+		if (bytes < 1048576) return $"{bytes / 1024.0:F1} KB";
+		return $"{bytes / 1048576.0:F1} MB";
+	}
+}
+
+<div class="media-toolbar">
+	<div class="page-header" style="margin-bottom: 0">
+		<h1>Document Library</h1>
+	</div>
+	<form method="get" asp-action="Index" style="display:flex;gap:.5rem;align-items:center;">
+		<input type="text" name="search" value="@search" placeholder="Search by filename or description&hellip;" class="form-control" style="max-width:280px;" />
+		<button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-magnifying-glass"></i></button>
+		@if (!string.IsNullOrEmpty(search))
+		{
+			<a asp-action="Index" class="btn btn-secondary btn-sm"><i class="fas fa-xmark"></i> Clear</a>
+		}
+	</form>
+	<div>
+		<label for="fileUpload" class="btn btn-primary" style="cursor:pointer;">
+			<i class="fas fa-upload"></i> Upload Document
+		</label>
+		<input type="file" id="fileUpload" accept=".pdf,.docx,.xlsx,.pptx,.txt" multiple style="display:none;" />
+	</div>
+</div>
+
+<form id="antiform">@Html.AntiForgeryToken()</form>
+<div id="uploadProgress" style="display:none;" class="alert alert-primary">
+	<i class="fas fa-spinner fa-spin"></i>
+	<span id="uploadProgressText">Uploading&hellip;</span>
+</div>
+
+<div class="media-library-wrap" id="libraryWrap">
+	<div class="media-grid-area">
+		<div class="media-dropzone" id="dropzone">
+			<div class="doc-list" id="docList">
+				@foreach (var doc in Model)
+				{
+					<div class="doc-item"
+						 data-id="@doc.MediaDocumentID"
+						 data-url="/uploads/documents/@doc.StoredFileName"
+						 data-name="@Html.Encode(doc.OriginalFileName)"
+						 data-type="@doc.ContentType"
+						 data-size="@doc.FileSize"
+						 data-desc="@Html.Encode(doc.Description)"
+						 data-date="@doc.DateUploaded.ToLocalTime().ToString("MMM d, yyyy")">
+						<div class="doc-item-icon">
+							<i class="fas @DocIconClass(doc.ContentType)" style="color:@DocIconColor(doc.ContentType)"></i>
+						</div>
+						<div class="doc-item-info">
+							<div class="doc-item-name">@doc.OriginalFileName</div>
+							@if (!string.IsNullOrEmpty(doc.Description))
+							{
+								<div class="doc-item-desc">@doc.Description</div>
+							}
+						</div>
+						<div class="doc-item-meta">
+							<span>@DocTypeName(doc.ContentType)</span>
+							<span>@FormatSize(doc.FileSize)</span>
+							<span>@doc.DateUploaded.ToLocalTime().ToString("MMM d, yyyy")</span>
+						</div>
+						<div class="doc-item-check"><i class="fas fa-check"></i></div>
+					</div>
+				}
+				@if (!Model.Any())
+				{
+					<div class="doc-empty" id="emptyState">
+						<i class="fas fa-file-arrow-up"></i>
+						<p>No documents yet.</p>
+						<label for="fileUpload" style="cursor:pointer;color:var(--primary);">Upload your first document</label>
+					</div>
+				}
+			</div>
+			<div class="dropzone-overlay" id="dropOverlay">
+				<i class="fas fa-cloud-arrow-up"></i>
+				<span>Drop to upload</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="media-detail-panel" id="detailPanel" style="display:none;">
+		<div class="card">
+			<div class="card-header">
+				Attachment Details
+				<button type="button" id="closeDetail" class="btn btn-secondary btn-sm btn-icon" title="Close">
+					<i class="fas fa-xmark"></i>
+				</button>
+			</div>
+			<div class="card-body" style="padding:0;">
+				<div class="doc-detail-icon" id="detailIcon">
+					<i id="detailIconEl" class="fas fa-file-lines"></i>
+				</div>
+				<div style="padding:1rem;">
+					<div class="media-detail-meta">
+						<div class="media-meta-row">
+							<span>File name</span>
+							<span id="detailName" style="word-break:break-all;"></span>
+						</div>
+						<div class="media-meta-row">
+							<span>Type</span>
+							<span id="detailType"></span>
+						</div>
+						<div class="media-meta-row">
+							<span>Size</span>
+							<span id="detailSize"></span>
+						</div>
+						<div class="media-meta-row">
+							<span>Uploaded</span>
+							<span id="detailDate"></span>
+						</div>
+					</div>
+					<div class="form-group" style="margin-top:1rem;">
+						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">Description</label>
+						<input type="text" id="descInput" class="form-control" placeholder="Briefly describe this document&hellip;" />
+						<div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
+							<button type="button" id="saveDescBtn" class="btn btn-primary btn-sm">Save</button>
+							<span id="descSaveStatus" style="font-size:.78rem;color:var(--success);display:none;"><i class="fas fa-check"></i> Saved</span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">File URL</label>
+						<div style="display:flex;gap:.4rem;">
+							<input type="text" id="urlInput" class="form-control" readonly style="font-size:.75rem;" />
+							<button type="button" id="copyUrlBtn" class="btn btn-secondary btn-sm" style="flex-shrink:0;">Copy</button>
+						</div>
+					</div>
+					<div style="border-top:1px solid var(--border);padding-top:.875rem;margin-top:.25rem;">
+						<a id="deleteLink" href="#" class="btn btn-danger btn-sm">
+							<i class="fas fa-trash"></i> Delete permanently
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		(function () {
+			const token = document.querySelector('#antiform input[name="__RequestVerificationToken"]').value;
+			const fileInput = document.getElementById('fileUpload');
+			const progressBar = document.getElementById('uploadProgress');
+			const progressText = document.getElementById('uploadProgressText');
+			const docList = document.getElementById('docList');
+			const emptyState = document.getElementById('emptyState');
+			const dropzone = document.getElementById('dropzone');
+			const dropOverlay = document.getElementById('dropOverlay');
+			const detailPanel = document.getElementById('detailPanel');
+			const libraryWrap = document.getElementById('libraryWrap');
+
+			let currentId = null;
+
+			fileInput.addEventListener('change', () => {
+				if (fileInput.files.length) uploadFiles(Array.from(fileInput.files));
+			});
+
+			['dragenter', 'dragover'].forEach(evt =>
+				document.addEventListener(evt, e => {
+					if (e.dataTransfer.types.includes('Files')) {
+						e.preventDefault();
+						dropOverlay.style.display = 'flex';
+					}
+				})
+			);
+
+			document.addEventListener('dragleave', e => {
+				if (e.relatedTarget === null || e.relatedTarget === document.documentElement)
+					dropOverlay.style.display = 'none';
+			});
+
+			dropzone.addEventListener('drop', e => {
+				e.preventDefault();
+				dropOverlay.style.display = 'none';
+				const allowed = Array.from(e.dataTransfer.files)
+					.filter(f => /\.(pdf|docx|xlsx|pptx|txt)$/i.test(f.name));
+				if (allowed.length) uploadFiles(allowed);
+			});
+
+			async function uploadFiles(files) {
+				progressBar.style.display = 'flex';
+				let succeeded = 0;
+				for (let i = 0; i < files.length; i++) {
+					progressText.textContent = files.length > 1
+						? `Uploading ${i + 1} of ${files.length}: ${files[i].name}`
+						: `Uploading: ${files[i].name}`;
+					const result = await uploadOne(files[i]);
+					if (result.success) {
+						succeeded++;
+						prependItem(result);
+					} else {
+						showInlineError(`${files[i].name}: ${result.error}`);
+					}
+				}
+				progressBar.style.display = 'none';
+				fileInput.value = '';
+				if (succeeded > 0 && emptyState) emptyState.style.display = 'none';
+			}
+
+			async function uploadOne(file) {
+				const fd = new FormData();
+				fd.append('file', file);
+				fd.append('__RequestVerificationToken', token);
+				try {
+					const res = await fetch('/Admin/Documents/Upload', {
+						method: 'POST',
+						headers: { 'Accept': 'application/json' },
+						body: fd
+					});
+					return await res.json();
+				} catch {
+					return { success: false, error: 'Network error.' };
+				}
+			}
+
+			function showInlineError(msg) {
+				const el = document.createElement('div');
+				el.className = 'alert alert-danger';
+				el.innerHTML = `<i class="fas fa-circle-exclamation"></i> ${escHtml(msg)}`;
+				progressBar.insertAdjacentElement('afterend', el);
+				setTimeout(() => el.remove(), 7000);
+			}
+
+			function docIcon(type) {
+				if (type.includes('pdf')) return { icon: 'fa-file-pdf', color: 'var(--danger)' };
+				if (type.includes('word')) return { icon: 'fa-file-word', color: 'var(--primary)' };
+				if (type.includes('sheet')) return { icon: 'fa-file-excel', color: 'var(--success)' };
+				if (type.includes('presentation')) return { icon: 'fa-file-powerpoint', color: 'var(--warning)' };
+				return { icon: 'fa-file-lines', color: 'var(--text-secondary)' };
+			}
+
+			function typeName(type) {
+				if (type.includes('pdf')) return 'PDF';
+				if (type.includes('word')) return 'Word Document';
+				if (type.includes('sheet')) return 'Excel Spreadsheet';
+				if (type.includes('presentation')) return 'PowerPoint';
+				return 'Text File';
+			}
+
+			function prependItem(data) {
+				if (document.querySelector(`.doc-item[data-id="${data.id}"]`)) return;
+				const d = docIcon(data.type || '');
+				const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+				const item = document.createElement('div');
+				item.className = 'doc-item';
+				item.dataset.id = data.id;
+				item.dataset.url = data.url;
+				item.dataset.name = data.name;
+				item.dataset.type = data.type || '';
+				item.dataset.size = data.size || 0;
+				item.dataset.desc = '';
+				item.dataset.date = dateStr;
+				item.innerHTML = `
+					<div class="doc-item-icon"><i class="fas ${d.icon}" style="color:${d.color}"></i></div>
+					<div class="doc-item-info"><div class="doc-item-name">${escHtml(data.name)}</div></div>
+					<div class="doc-item-meta">
+						<span>${typeName(data.type || '')}</span>
+						<span>${formatBytes(parseInt(data.size) || 0)}</span>
+						<span>${dateStr}</span>
+					</div>
+					<div class="doc-item-check"><i class="fas fa-check"></i></div>`;
+				docList.prepend(item);
+				attachClick(item);
+			}
+
+			function attachClick(item) {
+				item.addEventListener('click', () => {
+					document.querySelectorAll('.doc-item.selected').forEach(el => el.classList.remove('selected'));
+					item.classList.add('selected');
+					openDetail(item.dataset);
+				});
+			}
+
+			document.querySelectorAll('.doc-item').forEach(attachClick);
+
+			function openDetail(d) {
+				currentId = d.id;
+				const ic = docIcon(d.type || '');
+				const iconEl = document.getElementById('detailIconEl');
+				iconEl.className = `fas ${ic.icon}`;
+				iconEl.style.color = ic.color;
+				document.getElementById('detailName').textContent = d.name;
+				document.getElementById('detailType').textContent = typeName(d.type || '');
+				document.getElementById('detailSize').textContent = formatBytes(parseInt(d.size) || 0);
+				document.getElementById('detailDate').textContent = d.date;
+				document.getElementById('descInput').value = d.desc || '';
+				document.getElementById('urlInput').value = window.location.origin + d.url;
+				document.getElementById('deleteLink').href = `/Admin/Documents/Delete/${d.id}`;
+				document.getElementById('descSaveStatus').style.display = 'none';
+				document.getElementById('copyUrlBtn').textContent = 'Copy';
+				detailPanel.style.display = '';
+				libraryWrap.classList.add('has-detail');
+			}
+
+			document.getElementById('closeDetail').addEventListener('click', () => {
+				detailPanel.style.display = 'none';
+				libraryWrap.classList.remove('has-detail');
+				document.querySelectorAll('.doc-item.selected').forEach(el => el.classList.remove('selected'));
+				currentId = null;
+			});
+
+			document.getElementById('saveDescBtn').addEventListener('click', async () => {
+				if (!currentId) return;
+				const description = document.getElementById('descInput').value;
+				const fd = new FormData();
+				fd.append('description', description);
+				fd.append('__RequestVerificationToken', token);
+				try {
+					const res = await fetch(`/Admin/Documents/UpdateDescription/${currentId}`, { method: 'POST', body: fd });
+					const result = await res.json();
+					if (result.success) {
+						const item = document.querySelector(`.doc-item[data-id="${currentId}"]`);
+						if (item) {
+							item.dataset.desc = description;
+							const descEl = item.querySelector('.doc-item-desc');
+							if (description) {
+								if (descEl) { descEl.textContent = description; }
+								else {
+									const info = item.querySelector('.doc-item-info');
+									const d = document.createElement('div');
+									d.className = 'doc-item-desc';
+									d.textContent = description;
+									info.appendChild(d);
+								}
+							} else if (descEl) {
+								descEl.remove();
+							}
+						}
+						const status = document.getElementById('descSaveStatus');
+						status.style.display = 'inline';
+						setTimeout(() => status.style.display = 'none', 2500);
+					}
+				} catch {}
+			});
+
+			document.getElementById('copyUrlBtn').addEventListener('click', async () => {
+				const url = document.getElementById('urlInput').value;
+				try {
+					await navigator.clipboard.writeText(url);
+					const btn = document.getElementById('copyUrlBtn');
+					btn.textContent = 'Copied!';
+					setTimeout(() => btn.textContent = 'Copy', 2000);
+				} catch {}
+			});
+
+			function formatBytes(bytes) {
+				if (bytes < 1024) return bytes + ' B';
+				if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+				return (bytes / 1048576).toFixed(1) + ' MB';
+			}
+
+			function escHtml(str) {
+				return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+			}
+		})();
+	</script>
+}

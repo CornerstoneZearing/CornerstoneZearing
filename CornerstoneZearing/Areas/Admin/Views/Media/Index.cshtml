@@ -39,13 +39,13 @@
 				{
 					<div class="media-item"
 						 data-id="@img.MediaImageID"
-						 data-url="/uploads/@img.StoredFileName"
+						 data-url="/uploads/images/@img.StoredFileName"
 						 data-name="@Html.Encode(img.OriginalFileName)"
 						 data-type="@img.ContentType"
 						 data-size="@img.FileSize"
 						 data-alt="@Html.Encode(img.AltText)"
 						 data-date="@img.DateUploaded.ToLocalTime().ToString("MMM d, yyyy")">
-						<img src="/uploads/@img.StoredFileName"
+						<img src="/uploads/images/@img.StoredFileName"
 							 alt="@img.AltText"
 							 loading="lazy"
 							 class="media-thumb-img @(img.ContentType == "image/svg+xml" ? "media-thumb-svg" : "")" />

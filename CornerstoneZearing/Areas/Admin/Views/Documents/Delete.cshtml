@@ -1,0 +1,64 @@
+@model CornerstoneZearing.Data.MediaDocument
+@{
+    ViewData["Section"] = "Documents";
+    ViewData["Title"] = "Delete Document";
+
+    string DocIconClass(string contentType) => contentType switch
+    {
+        var t when t.Contains("pdf")          => "fa-file-pdf",
+        var t when t.Contains("word")         => "fa-file-word",
+        var t when t.Contains("sheet")        => "fa-file-excel",
+        var t when t.Contains("presentation") => "fa-file-powerpoint",
+        _                                     => "fa-file-lines"
+    };
+    string DocIconColor(string contentType) => contentType switch
+    {
+        var t when t.Contains("pdf")          => "var(--danger)",
+        var t when t.Contains("word")         => "var(--primary)",
+        var t when t.Contains("sheet")        => "var(--success)",
+        var t when t.Contains("presentation") => "var(--warning)",
+        _                                     => "var(--text-secondary)"
+    };
+    string DocTypeName(string contentType) => contentType switch
+    {
+        var t when t.Contains("pdf")          => "PDF",
+        var t when t.Contains("word")         => "Word Document",
+        var t when t.Contains("sheet")        => "Excel Spreadsheet",
+        var t when t.Contains("presentation") => "PowerPoint",
+        _                                     => "Text File"
+    };
+}
+
+<div class="page-header">
+    <h1>Delete Document</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card" style="max-width:520px;">
+    <div class="card-body">
+        <p style="font-size:.95rem;color:#475569;margin-bottom:1.25rem;">
+            Are you sure you want to permanently delete this document? This action cannot be undone.
+        </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+            <div style="display:flex;gap:1rem;align-items:center;">
+                <i class="fas @DocIconClass(Model.ContentType)" style="font-size:2.5rem;color:@DocIconColor(Model.ContentType);flex-shrink:0;"></i>
+                <div>
+                    <div style="font-weight:600;margin-bottom:.25rem;">@Model.OriginalFileName</div>
+                    <div class="text-muted">@DocTypeName(Model.ContentType)</div>
+                    <div class="text-muted">@((Model.FileSize / 1024.0).ToString("F1")) KB</div>
+                    <div class="text-muted">@Model.DateUploaded.ToLocalTime().ToString("MMM d, yyyy")</div>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <form asp-action="Delete" asp-route-id="@Model.MediaDocumentID" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Document
+                </button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>

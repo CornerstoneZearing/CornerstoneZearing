@@ -82,6 +82,9 @@ app.MapControllerRoute(
     pattern: "{slug}",
     defaults: new { controller = "Home", action = "Render" });
 
+// Ensure uploads/images and uploads/documents directories exist; migrate any loose image files
+MigrateUploads(app.Environment.WebRootPath);
+
 // Database migrations TODO2026 comment out later
 using (var scope = app.Services.CreateScope())
 {
@@ -101,3 +104,22 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+static void MigrateUploads(string webRootPath)
+{
+    var uploadsPath = Path.Combine(webRootPath, "uploads");
+    var imagesPath = Path.Combine(uploadsPath, "images");
+    var documentsPath = Path.Combine(uploadsPath, "documents");
+    Directory.CreateDirectory(imagesPath);
+    Directory.CreateDirectory(documentsPath);
+
+    if (!Directory.Exists(uploadsPath)) return;
+    var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        { ".jpg", ".jpeg", ".png", ".gif", ".svg" };
+    foreach (var file in Directory.GetFiles(uploadsPath))
+    {
+        if (!imageExtensions.Contains(Path.GetExtension(file))) continue;
+        var dest = Path.Combine(imagesPath, Path.GetFileName(file));
+        if (!File.Exists(dest)) File.Move(file, dest);
+    }
+}
