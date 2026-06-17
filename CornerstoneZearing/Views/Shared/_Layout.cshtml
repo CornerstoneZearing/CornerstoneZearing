@@ -1,30 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} - Cornerstone Zearing" : "Cornerstone Zearing")</title>
-    @if (ViewData["MetaDescription"] != null)
-    {
-        <meta name="description" content="@ViewData["MetaDescription"]" />
-    }
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    @await RenderSectionAsync("Styles", required: false)
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} - Cornerstone Zearing" : "Cornerstone Zearing")</title>
+	@if (ViewData["MetaDescription"] != null)
+	{
+		<meta name="description" content="@ViewData["MetaDescription"]" />
+	}
+	<meta name="author" content="Cornerstone Church of Christ - Zearing, Iowa" />
+	<meta name="apple-mobile-web-app-title" content="Cornerstone Zearing" />
+	<link rel="icon" type="image/png" href="~/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+	<link rel="shortcut icon" href="~/favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" />
+	<link rel="manifest" href="~/site.webmanifest" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800%7CPlayfair+Display:400,400i,700%7CSintony:400,700,800&display=swap" />
+	<package name="/styles/cornerstone.css" />
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/">Cornerstone Zearing</a>
-            <a href="/Events">Events</a>
-        </nav>
-    </header>
-    <main>
-        @RenderBody()
-    </main>
-    <footer>
-        <p>&copy; @DateTime.Now.Year Cornerstone Zearing</p>
-    </footer>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+	<div class="body">
+		<partial name="_Header" />
+		<div role="main" class="main">
+			@RenderBody()
+		</div>
+		<partial name="_Footer" />
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js" integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<package name="/scripts/cornerstone.js" />
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -38,16 +38,23 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add packages
 builder.Services.AddPackages(packages =>
 {
-    //packages.Add(new StylePackage("/styles/cornerstone.css")
-    //    .Include("~/styles/theme.css")
-    //    .Include("~/styles/theme-elements.css")
-    //    .Include("~/styles/theme-blog.css")
-    //    .Include("~/styles/theme-church.css")
-    //    .Include("~/styles/custom.css")
-    //);
-    //packages.Add(new ScriptPackage("/scripts/cornerstone.js")
-    //    .Include("~/scripts/app.js")
-    //);
+    packages.Add(new StylePackage("/styles/cornerstone.css")
+        .Include("~/styles/theme.css")
+        .Include("~/styles/theme-elements.css")
+        .Include("~/styles/theme-blog.css")
+        .Include("~/styles/theme-church.css")
+        .Include("~/styles/theme-custom.css")
+    );
+    packages.Add(new ScriptPackage("/scripts/cornerstone.js")
+        .Include("~/scripts/theme-custom.js")
+    );
+    packages.Add(new StylePackage("/styles/cornerstone-admin.css")
+        .Include("~/styles/admin.css")
+        .Include("~/styles/admin-login.css")
+    );
+    packages.Add(new ScriptPackage("/scripts/cornerstone-admin.js")
+        .Include("~/scripts/admin-custom.js")
+    );
 });
 
 // Add controllers with views
@@ -62,6 +69,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UsePackages();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
