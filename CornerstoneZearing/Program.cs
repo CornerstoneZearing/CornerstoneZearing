@@ -93,23 +93,23 @@ app.MapControllerRoute(
 // Ensure uploads/images and uploads/documents directories exist; migrate any loose image files
 MigrateUploads(app.Environment.WebRootPath);
 
-// Database migrations TODO2026 comment out later
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
-        await DataInitializer.InitializeAsync(context, userManager, roleManager);
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred initializing the database. Check your connection string in appsettings.json.");
-    }
-}
+//// Database migrations
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var logger = services.GetRequiredService<ILogger<Program>>();
+//    try
+//    {
+//        var context = services.GetRequiredService<ApplicationDbContext>();
+//        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+//        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+//        await DataInitializer.InitializeAsync(context, userManager, roleManager);
+//    }
+//    catch (Exception ex)
+//    {
+//        logger.LogError(ex, "An error occurred initializing the database. Check your connection string in appsettings.json.");
+//    }
+//}
 
 app.Run();
 
