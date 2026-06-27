@@ -1,5 +1,7 @@
 using CornerstoneZearing.Data;
+using CornerstoneZearing.Interfaces;
 using CornerstoneZearing.Packager;
+using CornerstoneZearing.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,6 +54,9 @@ builder.Services.AddPackages(packages =>
         .Include("~/scripts/admin.js")
     );
 });
+
+// Add mail service
+builder.Services.AddTransient<IMailService, MailService>();
 
 // Add controllers with views
 builder.Services.AddControllersWithViews();
