@@ -1,3 +1,10 @@
 <Solution>
+  <Folder Name="/Solution Items/" />
+  <Folder Name="/Solution Items/SQL/">
+    <File Path="SQL/2026-06-12 ASP.NET Identity.sql" />
+    <File Path="SQL/2026-06-12 Events Calendar.sql" />
+    <File Path="SQL/2026-06-12 Pages.sql" />
+    <File Path="SQL/2026-06-14 Images and Documents.sql" />
+  </Folder>
   <Project Path="CornerstoneZearing/CornerstoneZearing.csproj" />
 </Solution>
