@@ -40,20 +40,16 @@ builder.Services.AddPackages(packages =>
 {
     packages.Add(new StylePackage("/styles/cornerstone.css")
         .Include("~/styles/theme.css")
-        .Include("~/styles/theme-elements.css")
-        .Include("~/styles/theme-blog.css")
-        .Include("~/styles/theme-church.css")
-        .Include("~/styles/theme-custom.css")
     );
     packages.Add(new ScriptPackage("/scripts/cornerstone.js")
-        .Include("~/scripts/theme-custom.js")
+        .Include("~/scripts/theme.js")
     );
     packages.Add(new StylePackage("/styles/cornerstone-admin.css")
         .Include("~/styles/admin.css")
         .Include("~/styles/admin-login.css")
     );
     packages.Add(new ScriptPackage("/scripts/cornerstone-admin.js")
-        .Include("~/scripts/admin-custom.js")
+        .Include("~/scripts/admin.js")
     );
 });
 
@@ -91,43 +87,25 @@ app.MapControllerRoute(
     defaults: new { controller = "Home", action = "Render" });
 
 // Ensure uploads/images and uploads/documents directories exist; migrate any loose image files
-MigrateUploads(app.Environment.WebRootPath);
-
-//// Database migrations
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-//    var logger = services.GetRequiredService<ILogger<Program>>();
-//    try
-//    {
-//        var context = services.GetRequiredService<ApplicationDbContext>();
-//        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-//        var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
-//        await DataInitializer.InitializeAsync(context, userManager, roleManager);
-//    }
-//    catch (Exception ex)
-//    {
-//        logger.LogError(ex, "An error occurred initializing the database. Check your connection string in appsettings.json.");
-//    }
-//}
+//MigrateUploads(app.Environment.WebRootPath);
 
 app.Run();
 
-static void MigrateUploads(string webRootPath)
-{
-    var uploadsPath = Path.Combine(webRootPath, "uploads");
-    var imagesPath = Path.Combine(uploadsPath, "images");
-    var documentsPath = Path.Combine(uploadsPath, "documents");
-    Directory.CreateDirectory(imagesPath);
-    Directory.CreateDirectory(documentsPath);
+//static void MigrateUploads(string webRootPath)
+//{
+//    var uploadsPath = Path.Combine(webRootPath, "uploads");
+//    var imagesPath = Path.Combine(uploadsPath, "images");
+//    var documentsPath = Path.Combine(uploadsPath, "documents");
+//    Directory.CreateDirectory(imagesPath);
+//    Directory.CreateDirectory(documentsPath);
 
-    if (!Directory.Exists(uploadsPath)) return;
-    var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        { ".jpg", ".jpeg", ".png", ".gif", ".svg" };
-    foreach (var file in Directory.GetFiles(uploadsPath))
-    {
-        if (!imageExtensions.Contains(Path.GetExtension(file))) continue;
-        var dest = Path.Combine(imagesPath, Path.GetFileName(file));
-        if (!File.Exists(dest)) File.Move(file, dest);
-    }
-}
+//    if (!Directory.Exists(uploadsPath)) return;
+//    var imageExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+//        { ".jpg", ".jpeg", ".png", ".gif", ".svg" };
+//    foreach (var file in Directory.GetFiles(uploadsPath))
+//    {
+//        if (!imageExtensions.Contains(Path.GetExtension(file))) continue;
+//        var dest = Path.Combine(imagesPath, Path.GetFileName(file));
+//        if (!File.Exists(dest)) File.Move(file, dest);
+//    }
+//}

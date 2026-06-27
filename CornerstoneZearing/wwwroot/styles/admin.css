@@ -1,6 +1,6 @@
-/*
-    Admin Area
-*/
+/* ---------- */
+/* Admin Area */
+/* ---------- */
 
 bit-notification-bar-root {
     display: none !important;
@@ -867,9 +867,9 @@ select.form-control {
     flex-shrink: 0;
 }
 
-    .doc-item.selected .doc-item-check {
-        display: flex;
-    }
+.doc-item.selected .doc-item-check {
+    display: flex;
+}
 
 .doc-detail-icon {
     display: flex;
