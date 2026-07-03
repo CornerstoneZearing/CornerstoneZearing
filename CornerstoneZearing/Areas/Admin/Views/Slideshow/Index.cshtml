@@ -1,0 +1,77 @@
+@model IEnumerable<CornerstoneZearing.Data.SlideshowSlide>
+@{
+    ViewData["Section"] = "Slideshow";
+    ViewData["Title"] = "Slideshow";
+}
+
+<div class="page-header">
+    <h1>Slideshow</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Slide
+    </a>
+</div>
+
+<div class="card">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60px;"></th>
+                    <th>Name</th>
+                    <th style="width: 80px;">Order</th>
+                    <th style="width: 80px;">Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var slide in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="/uploads/slideshow/@slide.StoredFileName"
+                                 alt="@slide.AltText"
+                                 style="width:52px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border);" />
+                        </td>
+                        <td>
+                            <strong>@slide.Name</strong>
+                            @if (!string.IsNullOrEmpty(slide.Link))
+                            {
+                                <br />
+                                <span class="text-muted" style="font-size:.8rem;">@slide.Link</span>
+                            }
+                        </td>
+                        <td class="text-muted">@slide.DisplayOrder</td>
+                        <td>
+                            @if (slide.IsActive)
+                            {
+                                <span class="badge badge-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Edit" asp-route-id="@slide.SlideshowSlideID" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@slide.SlideshowSlideID" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center;color:#64748b;padding:2rem;">
+                            No slides yet. <a asp-action="Create" style="color:var(--primary);">Add the first slide.</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

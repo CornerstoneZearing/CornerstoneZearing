@@ -1,0 +1,75 @@
+@model CornerstoneZearing.Data.SlideshowSlide
+@{
+    ViewData["Section"] = "Slideshow";
+    ViewData["Title"] = "Delete Slide";
+}
+
+<div class="page-header">
+    <h1>Delete Slide</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div style="max-width:560px;">
+    <div class="card" style="margin-bottom:1.25rem;">
+        <div class="card-header">Slide Details</div>
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.StoredFileName))
+            {
+                <div style="margin-bottom:1rem;">
+                    <img src="/uploads/slideshow/@Model.StoredFileName"
+                         alt="@Model.AltText"
+                         style="max-width:100%;max-height:160px;object-fit:contain;border-radius:6px;border:1px solid var(--border);" />
+                </div>
+            }
+            <table style="width:100%;font-size:.875rem;border-collapse:collapse;">
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;width:120px;">Name</td>
+                    <td style="padding:.4rem 0;"><strong>@Model.Name</strong></td>
+                </tr>
+                @if (!string.IsNullOrEmpty(Model.AltText))
+                {
+                    <tr>
+                        <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Alt Text</td>
+                        <td style="padding:.4rem 0;">@Model.AltText</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.Link))
+                {
+                    <tr>
+                        <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Link</td>
+                        <td style="padding:.4rem 0;">@Model.Link</td>
+                    </tr>
+                }
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Status</td>
+                    <td style="padding:.4rem 0;">@(Model.IsActive ? "Active" : "Inactive")</td>
+                </tr>
+                <tr>
+                    <td style="padding:.4rem 0;color:var(--text-secondary);font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;">Order</td>
+                    <td style="padding:.4rem 0;">@Model.DisplayOrder</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card" style="border-color:#fecaca;">
+        <div class="card-header" style="background:#fef2f2;color:#b91c1c;">
+            <i class="fas fa-triangle-exclamation"></i> Confirm Deletion
+        </div>
+        <div class="card-body">
+            <p style="margin-bottom:1.25rem;font-size:.875rem;color:var(--text-secondary);">
+                Are you sure you want to delete <strong>@Model.Name</strong>? The image file will also be permanently removed. This action cannot be undone.
+            </p>
+            <form asp-action="Delete" asp-route-id="@Model.SlideshowSlideID" method="post">
+                <div style="display:flex;gap:.75rem;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Slide
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

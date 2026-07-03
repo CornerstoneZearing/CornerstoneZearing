@@ -83,7 +83,6 @@ namespace CornerstoneZearing.Areas.Admin.Helpers
             return "";
         }
 
-
         /// <summary>
         /// Returns the week position of the specified date for its month.
         /// </summary>

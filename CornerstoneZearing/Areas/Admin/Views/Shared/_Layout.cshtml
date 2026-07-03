@@ -49,6 +49,11 @@
 					<i class="fas fa-folder-open"></i>
 					Documents
 				</a>
+				<a asp-area="Admin" asp-controller="Slideshow" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Slideshow" ? "active" : "")">
+					<i class="fas fa-images"></i>
+					Slideshow
+				</a>
 			}
 			@if (User.IsInRole("Administrator"))
 			{
