@@ -34,3 +34,9 @@ public abstract class Package(string virtualPath, PackageType type)
 public sealed class StylePackage(string virtualPath) : Package(virtualPath, PackageType.Style);
 
 public sealed class ScriptPackage(string virtualPath) : Package(virtualPath, PackageType.Script);
+
+public enum PackageType
+{
+    Style,
+    Script
+}

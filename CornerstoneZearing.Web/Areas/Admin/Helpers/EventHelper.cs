@@ -1,4 +1,5 @@
-﻿using CornerstoneZearing.Data.Entities;
+﻿using CornerstoneZearing.Data;
+using CornerstoneZearing.Data.Entities;
 
 namespace CornerstoneZearing.Web.Areas.Admin.Helpers
 {

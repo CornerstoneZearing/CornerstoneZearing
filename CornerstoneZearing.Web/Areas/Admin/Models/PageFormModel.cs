@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using CornerstoneZearing.Data.Entities;
+using CornerstoneZearing.Data;
 
 namespace CornerstoneZearing.Web.Areas.Admin.Models;
 
