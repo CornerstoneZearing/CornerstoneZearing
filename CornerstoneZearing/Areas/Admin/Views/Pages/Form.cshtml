@@ -62,7 +62,7 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label asp-for="Status"></label>
-                        <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<CornerstoneZearing.PageStatus>()"></select>
+                        <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<CornerstoneZearing.Data.Entities.PageStatus>()"></select>
                         <span asp-validation-for="Status" class="field-validation-error"></span>
                     </div>
                     <div class="form-actions">

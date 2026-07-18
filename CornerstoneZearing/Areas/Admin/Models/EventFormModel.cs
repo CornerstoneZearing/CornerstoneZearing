@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CornerstoneZearing.Data.Entities;
 
 namespace CornerstoneZearing.Areas.Admin.Models;
 

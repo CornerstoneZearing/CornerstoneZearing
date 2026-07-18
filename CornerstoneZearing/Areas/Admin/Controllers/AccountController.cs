@@ -1,5 +1,5 @@
 using CornerstoneZearing.Areas.Admin.Models;
-using CornerstoneZearing.Data;
+using CornerstoneZearing.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CornerstoneZearing.Data;
+using CornerstoneZearing.Data.Entities;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 

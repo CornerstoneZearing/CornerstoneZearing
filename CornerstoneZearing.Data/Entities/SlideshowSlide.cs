@@ -1,4 +1,4 @@
-namespace CornerstoneZearing.Data;
+namespace CornerstoneZearing.Data.Entities;
 
 public class SlideshowSlide
 {

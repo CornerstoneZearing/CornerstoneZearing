@@ -4,16 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-ASP.NET Core MVC website for Cornerstone Church of Christ, Zearing, IA. Single-project solution (`CornerstoneZearing/CornerstoneZearing.csproj`) targeting .NET 10, using EF Core with SQL Server and ASP.NET Core Identity for the admin login.
+ASP.NET Core MVC website for Cornerstone Church of Christ, Zearing, IA, targeting .NET 10, using EF Core with SQL Server and ASP.NET Core Identity for the admin login. Two projects are in the solution:
+- `CornerstoneZearing/CornerstoneZearing.csproj` — the web app (controllers, views, admin area, asset pipeline).
+- `CornerstoneZearing.Data/CornerstoneZearing.Data.csproj` — class library holding `ApplicationDbContext` and all entities. Entity classes and their enums live under the `CornerstoneZearing.Data.Entities` namespace/folder; the `DbContext` itself is `CornerstoneZearing.Data`. The web project references this project.
 
-The repo root also contains `CornerstoneZearing.Data/` and `CornerstoneZearing.Web/` directories — these are **not** part of the solution (only `CornerstoneZearing/CornerstoneZearing.csproj` is referenced in `CornerstoneZearing.slnx`). `CornerstoneZearing.Web/wwwroot/uploads` holds sample/legacy uploaded media, not live app output.
+The repo root also contains a `CornerstoneZearing.Web/` directory — this is **not** part of the solution (only the two projects above are referenced in `CornerstoneZearing.slnx`). `CornerstoneZearing.Web/wwwroot/uploads` holds sample/legacy uploaded media, not live app output.
 
 ## Commands
 
-Run all commands from the `CornerstoneZearing/` project directory (or pass `CornerstoneZearing.slnx` / the `.csproj` explicitly from the repo root).
+Run from the repo root against the solution, or from `CornerstoneZearing/` for the web project directly.
 
-- Build: `dotnet build`
-- Run locally: `dotnet run` (see `Properties/launchSettings.json` for profiles/ports)
+- Build: `dotnet build CornerstoneZearing.slnx`
+- Run locally: `dotnet run --project CornerstoneZearing` (see `CornerstoneZearing/Properties/launchSettings.json` for profiles/ports)
 - Restore packages: `dotnet restore`
 - There is no test project in this repo currently.
 
@@ -26,9 +28,9 @@ Database schema is not managed via EF Core migrations — it's hand-written SQL 
 - Admin site: `Areas/Admin/` — full MVC area (`Controllers/`, `Views/`, `Models/`, `Helpers/`) protected by `[Authorize(Roles = "Administrator,Editor")]`, routed via the `{area:exists}/{controller=Home}/{action=Index}/{id?}` route in `Program.cs`. Admin login lives at `/Admin/Account/Login` (configured via `ConfigureApplicationCookie` in `Program.cs`).
 - A catch-all `page` route (`{slug}` → `Home/Render`) serves any published `Page` by slug; this is registered **after** the default route in `Program.cs`, so it only matches when no other route does.
 
-**Identity model:** `ApplicationDbContext` (in `Data/`) extends `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ...>` with all Identity tables renamed (`Users`, `Roles`, `UserRoles`, `UserClaims`, `UserLogins`, `RoleClaims`, `UserTokens`) and PK columns renamed to `<Entity>ID` to match the hand-written SQL schema. `ApplicationUser`/`ApplicationRole` (in `Data/`) are the custom Identity subclasses. Follow this same table/column-naming convention (`{Entity}ID` PK, `ValueGeneratedOnAdd()`) for any new entity added to `ApplicationDbContext.OnModelCreating`.
+**Identity model:** `ApplicationDbContext` (`CornerstoneZearing.Data/ApplicationDbContext.cs`) extends `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ...>` with all Identity tables renamed (`Users`, `Roles`, `UserRoles`, `UserClaims`, `UserLogins`, `RoleClaims`, `UserTokens`) and PK columns renamed to `<Entity>ID` to match the hand-written SQL schema. `ApplicationUser`/`ApplicationRole` (in `CornerstoneZearing.Data/Entities/`) are the custom Identity subclasses. Follow this same table/column-naming convention (`{Entity}ID` PK, `ValueGeneratedOnAdd()`) for any new entity added to `ApplicationDbContext.OnModelCreating`.
 
-**Content entities** (`Data/`): `Page` (CMS page with `TemplateName`, `UrlSlug`, `PageStatus` draft/published/withdrawn), `Event` (calendar event with full recurrence rules — daily/weekly/monthly/yearly, day-of-week flags, `MonthlyYearlyPattern`), `MediaImage`/`MediaDocument` (uploaded file metadata), `SlideshowSlide`. Enums live centrally in `Enums.cs`.
+**Content entities** (`CornerstoneZearing.Data/Entities/`, namespace `CornerstoneZearing.Data.Entities`): `Page` (CMS page with `TemplateName`, `UrlSlug`, `PageStatus` draft/published/withdrawn), `Event` (calendar event with full recurrence rules — daily/weekly/monthly/yearly, day-of-week flags, `MonthlyYearlyPattern`), `MediaImage`/`MediaDocument` (uploaded file metadata), `SlideshowSlide`. Entity-related enums (`PageStatus`, `RecurrenceType`, `MonthlyYearlyPattern`) live in `Entities/Enums.cs` in that project — anything referenced by an entity type belongs here, not in the web project's `Enums.cs` (which only holds `PackageType` for the asset pipeline below).
 
 **Custom asset packaging pipeline** (`Packager/`) — a small hand-rolled bundler/minifier, not webpack/vite/gulp:
 - `Package`/`StylePackage`/`ScriptPackage`: named virtual bundles built from a list of `~/`-relative wwwroot files.

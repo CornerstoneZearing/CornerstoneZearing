@@ -1,4 +1,4 @@
-@model CornerstoneZearing.Data.Page
+@model CornerstoneZearing.Data.Entities.Page
 @{
     ViewData["Section"] = "Pages";
     ViewData["Title"] = "Delete Page";
@@ -22,13 +22,13 @@
             <div style="margin-top:.5rem;">
                 @switch (Model.Status)
                 {
-                    case CornerstoneZearing.PageStatus.Published:
+                    case CornerstoneZearing.Data.Entities.PageStatus.Published:
                         <span class="badge badge-success">Published</span>
                         break;
-                    case CornerstoneZearing.PageStatus.Draft:
+                    case CornerstoneZearing.Data.Entities.PageStatus.Draft:
                         <span class="badge badge-warning">Draft</span>
                         break;
-                    case CornerstoneZearing.PageStatus.Withdrawn:
+                    case CornerstoneZearing.Data.Entities.PageStatus.Withdrawn:
                         <span class="badge badge-secondary">Withdrawn</span>
                         break;
                 }

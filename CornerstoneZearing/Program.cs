@@ -1,4 +1,5 @@
 using CornerstoneZearing.Data;
+using CornerstoneZearing.Data.Entities;
 using CornerstoneZearing.Interfaces;
 using CornerstoneZearing.Packager;
 using CornerstoneZearing.Services;

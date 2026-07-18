@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace CornerstoneZearing.Data;
+namespace CornerstoneZearing.Data.Entities;
 
 public class ApplicationRole : IdentityRole<Guid>
 {

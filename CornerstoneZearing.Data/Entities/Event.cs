@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CornerstoneZearing.Data;
+namespace CornerstoneZearing.Data.Entities;
 
 public class Event
 {

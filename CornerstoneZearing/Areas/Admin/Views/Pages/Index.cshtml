@@ -1,4 +1,4 @@
-@model IEnumerable<CornerstoneZearing.Data.Page>
+@model IEnumerable<CornerstoneZearing.Data.Entities.Page>
 @{
 	ViewData["Section"] = "Pages";
 	ViewData["Title"] = "Pages";
@@ -37,13 +37,13 @@
 						<td>
 							@switch (pg.Status)
 							{
-								case CornerstoneZearing.PageStatus.Published:
+								case CornerstoneZearing.Data.Entities.PageStatus.Published:
 									<span class="badge badge-success">Published</span>
 									break;
-								case CornerstoneZearing.PageStatus.Draft:
+								case CornerstoneZearing.Data.Entities.PageStatus.Draft:
 									<span class="badge badge-warning">Draft</span>
 									break;
-								case CornerstoneZearing.PageStatus.Withdrawn:
+								case CornerstoneZearing.Data.Entities.PageStatus.Withdrawn:
 									<span class="badge badge-secondary">Withdrawn</span>
 									break;
 							}
