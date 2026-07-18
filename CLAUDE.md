@@ -5,17 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 ASP.NET Core MVC website for Cornerstone Church of Christ, Zearing, IA, targeting .NET 10, using EF Core with SQL Server and ASP.NET Core Identity for the admin login. Two projects are in the solution:
-- `CornerstoneZearing/CornerstoneZearing.csproj` — the web app (controllers, views, admin area, asset pipeline).
+- `CornerstoneZearing.Web/CornerstoneZearing.Web.csproj` — the web app (controllers, views, admin area, asset pipeline), namespace root `CornerstoneZearing.Web`.
 - `CornerstoneZearing.Data/CornerstoneZearing.Data.csproj` — class library holding `ApplicationDbContext` and all entities. Entity classes and their enums live under the `CornerstoneZearing.Data.Entities` namespace/folder; the `DbContext` itself is `CornerstoneZearing.Data`. The web project references this project.
-
-The repo root also contains a `CornerstoneZearing.Web/` directory — this is **not** part of the solution (only the two projects above are referenced in `CornerstoneZearing.slnx`). `CornerstoneZearing.Web/wwwroot/uploads` holds sample/legacy uploaded media, not live app output.
 
 ## Commands
 
-Run from the repo root against the solution, or from `CornerstoneZearing/` for the web project directly.
+Run from the repo root against the solution, or from `CornerstoneZearing.Web/` for the web project directly.
 
 - Build: `dotnet build CornerstoneZearing.slnx`
-- Run locally: `dotnet run --project CornerstoneZearing` (see `CornerstoneZearing/Properties/launchSettings.json` for profiles/ports)
+- Run locally: `dotnet run --project CornerstoneZearing.Web` (see `CornerstoneZearing.Web/Properties/launchSettings.json` for profiles/ports)
 - Restore packages: `dotnet restore`
 - There is no test project in this repo currently.
 

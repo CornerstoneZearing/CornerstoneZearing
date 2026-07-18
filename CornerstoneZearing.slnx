@@ -6,6 +6,6 @@
     <File Path="SQL/2026-06-12 Pages.sql" />
     <File Path="SQL/2026-06-14 Images and Documents.sql" />
   </Folder>
-  <Project Path="CornerstoneZearing/CornerstoneZearing.csproj" />
+  <Project Path="CornerstoneZearing.Web/CornerstoneZearing.Web.csproj" />
   <Project Path="CornerstoneZearing.Data/CornerstoneZearing.Data.csproj" />
 </Solution>
