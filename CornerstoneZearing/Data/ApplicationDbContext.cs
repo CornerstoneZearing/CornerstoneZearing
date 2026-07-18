@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<Event> Events { get; set; }
     public DbSet<MediaImage> MediaImages { get; set; }
     public DbSet<MediaDocument> MediaDocuments { get; set; }
+    public DbSet<SlideshowSlide> SlideshowSlides { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -99,6 +100,17 @@ public class ApplicationDbContext : IdentityDbContext<
             b.Property(d => d.StoredFileName).HasMaxLength(300);
             b.Property(d => d.ContentType).HasMaxLength(100);
             b.Property(d => d.Description).HasMaxLength(500);
+        });
+
+        builder.Entity<SlideshowSlide>(b =>
+        {
+            b.ToTable("SlideshowSlides");
+            b.HasKey(s => s.SlideshowSlideID);
+            b.Property(s => s.SlideshowSlideID).ValueGeneratedOnAdd();
+            b.Property(s => s.Name).HasMaxLength(260);
+            b.Property(s => s.StoredFileName).HasMaxLength(300);
+            b.Property(s => s.AltText).HasMaxLength(500);
+            b.Property(s => s.Link).HasMaxLength(260);
         });
     }
 }

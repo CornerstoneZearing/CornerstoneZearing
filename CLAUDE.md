@@ -1,0 +1,43 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+ASP.NET Core MVC website for Cornerstone Church of Christ, Zearing, IA. Single-project solution (`CornerstoneZearing/CornerstoneZearing.csproj`) targeting .NET 10, using EF Core with SQL Server and ASP.NET Core Identity for the admin login.
+
+The repo root also contains `CornerstoneZearing.Data/` and `CornerstoneZearing.Web/` directories — these are **not** part of the solution (only `CornerstoneZearing/CornerstoneZearing.csproj` is referenced in `CornerstoneZearing.slnx`). `CornerstoneZearing.Web/wwwroot/uploads` holds sample/legacy uploaded media, not live app output.
+
+## Commands
+
+Run all commands from the `CornerstoneZearing/` project directory (or pass `CornerstoneZearing.slnx` / the `.csproj` explicitly from the repo root).
+
+- Build: `dotnet build`
+- Run locally: `dotnet run` (see `Properties/launchSettings.json` for profiles/ports)
+- Restore packages: `dotnet restore`
+- There is no test project in this repo currently.
+
+Database schema is not managed via EF Core migrations — it's hand-written SQL scripts under `SQL/` (e.g. `SQL/2026-06-12 ASP.NET Identity.sql`), applied manually/in order by filename date to a SQL Server instance. When changing an entity's shape, add a new dated `.sql` script rather than generating an EF migration.
+
+## Architecture
+
+**Two-tier routing split (public vs. admin):**
+- Public site: `Controllers/` + `Views/` (top-level). `HomeController.Index()`/`Render(slug)` load a published `Page` from the DB by `UrlSlug` and render it through `Views/Templates/{page.TemplateName}.cshtml` — pages are CMS-driven, not static views. `Views/Templates/Default.cshtml` renders `Page.Content` as raw HTML.
+- Admin site: `Areas/Admin/` — full MVC area (`Controllers/`, `Views/`, `Models/`, `Helpers/`) protected by `[Authorize(Roles = "Administrator,Editor")]`, routed via the `{area:exists}/{controller=Home}/{action=Index}/{id?}` route in `Program.cs`. Admin login lives at `/Admin/Account/Login` (configured via `ConfigureApplicationCookie` in `Program.cs`).
+- A catch-all `page` route (`{slug}` → `Home/Render`) serves any published `Page` by slug; this is registered **after** the default route in `Program.cs`, so it only matches when no other route does.
+
+**Identity model:** `ApplicationDbContext` (in `Data/`) extends `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ...>` with all Identity tables renamed (`Users`, `Roles`, `UserRoles`, `UserClaims`, `UserLogins`, `RoleClaims`, `UserTokens`) and PK columns renamed to `<Entity>ID` to match the hand-written SQL schema. `ApplicationUser`/`ApplicationRole` (in `Data/`) are the custom Identity subclasses. Follow this same table/column-naming convention (`{Entity}ID` PK, `ValueGeneratedOnAdd()`) for any new entity added to `ApplicationDbContext.OnModelCreating`.
+
+**Content entities** (`Data/`): `Page` (CMS page with `TemplateName`, `UrlSlug`, `PageStatus` draft/published/withdrawn), `Event` (calendar event with full recurrence rules — daily/weekly/monthly/yearly, day-of-week flags, `MonthlyYearlyPattern`), `MediaImage`/`MediaDocument` (uploaded file metadata), `SlideshowSlide`. Enums live centrally in `Enums.cs`.
+
+**Custom asset packaging pipeline** (`Packager/`) — a small hand-rolled bundler/minifier, not webpack/vite/gulp:
+- `Package`/`StylePackage`/`ScriptPackage`: named virtual bundles built from a list of `~/`-relative wwwroot files.
+- Packages are declared once in `Program.cs` via `builder.Services.AddPackages(packages => { ... })`.
+- `PackageProcessor` concatenates + minifies (`PackageMinifier`) the source files on first request and caches the result in-memory, keyed by virtual path; output is content-hashed for the ETag.
+- `PackageMiddleware` (registered via `app.UsePackages()`, before `UseRouting`) intercepts requests matching a package's virtual path and serves the cached/minified bundle directly, bypassing MVC.
+- The `<package name="..." />` Razor tag helper (`PackageTagHelper`) emits the right `<link>`/`<script>` tag with a cache-busting `?v={hash}` query string.
+- To add a new CSS/JS bundle: add source files under `wwwroot/styles` or `wwwroot/scripts`, register a new `StylePackage`/`ScriptPackage` in `Program.cs`, then reference it in a view with `<package name="/styles/your-bundle.css" />` (or `.js`).
+
+**Mail:** `IMailService`/`MailService` (SMTP-based) registered as transient in `Program.cs`; SMTP settings come from the `Smtp` section of `appsettings.json` (credentials left blank in source — set via `appsettings.Development.json`, which is gitignored, or environment-specific config in production).
+
+**Connection strings / secrets:** `appsettings.json` in this repo contains real-looking SMTP host and DB connection info committed to source — treat this file as environment config to be overridden locally via `appsettings.Development.json`, not as a template to fill in blindly.
