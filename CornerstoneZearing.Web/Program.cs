@@ -48,10 +48,10 @@ builder.Services.AddPackages(packages =>
         .Include("~/scripts/theme.js")
     );
     packages.Add(new StylePackage("/styles/cornerstone-admin.css")
-        .Include("~/styles/admin-grid.css")
         .Include("~/styles/admin.css")
     );
     packages.Add(new StylePackage("/styles/cornerstone-login.css")
+        .Include("~/styles/admin.css")
         .Include("~/styles/admin-login.css")
     );
     packages.Add(new ScriptPackage("/scripts/cornerstone-admin.js")

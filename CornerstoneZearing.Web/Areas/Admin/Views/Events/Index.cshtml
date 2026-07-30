@@ -13,8 +13,8 @@
 </div>
 
 <div class="card">
-	<div class="table-wrapper">
-		<table>
+	<div class="table-responsive">
+		<table class="table table-hover align-middle mb-0">
 			<thead>
 				<tr>
 					<th style="width: 30%;">Event</th>
@@ -60,7 +60,7 @@
 						<td>
 							<div class="action-buttons">
 								<a asp-action="Edit" asp-route-id="@evnt.EventID" class="btn btn-secondary btn-sm">
-									<i class="fas fa-pen"></i> Edit
+									<i class="fas fa-pen"></i>
 								</a>
 								<a asp-action="Delete" asp-route-id="@evnt.EventID" class="btn btn-danger btn-sm">
 									<i class="fas fa-trash"></i>
@@ -72,7 +72,7 @@
 				@if (!Model.Any())
 				{
 					<tr>
-						<td colspan="7" style="text-align:center;color:#64748b;padding:2rem;">
+						<td colspan="7" class="text-center text-body-secondary py-4">
 							No events found. <a asp-action="Create" style="color:var(--primary);">Add the first event.</a>
 						</td>
 					</tr>
