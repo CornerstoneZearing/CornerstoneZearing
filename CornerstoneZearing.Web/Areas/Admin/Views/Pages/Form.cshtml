@@ -1,8 +1,17 @@
 @model PageFormModel
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
 @{
     var isEdit = Model.PageID != Guid.Empty;
     ViewData["Section"] = "Pages";
     ViewData["Title"] = isEdit ? "Edit Page" : "Add Page";
+
+    var templatesPath = System.IO.Path.Combine(WebHostEnvironment.ContentRootPath, "Views", "Templates");
+    var templateNames = System.IO.Directory.Exists(templatesPath)
+        ? System.IO.Directory.GetFiles(templatesPath, "*.cshtml")
+            .Select(f => System.IO.Path.GetFileNameWithoutExtension(f)!)
+            .OrderBy(n => n)
+            .ToList()
+        : new List<string>();
 }
 
 <div class="page-header">
@@ -90,10 +99,10 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label asp-for="TemplateName"></label>
-                        <input asp-for="TemplateName" class="form-control" />
+                        <select asp-for="TemplateName" class="form-control" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(templateNames))"></select>
                         <span asp-validation-for="TemplateName" class="field-validation-error"></span>
                         <span class="text-muted">
-                            Razor file in Views/Templates/ (without .cshtml)
+                            Razor file in Views/Templates/
                         </span>
                     </div>
                 </div>
