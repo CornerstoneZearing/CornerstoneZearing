@@ -9,7 +9,13 @@ public class Page
     [Required, MaxLength(200)]
     public string Name { get; set; } = string.Empty;
 
-    public string Content { get; set; } = string.Empty;
+    public string ContentHtml { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Raw Editor.js output for this page; <see cref="ContentHtml"/> is the HTML rendered from it.
+    /// Null for pages that predate the block editor or have never been re-saved through it.
+    /// </summary>
+    public string? ContentJson { get; set; }
 
     [Required, MaxLength(100)]
     public string TemplateName { get; set; } = "Default";

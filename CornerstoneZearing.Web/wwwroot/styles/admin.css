@@ -328,6 +328,7 @@ body {
 
 .card {
     box-shadow: var(--az-card-shadow);
+    margin-bottom: 1rem;
 }
 
 .stats-grid {

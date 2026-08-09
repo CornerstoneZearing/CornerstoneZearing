@@ -22,7 +22,7 @@ Database schema is not managed via EF Core migrations — it's hand-written SQL 
 ## Architecture
 
 **Two-tier routing split (public vs. admin):**
-- Public site: `Controllers/` + `Views/` (top-level). `HomeController.Index()`/`Render(slug)` load a published `Page` from the DB by `UrlSlug` and render it through `Views/Templates/{page.TemplateName}.cshtml` — pages are CMS-driven, not static views. `Views/Templates/Default.cshtml` renders `Page.Content` as raw HTML.
+- Public site: `Controllers/` + `Views/` (top-level). `HomeController.Index()`/`Render(slug)` load a published `Page` from the DB by `UrlSlug` and render it through `Views/Templates/{page.TemplateName}.cshtml` — pages are CMS-driven, not static views. `Views/Templates/Default.cshtml` renders `Page.ContentHtml` as raw HTML.
 - Admin site: `Areas/Admin/` — full MVC area (`Controllers/`, `Views/`, `Models/`, `Helpers/`) protected by `[Authorize(Roles = "Administrator,Editor")]`, routed via the `{area:exists}/{controller=Home}/{action=Index}/{id?}` route in `Program.cs`. Admin login lives at `/Admin/Account/Login` (configured via `ConfigureApplicationCookie` in `Program.cs`).
 - A catch-all `page` route (`{slug}` → `Home/Render`) serves any published `Page` by slug; this is registered **after** the default route in `Program.cs`, so it only matches when no other route does.
 

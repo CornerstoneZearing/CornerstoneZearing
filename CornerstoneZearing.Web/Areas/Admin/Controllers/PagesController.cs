@@ -68,7 +68,8 @@ public class PagesController : Controller
         {
             PageID = Guid.NewGuid(),
             Name = model.Name,
-            Content = model.Content,
+            ContentHtml = model.ContentHtml,
+            ContentJson = model.ContentJson,
             TemplateName = model.TemplateName,
             UrlSlug = model.UrlSlug,
             MetaTitle = model.MetaTitle,
@@ -103,7 +104,8 @@ public class PagesController : Controller
         {
             PageID = page.PageID,
             Name = page.Name,
-            Content = page.Content,
+            ContentHtml = page.ContentHtml,
+            ContentJson = page.ContentJson,
             TemplateName = page.TemplateName,
             UrlSlug = page.UrlSlug,
             MetaTitle = page.MetaTitle,
@@ -139,7 +141,8 @@ public class PagesController : Controller
         }
 
         page.Name = model.Name;
-        page.Content = model.Content;
+        page.ContentHtml = model.ContentHtml;
+        page.ContentJson = model.ContentJson;
         page.TemplateName = model.TemplateName;
         page.UrlSlug = model.UrlSlug;
         page.MetaTitle = model.MetaTitle;

@@ -13,7 +13,9 @@ public class PageFormModel
     public string Name { get; set; } = string.Empty;
 
     [Display(Name = "Content")]
-    public string Content { get; set; } = string.Empty;
+    public string ContentHtml { get; set; } = string.Empty;
+
+    public string? ContentJson { get; set; }
 
     [Required]
     [MaxLength(100)]
