@@ -25,7 +25,7 @@ public class PageFormModel
     [Required]
     [MaxLength(200)]
     [Display(Name = "URL Slug")]
-    [RegularExpression(@"^[a-z0-9]+(?:-[a-z0-9]+)*$", ErrorMessage = "Slug must be lowercase letters, numbers, and hyphens only.")]
+    [RegularExpression(@"^[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$", ErrorMessage = "Slug must be lowercase letters, numbers, and hyphens, with slashes separating sub-page segments (e.g. about-us/learn-more).")]
     public string UrlSlug { get; set; } = string.Empty;
 
     [MaxLength(200)]

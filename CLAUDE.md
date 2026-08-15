@@ -30,6 +30,8 @@ Database schema is not managed via EF Core migrations — it's hand-written SQL 
 
 **Content entities** (`CornerstoneZearing.Data/Entities/`, namespace `CornerstoneZearing.Data.Entities`): `Page` (CMS page with `TemplateName`, `UrlSlug`, `PageStatus` draft/published/withdrawn), `Event` (calendar event with full recurrence rules — daily/weekly/monthly/yearly, day-of-week flags, `MonthlyYearlyPattern`), `MediaImage`/`MediaDocument` (uploaded file metadata), `SlideshowSlide`. Entity-related enums (`PageStatus`, `RecurrenceType`, `MonthlyYearlyPattern`) live in `Entities/Enums.cs` in that project — anything referenced by an entity type belongs here, not in the web project's `Enums.cs` (which only holds `PackageType` for the asset pipeline below).
 
+`Page` stores content twice: `ContentJson` (Editor.js block data, edited in `Areas/Admin/Views/Pages/Form.cshtml`) and `ContentHtml` (server-rendered HTML from that JSON, saved alongside it by `PagesController` and what `Views/Templates/Default.cshtml` actually renders on the public site).
+
 **Custom asset packaging pipeline** (`Packager/`) — a small hand-rolled bundler/minifier, not webpack/vite/gulp:
 - `Package`/`StylePackage`/`ScriptPackage`: named virtual bundles built from a list of `~/`-relative wwwroot files.
 - Packages are declared once in `Program.cs` via `builder.Services.AddPackages(packages => { ... })`.

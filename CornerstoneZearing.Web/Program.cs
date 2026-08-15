@@ -92,7 +92,7 @@ app.MapControllerRoute(
 // Dynamic pages route
 app.MapControllerRoute(
     name: "page",
-    pattern: "{slug}",
+    pattern: "{*slug}",
     defaults: new { controller = "Home", action = "Render" });
 
 app.Run();
