@@ -383,6 +383,10 @@ header {
 }
 
 @media (min-width: 1200px) {
+    article.container {
+        max-width: 1200px;
+    }
+
     footer .address svg {
         height: 50px;
     }

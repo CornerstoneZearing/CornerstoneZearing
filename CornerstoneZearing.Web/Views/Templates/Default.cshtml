@@ -3,7 +3,8 @@
     ViewData["Title"] = Model.MetaTitle ?? Model.Name;
     ViewData["MetaDescription"] = Model.MetaDescription;
 }
-<article class="page-content">
+
+<article class="container">
     <h1>@Model.Name</h1>
     <div class="content">
         @Html.Raw(Model.ContentHtml)
