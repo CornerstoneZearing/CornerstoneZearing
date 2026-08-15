@@ -50,6 +50,35 @@ public class MediaController : Controller
     }
 
     /// <summary>
+    /// Lists media images as JSON, for pickers such as the Editor.js card block.
+    /// </summary>
+    /// <param name="search"></param>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IActionResult> List(string? search)
+    {
+        var query = _DbContext.MediaImages.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(m => m.OriginalFileName.Contains(term) || m.AltText.Contains(term));
+        }
+
+        var images = await query
+            .OrderByDescending(m => m.DateUploaded)
+            .Select(m => new
+            {
+                id = m.MediaImageID,
+                url = "/uploads/images/" + m.StoredFileName,
+                name = m.OriginalFileName,
+                alt = m.AltText
+            })
+            .ToListAsync();
+
+        return Json(images);
+    }
+
+    /// <summary>
     /// Handles image uploads.
     /// </summary>
     /// <param name="file"></param>
