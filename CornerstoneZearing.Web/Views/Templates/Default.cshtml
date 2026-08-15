@@ -1,12 +1,15 @@
 @model CornerstoneZearing.Data.Entities.Page
 @{
-    ViewData["Title"] = Model.MetaTitle ?? Model.Name;
-    ViewData["MetaDescription"] = Model.MetaDescription;
+	ViewData["Title"] = Model.MetaTitle ?? Model.Name;
+	ViewData["MetaDescription"] = Model.MetaDescription;
 }
 
-<article class="container">
-    <h1>@Model.Name</h1>
-    <div class="content">
-        @Html.Raw(Model.ContentHtml)
-    </div>
+<partial name="_Mast" model="@Model" />
+
+<article class="page-content">
+	<div class="container">
+		<div class="content">
+			@Html.Raw(Model.ContentHtml)
+		</div>
+	</div>
 </article>

@@ -244,6 +244,23 @@ header {
             background: var(--ccc-alert);
         }
 
+.page-content {
+    padding: 2rem 0;
+}
+
+.page-mast {
+    background: linear-gradient(90deg,rgba(var(--ccc-primary-rgb), 1) 0%, rgba(var(--ccc-primary-rgb), 1) 50%, rgba(var(--ccc-secondary-rgb), 1) 100%);
+    padding: 1.25rem 0;
+}
+
+    .page-mast h1 {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-bottom: 0;
+        text-transform: uppercase;
+    }
+
 @media (min-width: 992px) {
     footer .copyright br {
         display: none;
@@ -383,10 +400,6 @@ header {
 }
 
 @media (min-width: 1200px) {
-    article.container {
-        max-width: 1200px;
-    }
-
     footer .address svg {
         height: 50px;
     }
@@ -414,5 +427,9 @@ header {
 
     header .quicklinks ul li a {
         padding: 0.75rem 1rem;
+    }
+
+    .page-content .container, .page-mast .container {
+        max-width: 1200px;
     }
 }

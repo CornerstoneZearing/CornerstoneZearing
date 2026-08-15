@@ -1,14 +1,33 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Primitives;
 
 namespace CornerstoneZearing.Web.Packager;
 
 public sealed record PackageOutput(string content, string contentType, string hash);
 
-public sealed class PackageProcessor(IWebHostEnvironment environment)
+public sealed class PackageProcessor
 {
+    private readonly IWebHostEnvironment _Environment;
     private readonly ConcurrentDictionary<string, PackageOutput> _Cache = new(StringComparer.OrdinalIgnoreCase);
+
+    public PackageProcessor(IWebHostEnvironment environment, PackageCollection packages)
+    {
+        _Environment = environment;
+
+        // Re-build a package's cached output whenever one of its source files changes on disk,
+        // so edits show up on the next request without an app restart.
+        foreach (var package in packages.All)
+        {
+            foreach (var path in package.FilePaths)
+            {
+                ChangeToken.OnChange(
+                    () => _Environment.WebRootFileProvider.Watch(path),
+                    () => Invalidate(package.VirtualPath));
+            }
+        }
+    }
 
     /// <summary>
     /// Returns a cached package.
@@ -47,7 +66,7 @@ public sealed class PackageProcessor(IWebHostEnvironment environment)
         var sb = new StringBuilder();
         foreach (var path in package.FilePaths)
         {
-            var file = environment.WebRootFileProvider.GetFileInfo(path);
+            var file = _Environment.WebRootFileProvider.GetFileInfo(path);
             if (!file.Exists || file.IsDirectory)
             {
                 throw new FileNotFoundException($"File '{path}' not found for package '{package.VirtualPath}'.");
