@@ -10,8 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<
     IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>,
     IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public DbSet<Page> Pages { get; set; }
     public DbSet<Event> Events { get; set; }
@@ -71,8 +70,12 @@ public class ApplicationDbContext : IdentityDbContext<
         builder.Entity<Page>(b =>
         {
             b.HasKey(p => p.PageID);
-            b.HasIndex(p => p.UrlSlug).IsUnique();
+            b.HasIndex(p => new { p.ParentPageID, p.UrlSlug }).IsUnique();
             b.Property(p => p.PageID).ValueGeneratedOnAdd();
+            b.HasOne(p => p.ParentPage)
+                .WithMany(p => p.ChildPages)
+                .HasForeignKey(p => p.ParentPageID)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Event>(b =>

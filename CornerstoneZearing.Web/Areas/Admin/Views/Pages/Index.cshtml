@@ -29,8 +29,9 @@
 					<tr>
 						<td><strong>@pg.Name</strong></td>
 						<td>
-							<a href="/@pg.UrlSlug" target="_blank" class="text-muted" style="text-decoration:none;">
-								/@pg.UrlSlug <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;"></i>
+							@{ var fullPath = ((Dictionary<Guid, string>)ViewBag.FullPaths)[pg.PageID]; }
+							<a href="/@fullPath" target="_blank" class="text-muted" style="text-decoration:none;">
+								/@fullPath <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;"></i>
 							</a>
 						</td>
 						<td class="text-muted">@pg.TemplateName</td>

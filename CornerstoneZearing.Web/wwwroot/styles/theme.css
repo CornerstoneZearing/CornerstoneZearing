@@ -244,6 +244,26 @@ header {
             background: var(--ccc-alert);
         }
 
+.breadcrumb {
+    font-size: 13px;
+    font-weight: 300;
+    margin-bottom: 0;
+    margin-right: 1rem;
+}
+
+.breadcrumb-item.active {
+    color: var(--ccc-white);
+}
+
+.breadcrumb-item a, .breadcrumb-item a:visited, .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none
+}
+
+    .breadcrumb-item a:hover, .breadcrumb-item a:focus {
+        color: rgba(255, 255, 255, 1);
+    }
+
 .page-content {
     padding: 2rem 0;
 }

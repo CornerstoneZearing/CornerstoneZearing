@@ -7,6 +7,7 @@
     <File Path="SQL/2026-06-14 Images and Documents.sql" />
     <File Path="SQL/2026-06-27 Slideshow Slides.sql" />
     <File Path="SQL/2026-08-08 Editor.js Changes.sql" />
+    <File Path="SQL/2026-08-15 Page Parent Pages.sql" />
   </Folder>
   <Project Path="CornerstoneZearing.Data/CornerstoneZearing.Data.csproj" />
   <Project Path="CornerstoneZearing.Web/CornerstoneZearing.Web.csproj" />

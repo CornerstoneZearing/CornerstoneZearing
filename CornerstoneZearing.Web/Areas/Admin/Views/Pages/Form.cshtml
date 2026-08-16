@@ -87,6 +87,13 @@
 				<div class="card-header">URL</div>
 				<div class="card-body">
 					<div class="form-group">
+						<label asp-for="ParentPageID"></label>
+						<select asp-for="ParentPageID" class="form-control" asp-items="ViewBag.ParentPages">
+							<option value="">— None (top-level page) —</option>
+						</select>
+						<span asp-validation-for="ParentPageID" class="field-validation-error"></span>
+					</div>
+					<div class="form-group">
 						<label asp-for="UrlSlug"></label>
 						<div class="input-group">
 							<span class="input-group-text" id="basic-addon1">/</span>

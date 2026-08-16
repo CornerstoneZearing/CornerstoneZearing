@@ -18,7 +18,7 @@
         </p>
         <div class="bg-body-tertiary border rounded-3 p-3 mb-4">
             <div style="font-weight:600;margin-bottom:.25rem;">@Model.Name</div>
-            <div class="text-muted">/@(Model.UrlSlug)</div>
+            <div class="text-muted">/@(ViewBag.FullPath)</div>
             <div style="margin-top:.5rem;">
                 @switch (Model.Status)
                 {

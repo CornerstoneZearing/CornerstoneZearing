@@ -7,11 +7,11 @@ namespace CornerstoneZearing.Web.Controllers;
 
 public class EventsController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _Context;
 
     public EventsController(ApplicationDbContext context)
     {
-        _context = context;
+        _Context = context;
     }
 
     public IActionResult Index()
@@ -26,7 +26,7 @@ public class EventsController : Controller
         var utcStart = DateTime.SpecifyKind(start, DateTimeKind.Local).ToUniversalTime();
         var utcEnd = DateTime.SpecifyKind(end, DateTimeKind.Local).ToUniversalTime();
 
-        var events = await _context.Events
+        var events = await _Context.Events
             .Where(e => !e.IsPrivate)
             .ToListAsync();
 

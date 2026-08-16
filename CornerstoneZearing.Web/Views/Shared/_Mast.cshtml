@@ -1,17 +1,47 @@
 @model CornerstoneZearing.Data.Entities.Page
 
+@{
+	var ancestry = new List<CornerstoneZearing.Data.Entities.Page>();
+	for (var page = Model; page != null; page = page.ParentPage)
+	{
+		ancestry.Add(page);
+	}
+	ancestry.Reverse();
+
+	var crumbs = new List<(string Name, string Url)>();
+	var urlSoFar = "";
+	foreach (var page in ancestry)
+	{
+		if (!string.IsNullOrEmpty(page.UrlSlug))
+		{
+			urlSoFar += "/" + page.UrlSlug;
+		}
+		crumbs.Add((page.Name, urlSoFar.Length > 0 ? urlSoFar : "/"));
+	}
+}
+
 <section class="page-mast">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-8 order-2 order-md-1 align-self-center p-static">
 				<h1>@Model.Name</h1>
 			</div>
-			@* <div class="col-md-4 order-1 order-md-2 align-self-center">
-				<ul class="breadcrumb d-block text-md-end">
-					<li><a href="#">Home</a></li>
-					<li class="active">Pages</li>
+			<nav class="col-md-4 order-1 order-md-2 align-self-center" aria-label="breadcrumb">
+				<ul class="breadcrumb d-flex justify-content-md-end">
+					<li class="breadcrumb-item"><a href="/">Home</a></li>
+					@foreach (var crumb in crumbs)
+					{
+						if (crumb == crumbs[^1])
+						{
+							<li class="breadcrumb-item active">@crumb.Name</li>
+						}
+						else
+						{
+							<li class="breadcrumb-item"><a href="@crumb.Url">@crumb.Name</a></li>
+						}
+					}
 				</ul>
-			</div> *@
+			</nav>
 		</div>
 	</div>
 </section>

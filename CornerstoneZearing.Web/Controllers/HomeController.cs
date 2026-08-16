@@ -7,16 +7,16 @@ namespace CornerstoneZearing.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _Context;
 
     public HomeController(ApplicationDbContext context)
     {
-        _context = context;
+        _Context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        var homePage = await _context.Pages
+        var homePage = await _Context.Pages
             .FirstOrDefaultAsync(p => p.UrlSlug == "" && p.Status == PageStatus.Published);
 
         if (homePage == null)
@@ -29,15 +29,28 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Render(string slug)
     {
-        var page = await _context.Pages
-            .FirstOrDefaultAsync(p => p.UrlSlug == slug && p.Status == PageStatus.Published);
-
-        if (page == null)
+        var segments = (slug ?? string.Empty).Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0)
         {
             return NotFound();
         }
 
-        return await RenderPage(page);
+        Page? page = null;
+        foreach (var segment in segments)
+        {
+            var parentID = page?.PageID;
+            page = await _Context.Pages.FirstOrDefaultAsync(p =>
+                p.UrlSlug == segment &&
+                p.ParentPageID == parentID &&
+                p.Status == PageStatus.Published);
+
+            if (page == null)
+            {
+                return NotFound();
+            }
+        }
+
+        return await RenderPage(page!);
     }
 
     private Task<IActionResult> RenderPage(Page page)
