@@ -1,0 +1,49 @@
+@model IEnumerable<CornerstoneZearing.Data.Entities.Sidebar>
+@{
+	ViewData["Section"] = "Sidebars";
+	ViewData["Title"] = "Sidebars";
+}
+
+<div class="page-header">
+	<h1>Sidebars</h1>
+	<a asp-action="Create" class="btn btn-primary">
+		<i class="fas fa-plus"></i> Add Sidebar
+	</a>
+</div>
+
+<div class="table-responsive">
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th style="width: 100%;">Name</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>@item.Name</td>
+					<td>
+						<div class="action-buttons">
+							<a asp-action="Edit" asp-route-id="@item.SidebarID" class="btn btn-secondary btn-sm">
+								<i class="fas fa-pen"></i>
+							</a>
+							<a asp-action="Delete" asp-route-id="@item.SidebarID" class="btn btn-danger btn-sm">
+								<i class="fas fa-trash"></i>
+							</a>
+						</div>
+					</td>
+				</tr>
+			}
+			@if (!Model.Any())
+			{
+				<tr>
+					<td colspan="6" class="text-center text-body-secondary py-4">
+						Sorry, there are no sidebars currently in the system.
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>

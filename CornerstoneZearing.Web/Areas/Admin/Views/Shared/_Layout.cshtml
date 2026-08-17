@@ -4,13 +4,13 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<script>
-		(function () {
-			var stored = localStorage.getItem('admin-theme') || 'auto';
-			var effective = stored === 'auto'
-				? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-				: stored;
-			document.documentElement.setAttribute('data-bs-theme', effective);
-		})();
+			(function() {
+				var stored = localStorage.getItem('admin-theme') || 'auto';
+				var effective = stored === 'auto'
+					? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+					: stored;
+				document.documentElement.setAttribute('data-bs-theme', effective);
+			})();
 	</script>
 	<title>@(ViewData["Title"] != null ? ViewData["Title"] : "Cornerstone Zearing") - Cornerstone Zearing</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,58 +31,66 @@
 			<button type="button" class="btn-close btn-close-white d-lg-none ms-auto" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close"></button>
 		</div>
 		<div class="offcanvas-body d-flex flex-column p-0">
-		<nav class="sidebar-nav">
-			<div class="sidebar-section-label">Main</div>
-			<a asp-area="Admin" asp-controller="Home" asp-action="Index"
-			   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
-				<i class="fas fa-gauge-high"></i>
-				Dashboard
-			</a>
-			@if (User.IsInRole("Administrator") || User.IsInRole("Editor"))
-			{
-				<div class="sidebar-section-label">Content</div>
-				<a asp-area="Admin" asp-controller="Pages" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "active" : "")">
-					<i class="fas fa-file-lines"></i>
-					Pages
+			<nav class="sidebar-nav">
+				<div class="sidebar-section-label">Main</div>
+				<a asp-area="Admin" asp-controller="Home" asp-action="Index"
+				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+					<i class="fas fa-gauge-high"></i>
+					Dashboard
 				</a>
-				<a asp-area="Admin" asp-controller="Events" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
-					<i class="fas fa-calendar-days"></i>
-					Events
+				@if (User.IsInRole("Administrator") || User.IsInRole("Editor"))
+				{
+					<div class="sidebar-section-label">Content</div>
+					<a asp-area="Admin" asp-controller="Pages" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Pages" ? "active" : "")">
+						<i class="fas fa-file-lines"></i>
+						Pages
+					</a>
+					<a asp-area="Admin" asp-controller="Sidebars" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sidebars" ? "active" : "")">
+						<i class="fas fa-file-lines"></i>
+						Sidebars
+					</a>
+
+
+
+					<a asp-area="Admin" asp-controller="Events" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+						<i class="fas fa-calendar-days"></i>
+						Events
+					</a>
+					<a asp-area="Admin" asp-controller="Media" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
+						<i class="fas fa-images"></i>
+						Media
+					</a>
+					<a asp-area="Admin" asp-controller="Documents" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Documents" ? "active" : "")">
+						<i class="fas fa-folder-open"></i>
+						Documents
+					</a>
+					<a asp-area="Admin" asp-controller="Slideshow" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Slideshow" ? "active" : "")">
+						<i class="fas fa-images"></i>
+						Slideshow
+					</a>
+				}
+				@if (User.IsInRole("Administrator"))
+				{
+					<div class="sidebar-section-label">System</div>
+					<a asp-area="Admin" asp-controller="Users" asp-action="Index"
+					   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
+						<i class="fas fa-users"></i>
+						Users
+					</a>
+				}
+			</nav>
+			<div class="sidebar-footer">
+				<a href="/" target="_blank" class="sidebar-footer-link">
+					<i class="fas fa-arrow-up-right-from-square"></i>
+					View Website
 				</a>
-				<a asp-area="Admin" asp-controller="Media" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
-					<i class="fas fa-images"></i>
-					Media
-				</a>
-				<a asp-area="Admin" asp-controller="Documents" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Documents" ? "active" : "")">
-					<i class="fas fa-folder-open"></i>
-					Documents
-				</a>
-				<a asp-area="Admin" asp-controller="Slideshow" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Slideshow" ? "active" : "")">
-					<i class="fas fa-images"></i>
-					Slideshow
-				</a>
-			}
-			@if (User.IsInRole("Administrator"))
-			{
-				<div class="sidebar-section-label">System</div>
-				<a asp-area="Admin" asp-controller="Users" asp-action="Index"
-				   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
-					<i class="fas fa-users"></i>
-					Users
-				</a>
-			}
-		</nav>
-		<div class="sidebar-footer">
-			<a href="/" target="_blank" class="sidebar-footer-link">
-				<i class="fas fa-arrow-up-right-from-square"></i>
-				View Website
-			</a>
-		</div>
+			</div>
 		</div>
 	</aside>
 	<div class="main-wrapper">

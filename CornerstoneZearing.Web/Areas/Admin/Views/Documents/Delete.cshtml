@@ -13,11 +13,11 @@
     };
     string DocIconColor(string contentType) => contentType switch
     {
-        var t when t.Contains("pdf")          => "var(--danger)",
-        var t when t.Contains("word")         => "var(--primary)",
-        var t when t.Contains("sheet")        => "var(--success)",
-        var t when t.Contains("presentation") => "var(--warning)",
-        _                                     => "var(--text-secondary)"
+        var t when t.Contains("pdf")          => "var(--bs-danger)",
+        var t when t.Contains("word")         => "var(--bs-primary)",
+        var t when t.Contains("sheet")        => "var(--bs-success)",
+        var t when t.Contains("presentation") => "var(--bs-warning)",
+        _                                     => "var(--bs-secondary-color)"
     };
     string DocTypeName(string contentType) => contentType switch
     {

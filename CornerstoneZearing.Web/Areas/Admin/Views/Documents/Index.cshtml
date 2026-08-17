@@ -14,11 +14,11 @@
 	};
 	string DocIconColor(string contentType) => contentType switch
 	{
-		var t when t.Contains("pdf")          => "var(--danger)",
-		var t when t.Contains("word")         => "var(--primary)",
-		var t when t.Contains("sheet")        => "var(--success)",
-		var t when t.Contains("presentation") => "var(--warning)",
-		_                                     => "var(--text-secondary)"
+		var t when t.Contains("pdf")          => "var(--bs-danger)",
+		var t when t.Contains("word")         => "var(--bs-primary)",
+		var t when t.Contains("sheet")        => "var(--bs-success)",
+		var t when t.Contains("presentation") => "var(--bs-warning)",
+		_                                     => "var(--bs-secondary-color)"
 	};
 	string DocTypeName(string contentType) => contentType switch
 	{
@@ -99,7 +99,7 @@
 					<div class="doc-empty" id="emptyState">
 						<i class="fas fa-file-arrow-up"></i>
 						<p>No documents yet.</p>
-						<label for="fileUpload" style="cursor:pointer;color:var(--primary);">Upload your first document</label>
+						<label for="fileUpload" style="cursor:pointer;color:var(--bs-primary);">Upload your first document</label>
 					</div>
 				}
 			</div>
@@ -142,21 +142,21 @@
 						</div>
 					</div>
 					<div class="form-group" style="margin-top:1rem;">
-						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">Description</label>
+						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--bs-secondary-color);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">Description</label>
 						<input type="text" id="descInput" class="form-control" placeholder="Briefly describe this document&hellip;" />
 						<div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem;">
 							<button type="button" id="saveDescBtn" class="btn btn-primary btn-sm">Save</button>
-							<span id="descSaveStatus" style="font-size:.78rem;color:var(--success);display:none;"><i class="fas fa-check"></i> Saved</span>
+							<span id="descSaveStatus" style="font-size:.78rem;color:var(--bs-success);display:none;"><i class="fas fa-check"></i> Saved</span>
 						</div>
 					</div>
 					<div class="form-group">
-						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">File URL</label>
+						<label style="display:block;font-size:.75rem;font-weight:600;color:var(--bs-secondary-color);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.4rem;">File URL</label>
 						<div style="display:flex;gap:.4rem;">
 							<input type="text" id="urlInput" class="form-control" readonly style="font-size:.75rem;" />
 							<button type="button" id="copyUrlBtn" class="btn btn-secondary btn-sm" style="flex-shrink:0;">Copy</button>
 						</div>
 					</div>
-					<div style="border-top:1px solid var(--border);padding-top:.875rem;margin-top:.25rem;">
+					<div style="border-top:1px solid var(--bs-border-color);padding-top:.875rem;margin-top:.25rem;">
 						<a id="deleteLink" href="#" class="btn btn-danger btn-sm">
 							<i class="fas fa-trash"></i> Delete permanently
 						</a>
@@ -254,11 +254,11 @@
 			}
 
 			function docIcon(type) {
-				if (type.includes('pdf')) return { icon: 'fa-file-pdf', color: 'var(--danger)' };
-				if (type.includes('word')) return { icon: 'fa-file-word', color: 'var(--primary)' };
-				if (type.includes('sheet')) return { icon: 'fa-file-excel', color: 'var(--success)' };
-				if (type.includes('presentation')) return { icon: 'fa-file-powerpoint', color: 'var(--warning)' };
-				return { icon: 'fa-file-lines', color: 'var(--text-secondary)' };
+				if (type.includes('pdf')) return { icon: 'fa-file-pdf', color: 'var(--bs-danger)' };
+				if (type.includes('word')) return { icon: 'fa-file-word', color: 'var(--bs-primary)' };
+				if (type.includes('sheet')) return { icon: 'fa-file-excel', color: 'var(--bs-success)' };
+				if (type.includes('presentation')) return { icon: 'fa-file-powerpoint', color: 'var(--bs-warning)' };
+				return { icon: 'fa-file-lines', color: 'var(--bs-secondary-color)' };
 			}
 
 			function typeName(type) {

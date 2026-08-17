@@ -1,0 +1,31 @@
+@model CornerstoneZearing.Data.Entities.Sidebar
+@{
+    ViewData["Section"] = "Sidebars";
+    ViewData["Title"] = "Delete Sidebar";
+}
+
+<div class="page-header">
+    <h1>Delete Sidebar</h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="card" style="max-width:520px;">
+    <div class="card-body">
+        <p class="text-body-secondary mb-4">
+            Are you sure you want to permanently delete this sidebar? This action cannot be undone.
+        </p>
+        <div class="bg-body-tertiary border rounded-3 p-3 mb-4">
+            <div style="font-weight:600;margin-bottom:.25rem;">@Model.Name</div>
+        </div>
+        <div class="form-actions">
+            <form asp-action="Delete" asp-route-id="@Model.SidebarID" method="post">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Sidebar
+                </button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+</div>

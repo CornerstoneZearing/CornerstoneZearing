@@ -1,26 +1,33 @@
+using CornerstoneZearing.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using CornerstoneZearing.Data.Entities;
 
 namespace CornerstoneZearing.Data;
 
-public class ApplicationDbContext : IdentityDbContext<
-    ApplicationUser, ApplicationRole, Guid,
-    IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>,
-    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public DbSet<Page> Pages { get; set; }
     public DbSet<Event> Events { get; set; }
-    public DbSet<MediaImage> MediaImages { get; set; }
+
     public DbSet<MediaDocument> MediaDocuments { get; set; }
+
+    public DbSet<MediaImage> MediaImages { get; set; }
+
+    public DbSet<Page> Pages { get; set; }
+
+    public DbSet<Sidebar> Sidebars { get; set; }
+
     public DbSet<SlideshowSlide> SlideshowSlides { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        // --------
+        // Identity
+        // --------
 
         builder.Entity<ApplicationUser>(b =>
         {
@@ -67,6 +74,38 @@ public class ApplicationDbContext : IdentityDbContext<
             b.Property(ut => ut.UserId).HasColumnName("UserID");
         });
 
+        // -----------
+        // Application
+        // -----------
+
+        builder.Entity<Event>(b =>
+        {
+            b.HasKey(e => e.EventID);
+            b.Property(e => e.EventID).ValueGeneratedOnAdd();
+        });
+
+        builder.Entity<MediaDocument>(b =>
+        {
+            b.ToTable("MediaDocuments");
+            b.HasKey(md => md.MediaDocumentID);
+            b.Property(md => md.MediaDocumentID).ValueGeneratedOnAdd();
+            b.Property(md => md.OriginalFileName).HasMaxLength(260);
+            b.Property(md => md.StoredFileName).HasMaxLength(300);
+            b.Property(md => md.ContentType).HasMaxLength(100);
+            b.Property(md => md.Description).HasMaxLength(500);
+        });
+
+        builder.Entity<MediaImage>(b =>
+        {
+            b.ToTable("MediaImages");
+            b.HasKey(mi => mi.MediaImageID);
+            b.Property(mi => mi.MediaImageID).ValueGeneratedOnAdd();
+            b.Property(mi => mi.OriginalFileName).HasMaxLength(260);
+            b.Property(mi => mi.StoredFileName).HasMaxLength(300);
+            b.Property(mi => mi.ContentType).HasMaxLength(100);
+            b.Property(mi => mi.AltText).HasMaxLength(500);
+        });
+
         builder.Entity<Page>(b =>
         {
             b.HasKey(p => p.PageID);
@@ -78,43 +117,21 @@ public class ApplicationDbContext : IdentityDbContext<
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        builder.Entity<Event>(b =>
+        builder.Entity<Sidebar>(b =>
         {
-            b.HasKey(e => e.EventID);
-            b.Property(e => e.EventID).ValueGeneratedOnAdd();
-        });
-
-        builder.Entity<MediaImage>(b =>
-        {
-            b.ToTable("MediaImages");
-            b.HasKey(m => m.MediaImageID);
-            b.Property(m => m.MediaImageID).ValueGeneratedOnAdd();
-            b.Property(m => m.OriginalFileName).HasMaxLength(260);
-            b.Property(m => m.StoredFileName).HasMaxLength(300);
-            b.Property(m => m.ContentType).HasMaxLength(100);
-            b.Property(m => m.AltText).HasMaxLength(500);
-        });
-
-        builder.Entity<MediaDocument>(b =>
-        {
-            b.ToTable("MediaDocuments");
-            b.HasKey(d => d.MediaDocumentID);
-            b.Property(d => d.MediaDocumentID).ValueGeneratedOnAdd();
-            b.Property(d => d.OriginalFileName).HasMaxLength(260);
-            b.Property(d => d.StoredFileName).HasMaxLength(300);
-            b.Property(d => d.ContentType).HasMaxLength(100);
-            b.Property(d => d.Description).HasMaxLength(500);
+            b.HasKey(s => s.SidebarID);
+            b.Property(s => s.SidebarID).ValueGeneratedOnAdd();
         });
 
         builder.Entity<SlideshowSlide>(b =>
         {
             b.ToTable("SlideshowSlides");
-            b.HasKey(s => s.SlideshowSlideID);
-            b.Property(s => s.SlideshowSlideID).ValueGeneratedOnAdd();
-            b.Property(s => s.Name).HasMaxLength(260);
-            b.Property(s => s.StoredFileName).HasMaxLength(300);
-            b.Property(s => s.AltText).HasMaxLength(500);
-            b.Property(s => s.Link).HasMaxLength(260);
+            b.HasKey(ss => ss.SlideshowSlideID);
+            b.Property(ss => ss.SlideshowSlideID).ValueGeneratedOnAdd();
+            b.Property(ss => ss.Name).HasMaxLength(260);
+            b.Property(ss => ss.StoredFileName).HasMaxLength(300);
+            b.Property(ss => ss.AltText).HasMaxLength(500);
+            b.Property(ss => ss.Link).HasMaxLength(260);
         });
     }
 }

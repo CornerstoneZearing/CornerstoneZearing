@@ -53,15 +53,15 @@
                         <div style="margin-bottom:1rem;">
                             <img src="/uploads/slideshow/@Model.StoredFileName"
                                  alt="@Model.AltText"
-                                 style="max-width:100%;max-height:200px;object-fit:contain;border-radius:6px;border:1px solid var(--border);" />
+                                 style="max-width:100%;max-height:200px;object-fit:contain;border-radius:6px;border:1px solid var(--bs-border-color);" />
                         </div>
-                        <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.75rem;">Upload a new image to replace the current one, or leave blank to keep it.</p>
+                        <p style="font-size:.8rem;color:var(--bs-secondary-color);margin-bottom:.75rem;">Upload a new image to replace the current one, or leave blank to keep it.</p>
                     }
                     <div class="form-group" style="margin-bottom:0;">
                         <label asp-for="ImageFile"></label>
                         <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.gif" class="form-control" />
                         <span asp-validation-for="ImageFile" class="field-validation-error"></span>
-                        <p style="font-size:.78rem;color:var(--text-secondary);margin-top:.4rem;margin-bottom:0;">JPG, PNG, or GIF &mdash; max 10 MB</p>
+                        <p style="font-size:.78rem;color:var(--bs-secondary-color);margin-top:.4rem;margin-bottom:0;">JPG, PNG, or GIF &mdash; max 10 MB</p>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="form-check">
                             <input asp-for="IsActive" />
-                            <span style="font-size:.875rem;font-weight:500;color:var(--text-primary);">Active</span>
+                            <span style="font-size:.875rem;font-weight:500;color:var(--bs-body-color);">Active</span>
                         </label>
                     </div>
                 </div>
