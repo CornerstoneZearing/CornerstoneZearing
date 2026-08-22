@@ -31,12 +31,36 @@
     --bs-warning-rgb: 255, 193, 7;
     --bs-danger: var(--ccc-alert);
     --bs-danger-rgb: var(--ccc-alert-rgb);
-    --bs-border-radius: 0;
-    --bs-border-radius-sm: 0;
-    --bs-border-radius-lg:;
-    --bs-border-radius-xl: 0;
-    --bs-border-radius-xxl: 0;
+    --bs-border-radius: 5px;
+    --bs-border-radius-sm: 5px;
+    --bs-border-radius-lg: 5px;
+    --bs-border-radius-xl: 5px;
+    --bs-border-radius-xxl: 5px;
     --bs-font-sans-serif: var(--ccc-font-main);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--ccc-primary);
+    --bs-btn-border-color: var(--ccc-primary);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--ccc-primary) 85%, var(--ccc-black) 15%);
+    --bs-btn-hover-border-color: color-mix(in oklab, var(--ccc-primary) 80%, var(--ccc-black) 20%);
+    --bs-btn-active-bg: color-mix(in oklab, var(--ccc-primary) 80%, var(--ccc-black) 20%);
+    --bs-btn-active-border-color: color-mix(in oklab, var(--ccc-primary) 75%, var(--ccc-black) 25%);
+    --bs-btn-disabled-bg: var(--ccc-primary);
+    --bs-btn-disabled-border-color: var(--ccc-primary);
+    --bs-btn-focus-shadow-rgb: var(--ccc-primary-rgb);
+}
+
+.btn-secondary {
+    --bs-btn-bg: var(--ccc-secondary);
+    --bs-btn-border-color: var(--ccc-secondary);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--ccc-secondary) 85%, var(--ccc-black) 15%);
+    --bs-btn-hover-border-color: color-mix(in oklab, var(--ccc-secondary) 80%, var(--ccc-black) 20%);
+    --bs-btn-active-bg: color-mix(in oklab, var(--ccc-secondary) 80%, var(--ccc-black) 20%);
+    --bs-btn-active-border-color: color-mix(in oklab, var(--ccc-secondary) 75%, var(--ccc-black) 25%);
+    --bs-btn-disabled-bg: var(--ccc-secondary);
+    --bs-btn-disabled-border-color: var(--ccc-secondary);
+    --bs-btn-focus-shadow-rgb: var(--ccc-secondary-rgb);
 }
 
 body {
@@ -264,9 +288,57 @@ header {
         color: rgba(255, 255, 255, 1);
     }
 
-.page-content {
-    padding: 2rem 0;
+.featured-blocks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
+
+    .featured-blocks .card {
+        border: none;
+        border-radius: var(--bs-border-radius);
+        box-shadow: rgba(192, 192, 192, 0.25) 0px 5px 20px;
+        flex: 0 0 100%;
+    }
+
+    .featured-blocks .card-body {
+        background: linear-gradient(175deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.85) 65%, rgba(192, 192, 192, 0.85) 100%);
+        margin-top: -95px;
+        border-bottom-left-radius: var(--bs-border-radius);
+        border-bottom-right-radius: var(--bs-border-radius);
+    }
+
+        .featured-blocks .card-body .btn {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+    .featured-blocks .card-img, .featured-blocks .card-img-top {
+        border-radius: var(--bs-border-radius);
+    }
+
+    .featured-blocks .card-title {
+        font-weight: 500;
+    }
+
+.page-content {
+    padding: 2rem 0 4rem 0;
+}
+
+    .page-content h2 {
+        color: rgba(var(--ccc-black-rgb), 0.7);
+        margin-bottom: 2rem;
+        text-align: center;
+        text-wrap: balance;
+    }
+
+    .page-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .page-content .row > * > p:last-child {
+        margin-bottom: 2rem;
+    }
 
 .page-mast {
     background: linear-gradient(90deg,rgba(var(--ccc-primary-rgb), 1) 0%, rgba(var(--ccc-primary-rgb), 1) 50%, rgba(var(--ccc-secondary-rgb), 1) 100%);
@@ -280,6 +352,12 @@ header {
         margin-bottom: 0;
         text-transform: uppercase;
     }
+
+@media (min-width: 768px) {
+    .featured-blocks .card {
+        flex: 0 0 calc((100% - 1rem) / 2);
+    }
+}
 
 @media (min-width: 992px) {
     footer .copyright br {
@@ -407,6 +485,15 @@ header {
                 header .quicklinks ul li.live a i {
                     animation: live 3s ease-in-out infinite;
                 }
+
+    .featured-blocks .card {
+        flex: 0 0 calc((100% - 2rem) / 3);
+        /* transition: box-shadow 250ms ease-in-out;*/
+    }
+
+        .featured-blocks .card:hover {
+            /* box-shadow: rgba(192, 192, 192, 1) 0px 5px 20px;*/
+        }
 
     @keyframes live {
         0%, 100% {
