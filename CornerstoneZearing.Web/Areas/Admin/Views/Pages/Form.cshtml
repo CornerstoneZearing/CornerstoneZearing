@@ -140,6 +140,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/underline@1.2.1/dist/underline.umd.js" integrity="sha384-dnYKCq4EytQYj/90VpMbfms5RNP8MDTU7qLiIvOGJSCtpynWiaqUQ1Vclblc0Zdd" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/editorjs-html@4.0.5/.build/edjsHTML.browser.js" integrity="sha384-SOLhp/nkyKm7D61Z+nFKn1uI3atHm0Vu1jMVXSWOW44KWPTCEpfbXix2MjOK5MoB" crossorigin="anonymous"></script>
 	<script src="~/scripts/editorjs-bootstrap-card.js"></script>
+	<script src="~/scripts/editorjs-bootstrap-grid.js"></script>
 
 	<script>
 		const contentInput = document.getElementById('contentInput');
@@ -203,7 +204,8 @@
 						uploadUrl: '@Url.Action("Upload", "Media", new { area = "Admin" })',
 						antiForgeryToken: antiForgeryToken
 					}
-				}
+				},
+				grid: { class: BootstrapGridTool }
 			}
 		});
 
@@ -229,6 +231,23 @@
 				const text = d.text ? `<p class="card-text">${d.text}</p>` : '';
 				const link = d.linkUrl ? `<a href="${escAttr(d.linkUrl)}" class="btn btn-primary">${d.linkText || 'Learn More'}</a>` : '';
 				return `<div class="card">${image}<div class="card-body">${title}${text}${link}</div></div>`;
+			},
+			grid: block => {
+				const cols = (block.data.columns || []).map(col => {
+					const classes = [];
+					if (col.sm) classes.push(`col-sm-${col.sm}`);
+					if (col.md) classes.push(`col-md-${col.md}`);
+					if (col.lg) classes.push(`col-lg-${col.lg}`);
+					const content = (col.blocks || []).map(b => {
+						if (b.type === 'paragraph') return b.text ? `<p>${b.text}</p>` : '';
+						if (b.type === 'heading') return b.text ? `<h${b.level || 2}>${b.text}</h${b.level || 2}>` : '';
+						if (b.type === 'link') return b.url ? `<a href="${escAttr(b.url)}">${b.text || b.url}</a>` : '';
+						if (b.type === 'button') return b.url ? `<a href="${escAttr(b.url)}" class="btn btn-${b.style || 'primary'}">${b.text || 'Button'}</a>` : '';
+						return '';
+					}).join('');
+					return `<div class="${classes.join(' ')}">${content}</div>`;
+				}).join('');
+				return `<div class="row">${cols}</div>`;
 			}
 		});
 
