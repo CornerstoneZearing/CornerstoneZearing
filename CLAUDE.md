@@ -17,14 +17,16 @@ Run from the repo root against the solution, or from `CornerstoneZearing.Web/` f
 - Restore packages: `dotnet restore`
 - There is no test project in this repo currently.
 
-Database schema is not managed via EF Core migrations — it's hand-written SQL scripts under `SQL/` (e.g. `SQL/2026-06-12 ASP.NET Identity.sql`), applied manually/in order by filename date to a SQL Server instance. When changing an entity's shape, add a new dated `.sql` script rather than generating an EF migration.
+Database schema is not managed via EF Core migrations — it's hand-written SQL scripts under `SQL/` (e.g. `SQL/2026-06-12 ASP.NET Identity.sql`), named `YYYY-MM-DD <Description>.sql` and applied manually/in order by filename date to a SQL Server instance. When changing an entity's shape, add a new dated `.sql` script rather than generating an EF migration. Existing scripts are plain sequential DDL batches separated by `GO` — no `IF NOT EXISTS` guards, no transactions, no rollback/down script — match that style rather than adding idempotency guards.
 
 ## Architecture
 
 **Two-tier routing split (public vs. admin):**
 - Public site: `Controllers/` + `Views/` (top-level). `HomeController.Index()`/`Render(slug)` load a published `Page` from the DB by `UrlSlug` and render it through `Views/Templates/{page.TemplateName}.cshtml` — pages are CMS-driven, not static views. `Views/Templates/Default.cshtml` renders `Page.ContentHtml` as raw HTML.
-- Admin site: `Areas/Admin/` — full MVC area (`Controllers/`, `Views/`, `Models/`, `Helpers/`) protected by `[Authorize(Roles = "Administrator,Editor")]`, routed via the `{area:exists}/{controller=Home}/{action=Index}/{id?}` route in `Program.cs`. Admin login lives at `/Admin/Account/Login` (configured via `ConfigureApplicationCookie` in `Program.cs`).
-- A catch-all `page` route (`{slug}` → `Home/Render`) serves any published `Page` by slug; this is registered **after** the default route in `Program.cs`, so it only matches when no other route does.
+- Admin site: `Areas/Admin/` — full MVC area (`Controllers/`, `Views/`, `Models/`, `Helpers/`) protected by `[Authorize(Roles = "Administrator,Editor")]`, routed via the `{area:exists}/{controller=Home}/{action=Index}/{id?}` route in `Program.cs`. Admin login lives at `/Admin/Account/Login` (configured via `ConfigureApplicationCookie` in `Program.cs`: 8-hour sliding expiration cookie).
+- Route registration order in `Program.cs` matters: the `areas` route, then the `default` route, then the catch-all `page` route (`{slug}` → `Home/Render`) last, so it only matches when no other route (including area/controller routes) does.
+- Middleware pipeline order in `Program.cs`: HTTPS redirect/static files → `UsePackages()` → `UseRouting()` → `UseAuthentication()` → `UseAuthorization()` → the three routes above. `UseExceptionHandler("/Home/Error")` and `UseHsts()` are only added outside `Development`.
+- Identity password/lockout policy is configured in `Program.cs`: passwords require digit, lowercase, uppercase, and non-alphanumeric with a minimum length of 8; lockout triggers after 5 failed attempts for 15 minutes; `RequireUniqueEmail = true`.
 
 **Identity model:** `ApplicationDbContext` (`CornerstoneZearing.Data/ApplicationDbContext.cs`) extends `IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ...>` with all Identity tables renamed (`Users`, `Roles`, `UserRoles`, `UserClaims`, `UserLogins`, `RoleClaims`, `UserTokens`) and PK columns renamed to `<Entity>ID` to match the hand-written SQL schema. `ApplicationUser`/`ApplicationRole` (in `CornerstoneZearing.Data/Entities/`) are the custom Identity subclasses. Follow this same table/column-naming convention (`{Entity}ID` PK, `ValueGeneratedOnAdd()`) for any new entity added to `ApplicationDbContext.OnModelCreating`.
 
