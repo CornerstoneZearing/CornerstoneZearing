@@ -1,0 +1,100 @@
+﻿/* --------------- */
+/* Events Calendar */
+/* --------------- */
+
+.fc h2 {
+    color: var(--ccc-black);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.fc .fc-button {
+    border-radius: var(--bs-border-radius);
+}
+
+.fc .fc-button-primary {
+    background: var(--ccc-footer-background);
+}
+
+    .fc .fc-button-primary:not(:disabled).fc-button-active, .fc .fc-button-primary:not(:disabled):active, .fc .fc-button-primary:hover {
+        background: color-mix(in oklab, var(--ccc-black) 100%, var(--ccc-primary) 90%);
+    }
+
+    .fc .fc-button-primary:disabled {
+        background: var(--ccc-footer-background);
+    }
+
+.fc-col-header-cell.fc-day {
+    background: var(--ccc-footer-background);
+    padding: 0.5rem 0;
+}
+
+    .fc-col-header-cell.fc-day a {
+        color: var(--ccc-white);
+        font-size: 0.813rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+.fc .fc-daygrid-body {
+    background: linear-gradient(180deg,rgba(0, 115, 170, 0.05) 0%, rgba(1, 151, 122, 0.05) 100%);
+}
+
+.fc-daygrid-day-number {
+    color: var(--ccc-black);
+    text-decoration: none;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: rgba(var(--ccc-secondary-rgb), 0.15);
+}
+
+.fc-daygrid-event {
+    border-radius: var(--bs-border-radius);
+}
+
+.fc-daygrid-event-dot {
+    display: none;
+}
+
+.fc-event {
+    color: var(--ccc-primary);
+    cursor: pointer;
+    font-weight: 600;
+    padding-left: 2px;
+}
+
+.fc .fc-scroller-harness, .fc-theme-standard .fc-scrollgrid {
+    border-top-left-radius: var(--bs-border-radius);
+    border-top-right-radius: var(--bs-border-radius);
+}
+
+.fc-h-event, .fc-v-event {
+    background-color: var(--ccc-primary);
+    border: 1px solid var(--ccc-primary);
+    cursor: pointer;
+    font-weight: 600;
+    padding-left: 2px;
+}
+
+.fc-list-day-cushion.fc-cell-shaded {
+    background-color: var(--ccc-footer-background);
+}
+
+    .fc-list-day-cushion.fc-cell-shaded a {
+        color: var(--ccc-white);
+        font-size: 0.813rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+
+.fc .fc-list-event-dot {
+    display: none;
+}
+
+.fc .fc-scroller-liquid, .fc .fc-view-harness-active > .fc-view {
+    border-top-left-radius: var(--bs-border-radius);
+    border-top-right-radius: var(--bs-border-radius);
+}

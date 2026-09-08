@@ -43,6 +43,7 @@ builder.Services.AddPackages(packages =>
 {
     packages.Add(new StylePackage("/styles/cornerstone.css")
         .Include("~/styles/theme.css")
+        .Include("~/styles/events.css")
     );
     packages.Add(new ScriptPackage("/scripts/cornerstone.js")
         .Include("~/scripts/theme.js")
