@@ -65,21 +65,18 @@
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/header@2.8.9/dist/header.umd.js" integrity="sha384-gsHcARcunRrx+hZA2vZY6ESWTIC8ZJZpyuAjNmKponX5ftG43VHfZ8geURncPDPh" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/list@2.0.9/dist/editorjs-list.umd.js" integrity="sha384-rgmnoyP4Ld6tRkTXoq965fzulyZZ6NSUYy+JYI4mO9sxaJDrpyjORlNUz5Un2gbn" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/quote@2.7.6/dist/quote.umd.js" integrity="sha384-z43sl0T5c0VaZ0qANtyMgguU+QmuuzTmE4lWCjGDs2IgVrbQn6ycdbCwemISQxug" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/image@2.10.3/dist/image.umd.js" integrity="sha384-x+8X+am+peBvhMXyUZDpid1xuh/eJzrRGmPT7082F3Q4BL+GFvqjtx+b/MavaMhc" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/simple-image@1.6.0/dist/simple-image.umd.js" integrity="sha384-6UOsVoZI1zqEHXqw1VYbchP7bGaUI/Z1gWv+5YlCZkSd9QV+46MAgSfofoSMnJ1W" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/embed@2.8.0/dist/embed.umd.js" integrity="sha384-/1ZI1HlHcevdvuxte+CPpgCdkHnvAqD4P9oyVCu1bxTotpiAJDerFB+SObio3CH1" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/table@2.4.5/dist/table.umd.js" integrity="sha384-S4yr1Wph77OThIDFdaD2thqwWO3tHs92hWe5NxTHxEmQsYoonlB4fLiKH9ZyfZEi" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/code@2.9.4/dist/code.umd.js" integrity="sha384-pmKzfNHAxgIHBx/Nzm5HVAQyKQwkM/Mpcm2NSVPojR03VCm4g2kYBgzY9FsE4cXa" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/delimiter@1.4.2/dist/delimiter.umd.js" integrity="sha384-JxFg+sowMd+b7DsI8bCOvXPDtHPiIjXxSMk9WXaGWpDtSwzzMIb+tGwkaAh9qMgB" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/warning@1.4.1/dist/warning.umd.js" integrity="sha384-ffeWk9dl1hzdMGuat8++w1VDrkssXdtXZ0TUEqlGOKxUfDgjO7ybm/+VHoReHrty" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/checklist@1.6.0/dist/checklist.umd.js" integrity="sha384-0BqF+qLJW3rgkQbEXSAPhd2gF6Xwk49oPrdpj1vTJP8oD38jxRANuMVPYi0ehfVr" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/raw@2.5.1/dist/raw.umd.js" integrity="sha384-SnKuY1dyCiUIK4MoMUEprsVtxaN/aMGLqyipRou/Wyc3E2PZTEITsxTvoIq2RXTb" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/link@2.6.2/dist/link.umd.js" integrity="sha384-Iw/odmBiXm0ipItxVU/BfOAUoOfCumhS10/M4Jfmum8KmYhHIfW9T+0HJYKKfpPo" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/marker@1.4.0/dist/marker.umd.js" integrity="sha384-xCW2AjuNs2r576ct9AvLo3Knz4N5tsszNVGXueZc7eI1iTEL0NSFy47G1er+diE+" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/inline-code@1.5.2/dist/inline-code.umd.js" integrity="sha384-+3JnsZ5Ef/PXN4aILTy12X6yX8sSVv213uEX7F8ab9j3aBMj/7sypQGQad44v5jo" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@@editorjs/underline@1.2.1/dist/underline.umd.js" integrity="sha384-dnYKCq4EytQYj/90VpMbfms5RNP8MDTU7qLiIvOGJSCtpynWiaqUQ1Vclblc0Zdd" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/editorjs-html@4.0.5/.build/edjsHTML.browser.js" integrity="sha384-SOLhp/nkyKm7D61Z+nFKn1uI3atHm0Vu1jMVXSWOW44KWPTCEpfbXix2MjOK5MoB" crossorigin="anonymous"></script>
 	<script src="~/scripts/editorjs-bootstrap-card.js"></script>
+	<script src="~/scripts/editorjs-media-image.js"></script>
 
 	<script>
 		const contentInput = document.getElementById('contentInput');
@@ -104,24 +101,11 @@
 				list: { class: EditorjsList, inlineToolbar: true },
 				quote: { class: Quote, inlineToolbar: true },
 				image: {
-					class: ImageTool,
+					class: MediaImageTool,
 					config: {
-						uploader: {
-							uploadByFile(file) {
-								const formData = new FormData();
-								formData.append('file', file);
-								formData.append('__RequestVerificationToken', antiForgeryToken);
-								return fetch('@Url.Action("Upload", "Media", new { area = "Admin" })', {
-									method: 'POST',
-									headers: { 'Accept': 'application/json' },
-									body: formData
-								})
-									.then(r => r.json())
-									.then(data => data.success
-										? { success: 1, file: { url: data.url } }
-										: { success: 0 });
-							}
-						}
+						mediaListUrl: '@Url.Action("List", "Media", new { area = "Admin" })',
+						uploadUrl: '@Url.Action("Upload", "Media", new { area = "Admin" })',
+						antiForgeryToken: antiForgeryToken
 					}
 				},
 				simpleImage: SimpleImage,
@@ -129,10 +113,7 @@
 				table: { class: Table, inlineToolbar: true },
 				code: CodeTool,
 				delimiter: Delimiter,
-				warning: { class: Warning, inlineToolbar: true },
-				checklist: { class: Checklist, inlineToolbar: true },
 				raw: RawTool,
-				linkTool: LinkTool,
 				marker: Marker,
 				inlineCode: InlineCode,
 				underline: Underline,
@@ -155,13 +136,9 @@
 			table: block => '<table><tbody>' + block.data.content.map(row =>
 				'<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>'
 			).join('') + '</tbody></table>',
-			warning: block => `<div class="callout callout-warning"><strong>${block.data.title}</strong><p>${block.data.message}</p></div>`,
-			checklist: block => '<ul class="checklist">' + block.data.items.map(item =>
-				`<li><input type="checkbox" disabled${item.checked ? ' checked' : ''}> ${item.text}</li>`
-			).join('') + '</ul>',
 			raw: block => block.data.html,
 			simpleImage: block => `<img src="${block.data.url}" alt="${block.data.caption || ''}">` + (block.data.caption ? `<figcaption>${block.data.caption}</figcaption>` : ''),
-			linkTool: block => `<a href="${block.data.link}" target="_blank" rel="noopener noreferrer">${(block.data.meta && block.data.meta.title) || block.data.link}</a>`,
+			image: block => `<p><img src="${escAttr(block.data.url)}" alt="${escAttr(block.data.alt)}" class="img-fluid"></p>` + (block.data.caption ? `<figcaption>${block.data.caption}</figcaption>` : ''),
 			card: block => {
 				const d = block.data;
 				const image = d.imageUrl ? `<img src="${escAttr(d.imageUrl)}" class="card-img-top" alt="${escAttr(d.imageAlt)}">` : '';
