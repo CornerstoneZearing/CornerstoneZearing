@@ -1,4 +1,3 @@
-using CornerstoneZearing.Web.Interfaces;
 using System.Net;
 using System.Net.Mail;
 
@@ -37,4 +36,9 @@ public class MailService(IConfiguration config) : IMailService
 
         await client.SendMailAsync(message);
     }
+}
+
+public interface IMailService
+{
+    Task SendAsync(string to, string subject, string body);
 }
