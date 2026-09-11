@@ -1,0 +1,50 @@
+@model CornerstoneZearing.Web.Models.BlogIndexViewModel
+@{
+    ViewData["Title"] = "Blog";
+}
+<div class="row g-5">
+    <div class="col-lg-8">
+        <h1 class="mb-4">Blog</h1>
+        @if (Model.Posts.Count == 0)
+        {
+            <p class="text-muted">No posts found.</p>
+        }
+        @foreach (var post in Model.Posts)
+        {
+            <article class="mb-4 pb-4 border-bottom">
+                <h2 class="h4 mb-1"><a href="/blog/@post.Slug" class="text-decoration-none">@post.Title</a></h2>
+                <div class="text-muted small mb-2">
+                    @((post.DatePublished ?? post.DateCreated).ToString("MMMM d, yyyy"))
+                    @if (post.PostCategory != null)
+                    {
+                        <text> · <a href="/blog?category=@post.PostCategory.Slug">@post.PostCategory.Name</a></text>
+                    }
+                </div>
+                <p>@post.Summary</p>
+            </article>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination">
+                    @for (var i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" href="/blog?page=@i&category=@Model.Category&tag=@Model.Tag">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+    <div class="col-lg-4">
+        <h2 class="h5">Categories</h2>
+        <ul class="list-unstyled">
+            @foreach (var c in Model.Categories)
+            {
+                <li><a href="/blog?category=@c.Slug" class="text-decoration-none">@c.Name</a></li>
+            }
+        </ul>
+    </div>
+</div>

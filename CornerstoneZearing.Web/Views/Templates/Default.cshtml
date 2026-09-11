@@ -1,15 +1,26 @@
-@model CornerstoneZearing.Data.Entities.Page
+@model CornerstoneZearing.Web.Models.PageViewModel
 @{
-	ViewData["Title"] = Model.MetaTitle ?? Model.Name;
-	ViewData["MetaDescription"] = Model.MetaDescription;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Page.MetaTitle) ? Model.Page.Title : Model.Page.MetaTitle;
+    ViewData["MetaDescription"] = Model.Page.MetaDescription;
 }
-
-<partial name="_Mast" model="@Model" />
-
-<article class="page-content">
-	<div class="container">
-		<div class="content">
-			@Html.Raw(Model.ContentHtml)
-		</div>
-	</div>
-</article>
+<div class="row g-5">
+    <div class="@(Model.Sidebar != null ? "col-lg-8" : "col-lg-10 mx-auto")">
+        <h1 class="mb-4">@Model.Page.Title</h1>
+        @if (Model.FeaturedMedia != null)
+        {
+            <img class="img-fluid rounded mb-4" src="@Url.Action("File", "MediaFiles", new { id = Model.FeaturedMedia.MediaID })" alt="@Model.FeaturedMedia.AltText" />
+        }
+        <div class="page-content">
+            @Html.Raw(Model.Page.ContentHtml)
+        </div>
+    </div>
+    @if (Model.Sidebar != null)
+    {
+        <aside class="col-lg-4">
+            <div class="p-3 bg-light rounded">
+                <h2 class="h5">@Model.Sidebar.Title</h2>
+                @Html.Raw(Model.Sidebar.ContentHtml)
+            </div>
+        </aside>
+    }
+</div>

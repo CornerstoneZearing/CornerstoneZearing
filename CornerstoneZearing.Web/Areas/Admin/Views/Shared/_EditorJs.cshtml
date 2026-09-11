@@ -1,0 +1,20 @@
+@model string
+@{
+    var fieldName = ViewData["FieldName"] as string ?? "ContentJson";
+    var uploadUrl = Url.Action("UploadByFile", "Media", new { area = "Admin" });
+    var uploadByUrl = Url.Action("UploadByUrl", "Media", new { area = "Admin" });
+}
+<div id="editor-holder" class="editorjs-holder"></div>
+<input type="hidden" id="editor-input" name="@fieldName" value="@(Model ?? "")" />
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+        window.initEditor({
+            holderId: "editor-holder",
+            inputId: "editor-input",
+            uploadUrl: "@uploadUrl",
+            uploadByUrl: "@uploadByUrl",
+            antiForgery: tokenEl ? tokenEl.value : null
+        });
+    });
+</script>

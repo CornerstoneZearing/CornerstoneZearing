@@ -1,5 +1,5 @@
+using CornerstoneZearing.Data.Identity;
 using CornerstoneZearing.Web.Areas.Admin.Models;
-using CornerstoneZearing.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,83 +9,61 @@ namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 [Area("Admin")]
 public class AccountController : Controller
 {
-    private readonly SignInManager<ApplicationUser> _SignInManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    /// <summary>
-    /// Initialization constructor.
-    /// </summary>
-    /// <param name="signInManager"></param>
-    public AccountController(SignInManager<ApplicationUser> signInManager)
+    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
     {
-        _SignInManager = signInManager;
+        _signInManager = signInManager;
+        _userManager = userManager;
     }
 
-    /// <summary>
-    /// Login page.
-    /// </summary>
-    /// <param name="returnUrl"></param>
-    /// <returns></returns>
-    [HttpGet]
     [AllowAnonymous]
+    [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
-        {
-            return RedirectToAction("Index", "Home", new { area = "Admin" });
-        }
+            return RedirectToAction("Index", "Dashboard");
 
-        return View(new LoginModel { ReturnUrl = returnUrl });
+        return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
 
-    /// <summary>
-    /// Login form submission.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpPost]
     [AllowAnonymous]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginModel model)
+    public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
+            return View(model);
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user is null || !user.IsActive)
         {
+            ModelState.AddModelError(string.Empty, "Invalid sign-in attempt.");
             return View(model);
         }
 
-        var result = await _SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-
+        var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: true);
         if (result.Succeeded)
         {
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-            {
                 return Redirect(model.ReturnUrl);
-            }
-
-            return RedirectToAction("Index", "Home", new { area = "Admin" });
+            return RedirectToAction("Index", "Dashboard");
         }
 
-        if (result.IsLockedOut)
-        {
-            ModelState.AddModelError(string.Empty, "Account locked. Please try again later.");
-        }
-        else
-        {
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        }
-
+        ModelState.AddModelError(string.Empty, result.IsLockedOut ? "This account is locked. Try again later." : "Invalid sign-in attempt.");
         return View(model);
     }
 
-    /// <summary>
-    /// Logout submission.
-    /// </summary>
-    /// <returns></returns>
     [HttpPost]
-    [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _SignInManager.SignOutAsync();
+        await _signInManager.SignOutAsync();
         return RedirectToAction("Login");
     }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public IActionResult AccessDenied() => View();
 }

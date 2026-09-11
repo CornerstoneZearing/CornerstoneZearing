@@ -1,0 +1,20 @@
+@model CornerstoneZearing.Data.Entities.Sermon
+@{
+    ViewData["Title"] = Model.Title;
+}
+<article class="col-lg-8 mx-auto">
+    <h1 class="mb-2">@Model.Title</h1>
+    <div class="text-muted small mb-4">
+        @Model.SermonDate.ToString("MMMM d, yyyy")
+        @if (!string.IsNullOrEmpty(Model.Speaker)) { <text> · @Model.Speaker</text> }
+        @if (Model.SermonCategory != null) { <text> · @Model.SermonCategory.Name</text> }
+    </div>
+    @if (Model.FeaturedDocument != null)
+    {
+        <p><a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Document", "MediaFiles", new { id = Model.FeaturedDocument.DocumentID })">Download notes (@Model.FeaturedDocument.OriginalFileName)</a></p>
+    }
+    <div class="page-content">
+        @Html.Raw(Model.ContentHtml)
+    </div>
+    <p class="mt-4"><a href="/sermons">&larr; All sermons</a></p>
+</article>

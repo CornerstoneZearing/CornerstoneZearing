@@ -1,0 +1,15 @@
+@model CornerstoneZearing.Web.Models.PageViewModel
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Page.MetaTitle) ? Model.Page.Title : Model.Page.MetaTitle;
+    ViewData["MetaDescription"] = Model.Page.MetaDescription;
+}
+<div class="py-5 text-center bg-light rounded mb-5">
+    <h1 class="display-5 fw-semibold">@Model.Page.Title</h1>
+</div>
+@if (Model.FeaturedMedia != null)
+{
+    <img class="img-fluid rounded mb-4 w-100" src="@Url.Action("File", "MediaFiles", new { id = Model.FeaturedMedia.MediaID })" alt="@Model.FeaturedMedia.AltText" />
+}
+<div class="page-content col-lg-9 mx-auto">
+    @Html.Raw(Model.Page.ContentHtml)
+</div>

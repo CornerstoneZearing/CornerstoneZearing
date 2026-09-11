@@ -1,0 +1,49 @@
+@model RoleEditViewModel
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "New role" : "Edit role";
+    var selected = Model.Permissions.ToHashSet(StringComparer.OrdinalIgnoreCase);
+}
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back to roles</a>
+</div>
+<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="validation-summary-errors"></div>
+    <div class="card" style="max-width:720px"><div class="card-body">
+        <div class="form-row">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" />
+            <span asp-validation-for="Name" class="field-validation-error"></span>
+        </div>
+        <div class="form-row">
+            <label asp-for="Description"></label>
+            <input asp-for="Description" />
+        </div>
+    </div></div>
+
+    <div class="card" style="max-width:720px; margin-top:20px"><div class="card-body">
+        <h4 style="margin-top:0">Permissions</h4>
+        @foreach (var group in Permissions.Groups)
+        {
+            <div style="margin-bottom:14px">
+                <strong style="font-size:13px">@group.Name</strong>
+                <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:6px">
+                    @foreach (var p in group.Permissions)
+                    {
+                        <label class="checkbox-row" style="font-weight:400">
+                            <input type="checkbox" name="Permissions" value="@p" checked="@selected.Contains(p)" />
+                            @p.Split('.').Last()
+                        </label>
+                    }
+                </div>
+            </div>
+        }
+    </div></div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save role</button>
+        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+    </div>
+</form>

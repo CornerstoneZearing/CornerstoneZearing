@@ -1,0 +1,10 @@
+@model CornerstoneZearing.Data.Enums.ContentStatus
+@{
+    var cls = Model switch
+    {
+        ContentStatus.Published => "badge-published",
+        ContentStatus.Archived => "badge-archived",
+        _ => "badge-draft"
+    };
+}
+<span class="badge @cls">@Model</span>

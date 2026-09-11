@@ -1,0 +1,23 @@
+@model List<CornerstoneZearing.Data.Identity.ApplicationRole>
+@{ ViewData["Title"] = "Roles"; }
+<div class="page-header">
+    <h1>Roles</h1>
+    <a class="btn btn-primary" asp-action="Create">New role</a>
+</div>
+<table class="data">
+    <thead><tr><th>Name</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var r in Model)
+    {
+        <tr>
+            <td><a asp-action="Edit" asp-route-id="@r.Id">@r.Name</a></td>
+            <td class="muted">@r.Description</td>
+            <td style="text-align:right">
+                <form asp-action="Delete" asp-route-id="@r.Id" method="post" onsubmit="return confirm('Delete this role?');" style="display:inline">
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

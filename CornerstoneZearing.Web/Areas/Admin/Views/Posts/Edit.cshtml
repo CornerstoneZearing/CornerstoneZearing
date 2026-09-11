@@ -1,0 +1,69 @@
+@model PostEditViewModel
+@{
+    var isNew = Model.PostID == 0;
+    ViewData["Title"] = isNew ? "New post" : "Edit post";
+}
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back to posts</a>
+</div>
+<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.PostID" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title" class="field-validation-error"></span>
+            </div>
+            <div class="form-row">
+                <label asp-for="Slug"></label>
+                <input asp-for="Slug" placeholder="auto-generated from title" />
+            </div>
+            <div class="form-row">
+                <label asp-for="Summary"></label>
+                <textarea asp-for="Summary"></textarea>
+            </div>
+            <div class="form-row">
+                <label>Content</label>
+                <partial name="_EditorJs" model="Model.ContentJson" />
+            </div>
+            <div class="form-row">
+                <label asp-for="MetaTitle"></label>
+                <input asp-for="MetaTitle" />
+            </div>
+            <div class="form-row">
+                <label asp-for="MetaDescription"></label>
+                <textarea asp-for="MetaDescription"></textarea>
+            </div>
+        </div></div>
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<ContentStatus>()"></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="PostCategoryID">Category</label>
+                <select asp-for="PostCategoryID" asp-items="Model.CategoryOptions"><option value="">— none —</option></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="DatePublished"></label>
+                <input asp-for="DatePublished" type="datetime-local" />
+                <div class="hint">Leave blank to set automatically when published.</div>
+            </div>
+            <div class="form-row">
+                <label asp-for="Tags"></label>
+                <input asp-for="Tags" placeholder="comma, separated, tags" />
+            </div>
+            <div class="form-row">
+                <label>Featured image</label>
+                <partial name="_MediaPickerField" model="@(("FeaturedMediaID", Model.FeaturedMediaID, Model.FeaturedMediaUrl))" />
+            </div>
+        </div></div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save post</button>
+        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+    </div>
+</form>

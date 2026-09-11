@@ -1,0 +1,75 @@
+@model PageEditViewModel
+@{
+    var isNew = Model.PageID == 0;
+    ViewData["Title"] = isNew ? "New page" : "Edit page";
+}
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back to pages</a>
+</div>
+
+<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.PageID" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title" class="field-validation-error"></span>
+            </div>
+            <div class="form-row">
+                <label asp-for="Slug"></label>
+                <input asp-for="Slug" placeholder="auto-generated from title" />
+                <div class="hint">Leave blank to generate from the title.</div>
+            </div>
+            <div class="form-row">
+                <label>Content</label>
+                <partial name="_EditorJs" model="Model.ContentJson" />
+            </div>
+            <div class="form-row">
+                <label asp-for="MetaTitle"></label>
+                <input asp-for="MetaTitle" />
+            </div>
+            <div class="form-row">
+                <label asp-for="MetaDescription"></label>
+                <textarea asp-for="MetaDescription"></textarea>
+            </div>
+        </div></div>
+
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<ContentStatus>()"></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="Template"></label>
+                <select asp-for="Template" asp-items="Model.TemplateOptions"><option value="">Default</option></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="ParentPageID">Parent page</label>
+                <select asp-for="ParentPageID" asp-items="Model.ParentOptions"><option value="">— none —</option></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="SidebarID">Sidebar</label>
+                <select asp-for="SidebarID" asp-items="Model.SidebarOptions"><option value="">— none —</option></select>
+            </div>
+            <div class="form-row">
+                <label>Featured image</label>
+                <partial name="_MediaPickerField" model="@(("FeaturedMediaID", Model.FeaturedMediaID, Model.FeaturedMediaUrl))" />
+            </div>
+            <div class="form-row">
+                <label asp-for="SortOrder"></label>
+                <input asp-for="SortOrder" type="number" />
+            </div>
+            <div class="form-row checkbox-row">
+                <input asp-for="ShowInNavigation" />
+                <label asp-for="ShowInNavigation" style="margin:0">Show in navigation</label>
+            </div>
+        </div></div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save page</button>
+        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+    </div>
+</form>

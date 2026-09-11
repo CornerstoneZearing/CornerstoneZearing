@@ -1,0 +1,31 @@
+@model CategoryEditViewModel
+@{
+    var isNew = Model.Id == 0;
+}
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back</a>
+</div>
+<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="validation-summary-errors"></div>
+    <div class="card" style="max-width:560px"><div class="card-body">
+        <div class="form-row">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" />
+            <span asp-validation-for="Name" class="field-validation-error"></span>
+        </div>
+        <div class="form-row">
+            <label asp-for="Slug"></label>
+            <input asp-for="Slug" placeholder="auto-generated" />
+        </div>
+        <div class="form-row">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description"></textarea>
+        </div>
+    </div></div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+    </div>
+</form>

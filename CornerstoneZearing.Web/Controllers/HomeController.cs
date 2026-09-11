@@ -1,61 +1,53 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using CornerstoneZearing.Data;
 using CornerstoneZearing.Data.Entities;
+using CornerstoneZearing.Data.Enums;
+using CornerstoneZearing.Web.Models;
+using CornerstoneZearing.Web.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CornerstoneZearing.Web.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ApplicationDbContext _Context;
+    private readonly CornerstoneDbContext _db;
+    private readonly RecurrenceService _recurrence;
 
-    public HomeController(ApplicationDbContext context)
+    public HomeController(CornerstoneDbContext db, RecurrenceService recurrence)
     {
-        _Context = context;
+        _db = db;
+        _recurrence = recurrence;
     }
 
     public async Task<IActionResult> Index()
     {
-        var homePage = await _Context.Pages
-            .FirstOrDefaultAsync(p => p.UrlSlug == "" && p.Status == PageStatus.Published);
-
-        if (homePage == null)
+        var now = DateTime.Now;
+        var vm = new HomeViewModel
         {
-            return View("Index");
-        }
+            RecentPosts = await _db.Posts
+                .Where(p => p.Status == ContentStatus.Published)
+                .OrderByDescending(p => p.DatePublished ?? p.DateCreated)
+                .Take(3).ToListAsync(),
+            LatestSermon = await _db.Sermons
+                .Where(s => s.Status == ContentStatus.Published)
+                .OrderByDescending(s => s.SermonDate)
+                .FirstOrDefaultAsync(),
+        };
 
-        return await RenderPage(homePage);
+        var events = await _db.Events.Where(e => !e.Private).ToListAsync();
+        vm.UpcomingEvents = _recurrence.ExpandAll(events, now, now.AddMonths(2))
+            .Where(o => o.Start >= now)
+            .OrderBy(o => o.Start)
+            .Take(5)
+            .ToList();
+
+        return View(vm);
     }
 
-    public async Task<IActionResult> Render(string slug)
+    [Route("Home/Error")]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
     {
-        var segments = (slug ?? string.Empty).Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (segments.Length == 0)
-        {
-            return NotFound();
-        }
-
-        Page? page = null;
-        foreach (var segment in segments)
-        {
-            var parentID = page?.PageID;
-            page = await _Context.Pages.FirstOrDefaultAsync(p =>
-                p.UrlSlug == segment &&
-                p.ParentPageID == parentID &&
-                p.Status == PageStatus.Published);
-
-            if (page == null)
-            {
-                return NotFound();
-            }
-        }
-
-        return await RenderPage(page!);
-    }
-
-    private Task<IActionResult> RenderPage(Page page)
-    {
-        var templatePath = $"~/Views/Templates/{page.TemplateName}.cshtml";
-        return Task.FromResult<IActionResult>(View(templatePath, page));
+        return View(new ErrorViewModel { RequestId = HttpContext.TraceIdentifier });
     }
 }

@@ -1,50 +1,24 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace CornerstoneZearing.Data.Entities;
 
 public class Event
 {
-    public Guid EventID { get; set; }
-
-    [Required, MaxLength(200)]
-    public string Name { get; set; } = string.Empty;
-
-    [MaxLength(200)]
-    public string Location { get; set; } = string.Empty;
-
+    public int EventID { get; set; }
+    public string Title { get; set; } = string.Empty;
     public DateTime StartDateTime { get; set; }
-
     public DateTime EndDateTime { get; set; }
+    public string? Location { get; set; }
+    public string? Description { get; set; }
+    public bool Private { get; set; }
 
-    public string Description { get; set; } = string.Empty;
+    /// <summary>RFC 5545 RRULE text (without the "RRULE:" prefix). Null = single occurrence.</summary>
+    public string? RecurrenceRule { get; set; }
 
-    public bool IsAllDay { get; set; }
-
-    public bool IsPrivate { get; set; } = false;
-
-    public RecurrenceType RecurrenceType { get; set; } = RecurrenceType.None;
-
-    public int RecurrenceInterval { get; set; } = 1;
-
-    public bool RecurSunday { get; set; }
-
-    public bool RecurMonday { get; set; }
-
-    public bool RecurTuesday { get; set; }
-
-    public bool RecurWednesday { get; set; }
-
-    public bool RecurThursday { get; set; }
-
-    public bool RecurFriday { get; set; }
-
-    public bool RecurSaturday { get; set; }
-
-    public MonthlyYearlyPattern MonthlyYearlyPattern { get; set; } = MonthlyYearlyPattern.SpecificDate;
-
+    /// <summary>Optional cap on how far the recurrence extends.</summary>
     public DateTime? RecurrenceEndDate { get; set; }
 
-    public DateTime DateCreated { get; set; }
+    /// <summary>Newline-separated EXDATE values (occurrence start times to skip).</summary>
+    public string? RecurrenceExceptions { get; set; }
 
+    public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
 }

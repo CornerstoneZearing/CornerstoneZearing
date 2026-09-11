@@ -1,310 +1,184 @@
-using CornerstoneZearing.Web.Areas.Admin.Models;
 using CornerstoneZearing.Data;
 using CornerstoneZearing.Data.Entities;
-using Microsoft.AspNetCore.Authorization;
+using CornerstoneZearing.Web.Areas.Admin.Models;
+using CornerstoneZearing.Web.Authorization;
+using CornerstoneZearing.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 
-[Area("Admin")]
-[Authorize(Roles = "Administrator,Editor")]
-public class PagesController : Controller
+public class PagesController : BaseAdminController
 {
-    private readonly ApplicationDbContext _DbContext;
+    private readonly CornerstoneDbContext _db;
+    private readonly EditorJsRenderer _renderer;
+    private readonly SlugService _slugs;
+    private readonly PageTemplateService _templates;
+    private readonly NavigationService _navigation;
 
-    /// <summary>
-    /// Initialization constructor.
-    /// </summary>
-    /// <param name="context"></param>
-    public PagesController(ApplicationDbContext context)
+    public PagesController(CornerstoneDbContext db, EditorJsRenderer renderer, SlugService slugs,
+        PageTemplateService templates, NavigationService navigation)
     {
-        _DbContext = context;
+        _db = db;
+        _renderer = renderer;
+        _slugs = slugs;
+        _templates = templates;
+        _navigation = navigation;
     }
 
-    /// <summary>
-    /// List page.
-    /// </summary>
-    /// <returns></returns>
+    [HasPermission(Permissions.Pages.View)]
     public async Task<IActionResult> Index()
     {
-        var pages = await _DbContext.Pages
-            .OrderByDescending(p => p.DateModified)
+        ViewData["Title"] = "Pages";
+        var pages = await _db.Pages
+            .Include(p => p.ParentPage)
+            .OrderBy(p => p.SortOrder).ThenBy(p => p.Title)
             .ToListAsync();
-
-        var byId = pages.ToDictionary(p => p.PageID);
-        ViewBag.FullPaths = pages.ToDictionary(p => p.PageID, p => BuildFullPath(p, byId));
-
         return View(pages);
     }
 
-    /// <summary>
-    /// Create page.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
+    [HasPermission(Permissions.Pages.Create)]
     public async Task<IActionResult> Create()
     {
-        await PopulateParentOptionsAsync(excludePageId: null);
-        return View("Form", new PageFormModel());
+        ViewData["Title"] = "New page";
+        var vm = new PageEditViewModel();
+        await PopulateOptionsAsync(vm, null);
+        return View("Edit", vm);
     }
 
-    /// <summary>
-    /// Creates a new page.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(PageFormModel model)
+    [HasPermission(Permissions.Pages.Create)]
+    public async Task<IActionResult> Create(PageEditViewModel vm)
     {
         if (!ModelState.IsValid)
         {
-            await PopulateParentOptionsAsync(excludePageId: null);
-            return View("Form", model);
+            await PopulateOptionsAsync(vm, null);
+            return View("Edit", vm);
         }
 
-        if (await _DbContext.Pages.AnyAsync(p => p.UrlSlug == model.UrlSlug && p.ParentPageID == model.ParentPageID))
-        {
-            ModelState.AddModelError("UrlSlug", "This URL slug is already in use under the selected parent page.");
-            await PopulateParentOptionsAsync(excludePageId: null);
-            return View("Form", model);
-        }
-
-        var page = new Page
-        {
-            PageID = Guid.NewGuid(),
-            Name = model.Name,
-            ContentHtml = model.ContentHtml,
-            ContentJson = model.ContentJson,
-            TemplateName = model.TemplateName,
-            UrlSlug = model.UrlSlug,
-            ParentPageID = model.ParentPageID,
-            MetaTitle = model.MetaTitle,
-            MetaDescription = model.MetaDescription,
-            Status = model.Status,
-            DateCreated = DateTime.UtcNow,
-            DateModified = DateTime.UtcNow
-        };
-
-        _DbContext.Pages.Add(page);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"Page \"{page.Name}\" created successfully.";
-        return RedirectToAction(nameof(Index));
+        var page = new Page();
+        await ApplyAsync(vm, page, isNew: true);
+        _db.Pages.Add(page);
+        await _db.SaveChangesAsync();
+        _navigation.Invalidate();
+        Success("Page created.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Edit page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Edit(Guid id)
+    [HasPermission(Permissions.Pages.Edit)]
+    public async Task<IActionResult> Edit(int id)
     {
-        var page = await _DbContext.Pages.FindAsync(id);
-        if (page == null)
-        {
-            return NotFound();
-        }
+        var page = await _db.Pages.FindAsync(id);
+        if (page is null) return NotFound();
 
-        await PopulateParentOptionsAsync(excludePageId: page.PageID);
-
-        return View("Form", new PageFormModel
+        ViewData["Title"] = "Edit page";
+        var vm = new PageEditViewModel
         {
             PageID = page.PageID,
-            Name = page.Name,
-            ContentHtml = page.ContentHtml,
-            ContentJson = page.ContentJson,
-            TemplateName = page.TemplateName,
-            UrlSlug = page.UrlSlug,
+            Title = page.Title,
+            Slug = page.Slug,
             ParentPageID = page.ParentPageID,
+            SidebarID = page.SidebarID,
+            FeaturedMediaID = page.FeaturedMediaID,
+            Template = page.Template,
+            ContentJson = page.ContentJson,
+            Status = page.Status,
             MetaTitle = page.MetaTitle,
             MetaDescription = page.MetaDescription,
-            Status = page.Status
-        });
+            SortOrder = page.SortOrder,
+            ShowInNavigation = page.ShowInNavigation,
+        };
+        await PopulateOptionsAsync(vm, page.PageID);
+        return View(vm);
     }
 
-    /// <summary>
-    /// Updates a page.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(PageFormModel model)
+    [HasPermission(Permissions.Pages.Edit)]
+    public async Task<IActionResult> Edit(int id, PageEditViewModel vm)
     {
+        var page = await _db.Pages.FindAsync(id);
+        if (page is null) return NotFound();
+
         if (!ModelState.IsValid)
         {
-            await PopulateParentOptionsAsync(excludePageId: model.PageID);
-            return View("Form", model);
+            await PopulateOptionsAsync(vm, id);
+            return View(vm);
         }
 
-        if (await _DbContext.Pages.AnyAsync(p => p.UrlSlug == model.UrlSlug && p.ParentPageID == model.ParentPageID && p.PageID != model.PageID))
-        {
-            ModelState.AddModelError("UrlSlug", "This URL slug is already in use under the selected parent page.");
-            await PopulateParentOptionsAsync(excludePageId: model.PageID);
-            return View("Form", model);
-        }
-
-        if (model.ParentPageID.HasValue)
-        {
-            var allPages = await _DbContext.Pages.ToListAsync();
-            var byId = allPages.ToDictionary(p => p.PageID);
-            if (model.ParentPageID == model.PageID || IsDescendant(model.ParentPageID.Value, model.PageID, byId))
-            {
-                ModelState.AddModelError("ParentPageID", "A page cannot be nested under itself or one of its own child pages.");
-                await PopulateParentOptionsAsync(excludePageId: model.PageID);
-                return View("Form", model);
-            }
-        }
-
-        var page = await _DbContext.Pages.FindAsync(model.PageID);
-        if (page == null)
-        {
-            return NotFound();
-        }
-
-        page.Name = model.Name;
-        page.ContentHtml = model.ContentHtml;
-        page.ContentJson = model.ContentJson;
-        page.TemplateName = model.TemplateName;
-        page.UrlSlug = model.UrlSlug;
-        page.ParentPageID = model.ParentPageID;
-        page.MetaTitle = model.MetaTitle;
-        page.MetaDescription = model.MetaDescription;
-        page.Status = model.Status;
-        page.DateModified = DateTime.UtcNow;
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"Page \"{page.Name}\" updated successfully.";
-        return RedirectToAction(nameof(Index));
+        await ApplyAsync(vm, page, isNew: false);
+        await _db.SaveChangesAsync();
+        _navigation.Invalidate();
+        Success("Page saved.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Delete confirmation page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var page = await _DbContext.Pages.FindAsync(id);
-        if (page == null)
-        {
-            return NotFound();
-        }
-
-        if (await _DbContext.Pages.AnyAsync(p => p.ParentPageID == id))
-        {
-            TempData["Error"] = $"\"{page.Name}\" has child pages. Move or delete them first.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        var allPages = await _DbContext.Pages.ToListAsync();
-        ViewBag.FullPath = BuildFullPath(page, allPages.ToDictionary(p => p.PageID));
-
-        return View(page);
-    }
-
-    /// <summary>
-    /// Deletes a page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    [HasPermission(Permissions.Pages.Delete)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var page = await _DbContext.Pages.FindAsync(id);
-        if (page == null)
+        var page = await _db.Pages.FindAsync(id);
+        if (page is null) return NotFound();
+
+        if (await _db.Pages.AnyAsync(p => p.ParentPageID == id))
         {
-            return NotFound();
+            Error("Remove or reassign child pages first.");
+            return RedirectToIndex();
         }
 
-        if (await _DbContext.Pages.AnyAsync(p => p.ParentPageID == id))
-        {
-            TempData["Error"] = $"\"{page.Name}\" has child pages. Move or delete them first.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        _DbContext.Pages.Remove(page);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = "Page deleted successfully.";
-        return RedirectToAction(nameof(Index));
+        _db.Pages.Remove(page);
+        await _db.SaveChangesAsync();
+        _navigation.Invalidate();
+        Success("Page deleted.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Builds the "/"-joined URL path for a page by walking its parent chain.
-    /// </summary>
-    /// <param name="page"></param>
-    /// <param name="byId"></param>
-    /// <returns></returns>
-    private static string BuildFullPath(Page page, Dictionary<Guid, Page> byId)
+    private async Task ApplyAsync(PageEditViewModel vm, Page page, bool isNew)
     {
-        var segments = new List<string>();
-        Page? current = page;
-        var guard = 0;
-
-        while (current != null && guard++ < 50)
-        {
-            if (!string.IsNullOrEmpty(current.UrlSlug))
-            {
-                segments.Insert(0, current.UrlSlug);
-            }
-            current = current.ParentPageID.HasValue && byId.TryGetValue(current.ParentPageID.Value, out var parent) ? parent : null;
-        }
-
-        return string.Join("/", segments);
+        var now = DateTime.UtcNow;
+        page.Title = vm.Title.Trim();
+        page.Slug = await _slugs.UniqueSlugAsync(
+            string.IsNullOrWhiteSpace(vm.Slug) ? vm.Title : vm.Slug!,
+            async slug => !await _db.Pages.AnyAsync(p => p.Slug == slug && p.PageID != page.PageID),
+            isNew ? null : page.Slug);
+        page.ParentPageID = vm.ParentPageID;
+        page.SidebarID = vm.SidebarID;
+        page.FeaturedMediaID = vm.FeaturedMediaID;
+        page.Template = vm.Template;
+        page.ContentJson = vm.ContentJson;
+        page.ContentHtml = _renderer.Render(vm.ContentJson);
+        page.Status = vm.Status;
+        page.MetaTitle = vm.MetaTitle;
+        page.MetaDescription = vm.MetaDescription;
+        page.SortOrder = vm.SortOrder;
+        page.ShowInNavigation = vm.ShowInNavigation;
+        page.DateModified = now;
+        if (isNew) page.DateCreated = now;
     }
 
-    /// <summary>
-    /// Determines whether the page identified by <paramref name="candidateId"/> is <paramref name="ancestorId"/> itself
-    /// or nested (at any depth) under it.
-    /// </summary>
-    /// <param name="candidateId"></param>
-    /// <param name="ancestorId"></param>
-    /// <param name="byId"></param>
-    /// <returns></returns>
-    private static bool IsDescendant(Guid candidateId, Guid ancestorId, Dictionary<Guid, Page> byId)
+    private async Task PopulateOptionsAsync(PageEditViewModel vm, int? excludeId)
     {
-        Guid? current = candidateId;
-        var guard = 0;
+        var pages = await _db.Pages
+            .Where(p => excludeId == null || p.PageID != excludeId)
+            .OrderBy(p => p.Title)
+            .Select(p => new { p.PageID, p.Title })
+            .ToListAsync();
+        vm.ParentOptions = new SelectList(pages, "PageID", "Title", vm.ParentPageID);
 
-        while (current.HasValue && guard++ < 50)
+        var sidebars = await _db.Sidebars.OrderBy(s => s.Title)
+            .Select(s => new { s.SidebarID, s.Title }).ToListAsync();
+        vm.SidebarOptions = new SelectList(sidebars, "SidebarID", "Title", vm.SidebarID);
+
+        vm.TemplateOptions = new SelectList(_templates.GetTemplateNames(), vm.Template);
+
+        if (vm.FeaturedMediaID is { } mediaId)
         {
-            if (current.Value == ancestorId)
-            {
-                return true;
-            }
-            current = byId.TryGetValue(current.Value, out var page) ? page.ParentPageID : null;
+            var media = await _db.Media.FindAsync(mediaId);
+            if (media != null)
+                vm.FeaturedMediaUrl = Url.Action("File", "MediaFiles", new { area = "", id = media.MediaID });
         }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Populates <c>ViewBag.ParentPages</c> with the pages eligible to be selected as a parent,
-    /// excluding the page being edited and any of its own descendants (which would create a cycle).
-    /// </summary>
-    /// <param name="excludePageId"></param>
-    /// <returns></returns>
-    private async Task PopulateParentOptionsAsync(Guid? excludePageId)
-    {
-        var pages = await _DbContext.Pages.OrderBy(p => p.Name).ToListAsync();
-        var byId = pages.ToDictionary(p => p.PageID);
-
-        var candidates = excludePageId.HasValue
-            ? pages.Where(p => p.PageID != excludePageId.Value && !IsDescendant(p.PageID, excludePageId.Value, byId))
-            : pages;
-
-        var items = candidates
-            .Select(p => new { p.PageID, Path = "/" + BuildFullPath(p, byId) })
-            .OrderBy(p => p.Path)
-            .ToList();
-
-        ViewBag.ParentPages = new SelectList(items, "PageID", "Path");
     }
 }

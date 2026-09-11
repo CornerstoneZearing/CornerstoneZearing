@@ -1,0 +1,27 @@
+@model IEnumerable<CornerstoneZearing.Data.Entities.ICategoryEntity>
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-primary" asp-action="Create">New category</a>
+</div>
+<table class="data">
+    <thead><tr><th>Name</th><th>Slug</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td><a asp-action="Edit" asp-route-id="@c.CategoryId">@c.Name</a></td>
+            <td class="muted">@c.Slug</td>
+            <td class="muted">@c.Description</td>
+            <td style="text-align:right">
+                <form asp-action="Delete" asp-route-id="@c.CategoryId" method="post" onsubmit="return confirm('Delete this category?');" style="display:inline">
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    @if (!Model.Any())
+    {
+        <tr><td colspan="4" class="muted">No categories yet.</td></tr>
+    }
+    </tbody>
+</table>

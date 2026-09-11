@@ -1,39 +1,28 @@
-using System.ComponentModel.DataAnnotations;
+using CornerstoneZearing.Data.Enums;
 
 namespace CornerstoneZearing.Data.Entities;
 
 public class Page
 {
-    public Guid PageID { get; set; }
-
-    [Required, MaxLength(200)]
-    public string Name { get; set; } = string.Empty;
-
-    public string ContentHtml { get; set; } = string.Empty;
-
+    public int PageID { get; set; }
+    public int? ParentPageID { get; set; }
+    public int? SidebarID { get; set; }
+    public int? FeaturedMediaID { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string? Template { get; set; }
     public string? ContentJson { get; set; }
-
-    [Required, MaxLength(100)]
-    public string TemplateName { get; set; } = "Default";
-
-    [Required, MaxLength(200)]
-    public string UrlSlug { get; set; } = string.Empty;
-
-    public Guid? ParentPageID { get; set; }
-
-    public Page? ParentPage { get; set; }
-
-    public ICollection<Page> ChildPages { get; set; } = new List<Page>();
-
-    [MaxLength(200)]
+    public string? ContentHtml { get; set; }
+    public ContentStatus Status { get; set; } = ContentStatus.Draft;
     public string? MetaTitle { get; set; }
-
-    [MaxLength(500)]
     public string? MetaDescription { get; set; }
-
+    public int SortOrder { get; set; }
+    public bool ShowInNavigation { get; set; }
     public DateTime DateCreated { get; set; }
-
     public DateTime DateModified { get; set; }
 
-    public PageStatus Status { get; set; } = PageStatus.Draft;
+    public Page? ParentPage { get; set; }
+    public ICollection<Page> ChildPages { get; set; } = new List<Page>();
+    public Sidebar? Sidebar { get; set; }
+    public Media? FeaturedMedia { get; set; }
 }

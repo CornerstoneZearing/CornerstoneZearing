@@ -1,0 +1,70 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var currentController = (ViewContext.RouteData.Values["controller"] as string) ?? "";
+    string Active(params string[] controllers) => controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Cornerstone Admin</title>
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <script src="~/js/admin.js" asp-append-version="true" defer></script>
+</head>
+<body>
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            <span class="admin-brand-mark">✝</span>
+            <span>Cornerstone</span>
+        </div>
+        <nav class="admin-nav">
+            <a class="@Active("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            <div class="admin-nav-group">Content</div>
+            <a class="@Active("Pages")" asp-area="Admin" asp-controller="Pages" asp-action="Index">Pages</a>
+            <a class="@Active("Posts")" asp-area="Admin" asp-controller="Posts" asp-action="Index">Posts</a>
+            <a class="@Active("PostCategories")" asp-area="Admin" asp-controller="PostCategories" asp-action="Index">Post Categories</a>
+            <a class="@Active("Sidebars")" asp-area="Admin" asp-controller="Sidebars" asp-action="Index">Sidebars</a>
+            <a class="@Active("Sermons")" asp-area="Admin" asp-controller="Sermons" asp-action="Index">Sermons</a>
+            <a class="@Active("SermonCategories")" asp-area="Admin" asp-controller="SermonCategories" asp-action="Index">Sermon Categories</a>
+            <a class="@Active("Events")" asp-area="Admin" asp-controller="Events" asp-action="Index">Events</a>
+            <div class="admin-nav-group">Library</div>
+            <a class="@Active("Media")" asp-area="Admin" asp-controller="Media" asp-action="Index">Media</a>
+            <a class="@Active("Documents")" asp-area="Admin" asp-controller="Documents" asp-action="Index">Documents</a>
+            <div class="admin-nav-group">Administration</div>
+            <a class="@Active("Users")" asp-area="Admin" asp-controller="Users" asp-action="Index">Users</a>
+            <a class="@Active("Roles")" asp-area="Admin" asp-controller="Roles" asp-action="Index">Roles</a>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <a href="/" target="_blank" rel="noopener">View site ↗</a>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div class="admin-topbar-title">@ViewData["Title"]</div>
+            <div class="admin-topbar-user">
+                <span>@User.Identity?.Name</span>
+                <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="btn btn-ghost btn-sm">Sign out</button>
+                </form>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            @if (TempData["Success"] is string success)
+            {
+                <div class="alert alert-success">@success</div>
+            }
+            @if (TempData["Error"] is string error)
+            {
+                <div class="alert alert-error">@error</div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+</div>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

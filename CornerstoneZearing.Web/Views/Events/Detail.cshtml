@@ -1,0 +1,20 @@
+@model CornerstoneZearing.Data.Entities.Event
+@{
+    ViewData["Title"] = Model.Title;
+}
+<article class="col-lg-8 mx-auto">
+    <h1 class="mb-2">@Model.Title</h1>
+    <p class="text-muted mb-1">
+        @Model.StartDateTime.ToString("dddd, MMMM d, yyyy · h:mm tt") &ndash; @Model.EndDateTime.ToString("h:mm tt")
+    </p>
+    @if (!string.IsNullOrEmpty(Model.Location))
+    {
+        <p class="text-muted">@Model.Location</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.RecurrenceRule))
+    {
+        <p><span class="badge text-bg-light">Recurring event</span></p>
+    }
+    <div class="mt-3" style="white-space:pre-wrap">@Model.Description</div>
+    <p class="mt-4"><a href="/events">&larr; Back to calendar</a></p>
+</article>

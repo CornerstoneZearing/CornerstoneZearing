@@ -1,75 +1,35 @@
-@model IEnumerable<CornerstoneZearing.Data.Entities.Page>
+@model List<Page>
 @{
-	ViewData["Section"] = "Pages";
-	ViewData["Title"] = "Pages";
+    ViewData["Title"] = "Pages";
 }
-
 <div class="page-header">
-	<h1>Pages</h1>
-	<a asp-action="Create" class="btn btn-primary">
-		<i class="fas fa-plus"></i> Add Page
-	</a>
+    <h1>Pages</h1>
+    <a class="btn btn-primary" asp-action="Create">New page</a>
 </div>
-
-<div class="card">
-	<div class="table-responsive">
-		<table class="table table-hover align-middle mb-0">
-			<thead>
-				<tr>
-					<th style="width: 35%;">Name</th>
-					<th style="width: 35%;">URL</th>
-					<th style="width: 15%;">Template</th>
-					<th style="width: 15%;">Status</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var pg in Model)
-				{
-					<tr>
-						<td><strong>@pg.Name</strong></td>
-						<td>
-							@{ var fullPath = ((Dictionary<Guid, string>)ViewBag.FullPaths)[pg.PageID]; }
-							<a href="/@fullPath" target="_blank" class="text-muted" style="text-decoration:none;">
-								/@fullPath <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;"></i>
-							</a>
-						</td>
-						<td class="text-muted">@pg.TemplateName</td>
-						<td>
-							@switch (pg.Status)
-							{
-								case CornerstoneZearing.Data.PageStatus.Published:
-									<span class="badge badge-success">Published</span>
-									break;
-								case CornerstoneZearing.Data.PageStatus.Draft:
-									<span class="badge badge-warning">Draft</span>
-									break;
-								case CornerstoneZearing.Data.PageStatus.Withdrawn:
-									<span class="badge badge-secondary">Withdrawn</span>
-									break;
-							}
-						</td>
-						<td>
-							<div class="action-buttons">
-								<a asp-action="Edit" asp-route-id="@pg.PageID" class="btn btn-secondary btn-sm">
-									<i class="fas fa-pen"></i>
-								</a>
-								<a asp-action="Delete" asp-route-id="@pg.PageID" class="btn btn-danger btn-sm">
-									<i class="fas fa-trash"></i>
-								</a>
-							</div>
-						</td>
-					</tr>
-				}
-				@if (!Model.Any())
-				{
-					<tr>
-						<td colspan="6" class="text-center text-body-secondary py-4">
-							No pages yet. <a asp-action="Create">Create your first page.</a>
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-</div>
+<table class="data">
+    <thead>
+    <tr><th>Title</th><th>Slug</th><th>Parent</th><th>Status</th><th>Nav</th><th>Order</th><th></th></tr>
+    </thead>
+    <tbody>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td><a asp-action="Edit" asp-route-id="@p.PageID">@p.Title</a></td>
+            <td class="muted">/@p.Slug</td>
+            <td class="muted">@(p.ParentPage?.Title ?? "—")</td>
+            <td><partial name="_StatusBadge" model="p.Status" /></td>
+            <td>@(p.ShowInNavigation ? "Yes" : "—")</td>
+            <td>@p.SortOrder</td>
+            <td style="text-align:right">
+                <form asp-action="Delete" asp-route-id="@p.PageID" method="post" onsubmit="return confirm('Delete this page?');" style="display:inline">
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    @if (Model.Count == 0)
+    {
+        <tr><td colspan="7" class="muted">No pages yet.</td></tr>
+    }
+    </tbody>
+</table>

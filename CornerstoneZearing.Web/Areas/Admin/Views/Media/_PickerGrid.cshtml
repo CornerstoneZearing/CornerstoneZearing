@@ -1,0 +1,15 @@
+@model List<Media>
+@if (Model.Count == 0)
+{
+    <p class="muted">No images yet. Upload some from the Media library first.</p>
+}
+<div class="media-grid">
+    @foreach (var m in Model)
+    {
+        var url = Url.Action("File", "MediaFiles", new { area = "", id = m.MediaID });
+        <div class="media-tile" data-media-id="@m.MediaID" data-media-url="@url">
+            <img src="@url" alt="@m.AltText" />
+            <div class="meta">@m.OriginalFileName</div>
+        </div>
+    }
+</div>

@@ -1,0 +1,58 @@
+@model SermonEditViewModel
+@{
+    var isNew = Model.SermonID == 0;
+    ViewData["Title"] = isNew ? "New sermon" : "Edit sermon";
+}
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+    <a class="btn btn-ghost" asp-action="Index">Back to sermons</a>
+</div>
+<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.SermonID" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title" class="field-validation-error"></span>
+            </div>
+            <div class="form-row">
+                <label>Content</label>
+                <partial name="_EditorJs" model="Model.ContentJson" />
+            </div>
+        </div></div>
+        <div class="card"><div class="card-body">
+            <div class="form-row">
+                <label asp-for="SermonDate"></label>
+                <input asp-for="SermonDate" type="date" />
+                <span asp-validation-for="SermonDate" class="field-validation-error"></span>
+            </div>
+            <div class="form-row">
+                <label asp-for="SermonCategoryID">Category (required)</label>
+                <select asp-for="SermonCategoryID" asp-items="Model.CategoryOptions"><option value="">— choose —</option></select>
+                <span asp-validation-for="SermonCategoryID" class="field-validation-error"></span>
+            </div>
+            <div class="form-row">
+                <label asp-for="Speaker"></label>
+                <input asp-for="Speaker" />
+            </div>
+            <div class="form-row">
+                <label asp-for="Status"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<ContentStatus>()"></select>
+            </div>
+            <div class="form-row">
+                <label asp-for="FeaturedDocumentID">Featured document</label>
+                <select asp-for="FeaturedDocumentID" asp-items="Model.DocumentOptions"><option value="">— none —</option></select>
+            </div>
+            <div class="form-row">
+                <label>Featured image</label>
+                <partial name="_MediaPickerField" model="@(("FeaturedMediaID", Model.FeaturedMediaID, Model.FeaturedMediaUrl))" />
+            </div>
+        </div></div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save sermon</button>
+        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+    </div>
+</form>

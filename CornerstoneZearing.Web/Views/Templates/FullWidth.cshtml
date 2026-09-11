@@ -1,0 +1,13 @@
+@model CornerstoneZearing.Web.Models.PageViewModel
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Page.MetaTitle) ? Model.Page.Title : Model.Page.MetaTitle;
+    ViewData["MetaDescription"] = Model.Page.MetaDescription;
+}
+<h1 class="mb-4">@Model.Page.Title</h1>
+@if (Model.FeaturedMedia != null)
+{
+    <img class="img-fluid rounded mb-4 w-100" src="@Url.Action("File", "MediaFiles", new { id = Model.FeaturedMedia.MediaID })" alt="@Model.FeaturedMedia.AltText" />
+}
+<div class="page-content">
+    @Html.Raw(Model.Page.ContentHtml)
+</div>

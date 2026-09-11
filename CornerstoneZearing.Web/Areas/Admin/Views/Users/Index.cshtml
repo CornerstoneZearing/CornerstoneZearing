@@ -1,77 +1,26 @@
-@model IEnumerable<UserListModel>
-@{
-	ViewData["Section"] = "Users";
-	ViewData["Title"] = "Users";
-}
-
+@model List<UserListItem>
+@{ ViewData["Title"] = "Users"; }
 <div class="page-header">
-	<h1>Users</h1>
-	<a asp-action="Create" class="btn btn-primary">
-		<i class="fas fa-plus"></i> Add User
-	</a>
+    <h1>Users</h1>
+    <a class="btn btn-primary" asp-action="Create">New user</a>
 </div>
-
-<div class="card">
-	<div class="table-responsive">
-		<table class="table table-hover align-middle mb-0">
-			<thead>
-				<tr>
-					<th style="width: 40%">Name</th>
-					<th style="width: 40%">Email</th>
-					<th style="width: 20%">Roles</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var user in Model)
-				{
-					<tr>
-						<td><strong>@user.DisplayName</strong></td>
-						<td class="text-muted">@user.Email</td>
-						<td>
-							@foreach (var role in user.Roles)
-							{
-								if (role == "Administrator")
-								{
-									<span class="badge badge-danger">
-										@role
-									</span>
-								}
-								else if (role == "Editor")
-								{
-									<span class="badge badge-success">
-										@role
-									</span>
-								}
-								else
-								{
-									<span class="badge badge-primary">
-										@role
-									</span>
-								}
-							}
-						</td>
-						<td>
-							<div class="action-buttons">
-								<a asp-action="Edit" asp-route-id="@user.UserID" class="btn btn-secondary btn-sm">
-									<i class="fas fa-pen"></i>
-								</a>
-								<a asp-action="Delete" asp-route-id="@user.UserID" class="btn btn-secondary btn-sm">
-									<i class="fas fa-trash"></i>
-								</a>
-							</div>
-						</td>
-					</tr>
-				}
-				@if (!Model.Any())
-				{
-					<tr>
-						<td colspan="4" class="text-center text-body-secondary py-4">
-							No users found.
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-</div>
+<table class="data">
+    <thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td><a asp-action="Edit" asp-route-id="@u.Id">@u.DisplayName</a></td>
+            <td class="muted">@u.Email</td>
+            <td class="muted">@(u.Roles.Count == 0 ? "—" : string.Join(", ", u.Roles))</td>
+            <td>@(u.IsActive ? Html.Raw("<span class='badge badge-published'>Active</span>") : Html.Raw("<span class='badge badge-archived'>Inactive</span>"))</td>
+            <td style="text-align:right">
+                <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm">@(u.IsActive ? "Deactivate" : "Activate")</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

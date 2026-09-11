@@ -1,219 +1,120 @@
-using CornerstoneZearing.Web.Areas.Admin.Models;
 using CornerstoneZearing.Data;
 using CornerstoneZearing.Data.Entities;
-using Microsoft.AspNetCore.Authorization;
+using CornerstoneZearing.Web.Areas.Admin.Models;
+using CornerstoneZearing.Web.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 
-[Area("Admin")]
-[Authorize(Roles = "Administrator,Editor")]
-public class EventsController : Controller
+public class EventsController : BaseAdminController
 {
-    private readonly ApplicationDbContext _DbContext;
+    private readonly CornerstoneDbContext _db;
 
-    /// <summary>
-    /// Initialization constructor.
-    /// </summary>
-    /// <param name="context"></param>
-    public EventsController(ApplicationDbContext context)
-    {
-        _DbContext = context;
-    }
+    public EventsController(CornerstoneDbContext db) => _db = db;
 
-    /// <summary>
-    /// List page.
-    /// </summary>
-    /// <returns></returns>
+    [HasPermission(Permissions.Events.View)]
     public async Task<IActionResult> Index()
     {
-        var events = await _DbContext.Events
-            .OrderBy(e => e.StartDateTime)
-            .ToListAsync();
+        ViewData["Title"] = "Events";
+        var events = await _db.Events.OrderByDescending(e => e.StartDateTime).ToListAsync();
         return View(events);
     }
 
-    /// <summary>
-    /// Create page.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
+    [HasPermission(Permissions.Events.Create)]
     public IActionResult Create()
     {
-        return View("Form", new EventFormModel());
+        ViewData["Title"] = "New event";
+        return View("Edit", new EventEditViewModel());
     }
 
-    /// <summary>
-    /// Creates a new event.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(EventFormModel model)
+    [HasPermission(Permissions.Events.Create)]
+    public async Task<IActionResult> Create(EventEditViewModel vm)
     {
-        if (!ModelState.IsValid)
-        {
-            return View("Form", model);
-        }
+        Validate(vm);
+        if (!ModelState.IsValid) return View("Edit", vm);
 
-        var evnt = new Event
-        {
-            EventID = Guid.NewGuid(),
-            DateCreated = DateTime.UtcNow,
-            DateModified = DateTime.UtcNow
-        };
-        ApplyModel(model, evnt);
-
-        _DbContext.Events.Add(evnt);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"Event \"{evnt.Name}\" created successfully.";
-        return RedirectToAction(nameof(Index));
+        var ev = new Event();
+        Apply(vm, ev, true);
+        _db.Events.Add(ev);
+        await _db.SaveChangesAsync();
+        Success("Event created.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Edit page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Edit(Guid id)
+    [HasPermission(Permissions.Events.Edit)]
+    public async Task<IActionResult> Edit(int id)
     {
-        var evnt = await _DbContext.Events.FindAsync(id);
-        if (evnt == null)
-        {
-            return NotFound();
-        }
+        var e = await _db.Events.FindAsync(id);
+        if (e is null) return NotFound();
 
-        var model = new EventFormModel
+        ViewData["Title"] = "Edit event";
+        return View(new EventEditViewModel
         {
-            EventID = evnt.EventID,
-            Name = evnt.Name,
-            Location = evnt.Location,
-            Description = evnt.Description,
-            IsAllDay = evnt.IsAllDay,
-            IsPrivate = evnt.IsPrivate,
-            StartDateTime = evnt.StartDateTime.ToLocalTime(),
-            EndDateTime = evnt.EndDateTime.ToLocalTime(),
-            RecurrenceType = evnt.RecurrenceType,
-            RecurrenceInterval = evnt.RecurrenceInterval,
-            RecurSunday = evnt.RecurSunday,
-            RecurMonday = evnt.RecurMonday,
-            RecurTuesday = evnt.RecurTuesday,
-            RecurWednesday = evnt.RecurWednesday,
-            RecurThursday = evnt.RecurThursday,
-            RecurFriday = evnt.RecurFriday,
-            RecurSaturday = evnt.RecurSaturday,
-            MonthlyYearlyPattern = evnt.MonthlyYearlyPattern,
-            RecurrenceEndDate = evnt.RecurrenceEndDate.HasValue ? evnt.RecurrenceEndDate.Value.ToLocalTime() : null
-        };
-
-        return View("Form", model);
+            EventID = e.EventID,
+            Title = e.Title,
+            StartDateTime = e.StartDateTime,
+            EndDateTime = e.EndDateTime,
+            Location = e.Location,
+            Description = e.Description,
+            Private = e.Private,
+            RecurrenceRule = e.RecurrenceRule,
+            RecurrenceEndDate = e.RecurrenceEndDate,
+            RecurrenceExceptions = e.RecurrenceExceptions,
+        });
     }
 
-    /// <summary>
-    /// Updates an event.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(EventFormModel model)
+    [HasPermission(Permissions.Events.Edit)]
+    public async Task<IActionResult> Edit(int id, EventEditViewModel vm)
     {
-        if (!ModelState.IsValid)
-        {
-            return View("Form", model);
-        }
+        var e = await _db.Events.FindAsync(id);
+        if (e is null) return NotFound();
 
-        var evnt = await _DbContext.Events.FindAsync(model.EventID);
-        if (evnt == null)
-        {
-            return NotFound();
-        }
+        Validate(vm);
+        if (!ModelState.IsValid) return View(vm);
 
-        ApplyModel(model, evnt);
-        evnt.DateModified = DateTime.UtcNow;
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"Event \"{evnt.Name}\" updated successfully.";
-        return RedirectToAction(nameof(Index));
+        Apply(vm, e, false);
+        await _db.SaveChangesAsync();
+        Success("Event saved.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Delete confirmation page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var evnt = await _DbContext.Events.FindAsync(id);
-        if (evnt == null)
-        {
-            return NotFound();
-        }
-
-        return View(evnt);
-    }
-
-    /// <summary>
-    /// Deletes an event.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    [HasPermission(Permissions.Events.Delete)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var evnt = await _DbContext.Events.FindAsync(id);
-        if (evnt == null)
-        {
-            return NotFound();
-        }
-
-        _DbContext.Events.Remove(evnt);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = "Event deleted successfully.";
-        return RedirectToAction(nameof(Index));
+        var e = await _db.Events.FindAsync(id);
+        if (e is null) return NotFound();
+        _db.Events.Remove(e);
+        await _db.SaveChangesAsync();
+        Success("Event deleted.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Applies values from the event model to the event entity.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <param name="evnt"></param>
-    private static void ApplyModel(EventFormModel model, Event evnt)
+    private void Validate(EventEditViewModel vm)
     {
-        evnt.Name = model.Name;
-        evnt.Location = model.Location ?? string.Empty;
-        evnt.Description = model.Description ?? string.Empty;
-        evnt.IsAllDay = model.IsAllDay;
-        evnt.IsPrivate = model.IsPrivate;
+        if (vm.EndDateTime < vm.StartDateTime)
+            ModelState.AddModelError(nameof(vm.EndDateTime), "End must be on or after the start.");
+    }
 
-        if (model.IsAllDay)
-        {
-            evnt.StartDateTime = DateTime.SpecifyKind(model.StartDateTime.Date, DateTimeKind.Local).ToUniversalTime();
-            evnt.EndDateTime = DateTime.SpecifyKind(model.EndDateTime.Date, DateTimeKind.Local).ToUniversalTime();
-        }
-        else
-        {
-            evnt.StartDateTime = model.StartDateTime.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(model.StartDateTime, DateTimeKind.Local).ToUniversalTime() : model.StartDateTime.ToUniversalTime();
-            evnt.EndDateTime = model.EndDateTime.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(model.EndDateTime, DateTimeKind.Local).ToUniversalTime() : model.EndDateTime.ToUniversalTime();
-        }
-
-        evnt.RecurrenceType = model.RecurrenceType;
-        evnt.RecurrenceInterval = model.RecurrenceType == RecurrenceType.None ? 1 : model.RecurrenceInterval;
-        evnt.RecurSunday = model.RecurSunday;
-        evnt.RecurMonday = model.RecurMonday;
-        evnt.RecurTuesday = model.RecurTuesday;
-        evnt.RecurWednesday = model.RecurWednesday;
-        evnt.RecurThursday = model.RecurThursday;
-        evnt.RecurFriday = model.RecurFriday;
-        evnt.RecurSaturday = model.RecurSaturday;
-        evnt.MonthlyYearlyPattern = model.MonthlyYearlyPattern;
-        evnt.RecurrenceEndDate = model.RecurrenceType == RecurrenceType.None ? null : model.RecurrenceEndDate.HasValue ? DateTime.SpecifyKind(model.RecurrenceEndDate.Value.Date, DateTimeKind.Local).ToUniversalTime() : null;
+    private static void Apply(EventEditViewModel vm, Event ev, bool isNew)
+    {
+        var now = DateTime.UtcNow;
+        ev.Title = vm.Title.Trim();
+        ev.StartDateTime = vm.StartDateTime;
+        ev.EndDateTime = vm.EndDateTime;
+        ev.Location = vm.Location;
+        ev.Description = vm.Description;
+        ev.Private = vm.Private;
+        ev.RecurrenceRule = string.IsNullOrWhiteSpace(vm.RecurrenceRule) ? null : vm.RecurrenceRule.Trim();
+        ev.RecurrenceEndDate = vm.RecurrenceEndDate;
+        ev.RecurrenceExceptions = string.IsNullOrWhiteSpace(vm.RecurrenceExceptions) ? null : vm.RecurrenceExceptions.Trim();
+        ev.DateModified = now;
+        if (isNew) ev.DateCreated = now;
     }
 }

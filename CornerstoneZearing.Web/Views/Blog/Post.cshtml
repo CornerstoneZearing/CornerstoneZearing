@@ -1,0 +1,32 @@
+@model CornerstoneZearing.Data.Entities.Post
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.MetaTitle) ? Model.Title : Model.MetaTitle;
+    ViewData["MetaDescription"] = Model.MetaDescription ?? Model.Summary;
+}
+<article class="col-lg-8 mx-auto">
+    <h1 class="mb-2">@Model.Title</h1>
+    <div class="text-muted small mb-4">
+        @((Model.DatePublished ?? Model.DateCreated).ToString("MMMM d, yyyy"))
+        @if (Model.PostCategory != null)
+        {
+            <text> · <a href="/blog?category=@Model.PostCategory.Slug">@Model.PostCategory.Name</a></text>
+        }
+    </div>
+    @if (Model.FeaturedMedia != null)
+    {
+        <img class="img-fluid rounded mb-4" src="@Url.Action("File", "MediaFiles", new { id = Model.FeaturedMedia.MediaID })" alt="@Model.FeaturedMedia.AltText" />
+    }
+    <div class="page-content">
+        @Html.Raw(Model.ContentHtml)
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.Tags))
+    {
+        <div class="mt-4">
+            @foreach (var tag in Model.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                <a href="/blog?tag=@tag" class="badge text-bg-light text-decoration-none me-1">@tag</a>
+            }
+        </div>
+    }
+    <p class="mt-4"><a href="/blog">&larr; Back to blog</a></p>
+</article>

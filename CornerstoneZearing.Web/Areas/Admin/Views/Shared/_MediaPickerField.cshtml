@@ -1,0 +1,10 @@
+@model (string FieldName, int? SelectedId, string? PreviewUrl)
+@{
+    var fieldId = Model.FieldName.Replace(".", "_");
+}
+<div class="media-picker" data-field="@fieldId">
+    <input type="hidden" id="@fieldId" name="@Model.FieldName" value="@(Model.SelectedId?.ToString() ?? "")" />
+    <img class="media-picker-preview" src="@Model.PreviewUrl" alt="" style="@(string.IsNullOrEmpty(Model.PreviewUrl) ? "display:none" : "")max-width:200px;border-radius:6px;display:block;margin-bottom:8px" />
+    <button type="button" class="btn btn-sm" onclick="pickMedia('@fieldId')">Choose image</button>
+    <button type="button" class="btn btn-sm btn-ghost" onclick="clearMedia('@fieldId')">Clear</button>
+</div>

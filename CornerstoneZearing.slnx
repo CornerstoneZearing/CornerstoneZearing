@@ -1,14 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/" />
   <Folder Name="/Solution Items/SQL/">
-    <File Path="SQL/2026-06-12 ASP.NET Identity.sql" />
-    <File Path="SQL/2026-06-12 Events Calendar.sql" />
-    <File Path="SQL/2026-06-12 Pages.sql" />
-    <File Path="SQL/2026-06-14 Images and Documents.sql" />
-    <File Path="SQL/2026-06-27 Slideshow Slides.sql" />
-    <File Path="SQL/2026-08-08 Editor.js Changes.sql" />
-    <File Path="SQL/2026-08-15 Page Parent Pages.sql" />
-    <File Path="SQL/2026-08-16 Sidebars.sql" />
+    <File Path="SQL/2026-09-08 Initial Schema.sql" />
   </Folder>
   <Project Path="CornerstoneZearing.Data/CornerstoneZearing.Data.csproj" />
   <Project Path="CornerstoneZearing.Web/CornerstoneZearing.Web.csproj" />

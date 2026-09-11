@@ -1,170 +1,100 @@
-using CornerstoneZearing.Web.Areas.Admin.Models;
 using CornerstoneZearing.Data;
 using CornerstoneZearing.Data.Entities;
-using Microsoft.AspNetCore.Authorization;
+using CornerstoneZearing.Web.Areas.Admin.Models;
+using CornerstoneZearing.Web.Authorization;
+using CornerstoneZearing.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 
-[Area("Admin")]
-[Authorize(Roles = "Administrator,Editor")]
-public class SidebarsController : Controller
+public class SidebarsController : BaseAdminController
 {
-    private readonly ApplicationDbContext _DbContext;
+    private readonly CornerstoneDbContext _db;
+    private readonly EditorJsRenderer _renderer;
 
-    /// <summary>
-    /// Initialization constructor.
-    /// </summary>
-    /// <param name="context"></param>
-    public SidebarsController(ApplicationDbContext context)
+    public SidebarsController(CornerstoneDbContext db, EditorJsRenderer renderer)
     {
-        _DbContext = context;
+        _db = db;
+        _renderer = renderer;
     }
 
-    /// <summary>
-    /// List sidebars.
-    /// </summary>
-    /// <returns></returns>
+    [HasPermission(Permissions.Sidebars.View)]
     public async Task<IActionResult> Index()
     {
-        var sidebars = await _DbContext.Sidebars
-            .OrderBy(x => x.Name)
-            .ToListAsync();
-
-        return View(sidebars);
+        ViewData["Title"] = "Sidebars";
+        return View(await _db.Sidebars.OrderBy(s => s.Title).ToListAsync());
     }
 
-    /// <summary>
-    /// Create sidebar.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Create()
+    [HasPermission(Permissions.Sidebars.Create)]
+    public IActionResult Create()
     {
-        return View("Form", new SidebarFormModel());
+        ViewData["Title"] = "New sidebar";
+        return View("Edit", new SidebarEditViewModel());
     }
 
-    /// <summary>
-    /// Creates a new sidebar.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(SidebarFormModel model)
+    [HasPermission(Permissions.Sidebars.Create)]
+    public async Task<IActionResult> Create(SidebarEditViewModel vm)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid) return View("Edit", vm);
+        var now = DateTime.UtcNow;
+        _db.Sidebars.Add(new Sidebar
         {
-            return View("Form", model);
-        }
-
-        var sidebar = new Sidebar
-        {
-            SidebarID = Guid.NewGuid(),
-            Name = model.Name,
-            ContentHtml = model.ContentHtml,
-            ContentJson = model.ContentJson,
-            DateCreated = DateTime.UtcNow,
-            DateModified = DateTime.UtcNow
-        };
-
-        _DbContext.Sidebars.Add(sidebar);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"The sidebar \"{sidebar.Name}\" was created successfully.";
-        return RedirectToAction("Index");
-    }
-
-    /// <summary>
-    /// Edit sidebar.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Edit(Guid id)
-    {
-        var sidebar = await _DbContext.Sidebars.FindAsync(id);
-        if (sidebar == null)
-        {
-            return NotFound();
-        }
-
-        return View("Form", new SidebarFormModel
-        {
-            SidebarID = sidebar.SidebarID,
-            Name = sidebar.Name,
-            ContentHtml = sidebar.ContentHtml,
-            ContentJson = sidebar.ContentJson
+            Title = vm.Title.Trim(),
+            ContentJson = vm.ContentJson,
+            ContentHtml = _renderer.Render(vm.ContentJson),
+            DateCreated = now,
+            DateModified = now,
         });
+        await _db.SaveChangesAsync();
+        Success("Sidebar created.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Updates a sidebar.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
+    [HasPermission(Permissions.Sidebars.Edit)]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var s = await _db.Sidebars.FindAsync(id);
+        if (s is null) return NotFound();
+        ViewData["Title"] = "Edit sidebar";
+        return View(new SidebarEditViewModel { SidebarID = s.SidebarID, Title = s.Title, ContentJson = s.ContentJson });
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(SidebarFormModel model)
+    [HasPermission(Permissions.Sidebars.Edit)]
+    public async Task<IActionResult> Edit(int id, SidebarEditViewModel vm)
     {
-        if (!ModelState.IsValid)
-        {
-            return View("Form", model);
-        }
-        
-        var sidebar = await _DbContext.Sidebars.FindAsync(model.SidebarID);
-        if (sidebar == null)
-        {
-            return NotFound();
-        }
+        var s = await _db.Sidebars.FindAsync(id);
+        if (s is null) return NotFound();
+        if (!ModelState.IsValid) return View(vm);
 
-        sidebar.Name = model.Name;
-        sidebar.ContentHtml = model.ContentHtml;
-        sidebar.ContentJson = model.ContentJson;
-        sidebar.DateModified = DateTime.UtcNow;
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"The sidebar \"{sidebar.Name}\" was updated successfully.";
-        return RedirectToAction("Index");
+        s.Title = vm.Title.Trim();
+        s.ContentJson = vm.ContentJson;
+        s.ContentHtml = _renderer.Render(vm.ContentJson);
+        s.DateModified = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        Success("Sidebar saved.");
+        return RedirectToIndex();
     }
 
-    /// <summary>
-    /// Delete confirmation page.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var sidebar = await _DbContext.Sidebars.FindAsync(id);
-        if (sidebar == null)
-        {
-            return NotFound();
-        }
-
-        return View(sidebar);
-    }
-
-    /// <summary>
-    /// Deletes a sidebar.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
+    [HasPermission(Permissions.Sidebars.Delete)]
+    public async Task<IActionResult> Delete(int id)
     {
-        var sidebar = await _DbContext.Sidebars.FindAsync(id);
-        if (sidebar == null)
+        var s = await _db.Sidebars.FindAsync(id);
+        if (s is null) return NotFound();
+        if (await _db.Pages.AnyAsync(p => p.SidebarID == id))
         {
-            return NotFound();
+            Error("This sidebar is attached to one or more pages.");
+            return RedirectToIndex();
         }
-
-        _DbContext.Sidebars.Remove(sidebar);
-        await _DbContext.SaveChangesAsync();
-
-        TempData["Success"] = $"The sidebar \"{sidebar.Name}\" was deleted successfully.";
-        return RedirectToAction("Index");
+        _db.Sidebars.Remove(s);
+        await _db.SaveChangesAsync();
+        Success("Sidebar deleted.");
+        return RedirectToIndex();
     }
 }
