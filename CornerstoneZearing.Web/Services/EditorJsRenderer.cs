@@ -124,9 +124,35 @@ public class EditorJsRenderer
             }
             case "warning":
                 return $"<div class=\"editorjs-warning\"><strong>{Encode(GetString(data, "title"))}</strong><p>{Inline(data, "message")}</p></div>";
+            case "bootstrapCard":
+                return RenderBootstrapCard(data);
             default:
                 return string.Empty;
         }
+    }
+
+    private static string RenderBootstrapCard(JsonElement data)
+    {
+        var imageUrl = GetString(data, "imageUrl");
+        var imageAlt = GetString(data, "imageAlt");
+        var title = GetString(data, "title");
+        var text = GetString(data, "text");
+        var linkUrl = GetString(data, "linkUrl");
+        var linkText = GetString(data, "linkText");
+
+        var sb = new StringBuilder("<div class=\"card\">");
+        if (imageUrl.Length > 0)
+            sb.Append($"<img src=\"{Encode(imageUrl)}\" alt=\"{Encode(imageAlt)}\" class=\"card-img-top\" />");
+
+        sb.Append("<div class=\"card-body\">");
+        if (title.Length > 0)
+            sb.Append($"<h5 class=\"card-title\">{Encode(title)}</h5>");
+        if (text.Length > 0)
+            sb.Append($"<p class=\"card-text\">{Encode(text)}</p>");
+        if (linkUrl.Length > 0 && linkText.Length > 0)
+            sb.Append($"<a href=\"{Encode(linkUrl)}\" class=\"btn btn-primary\">{Encode(linkText)}</a>");
+        sb.Append("</div></div>");
+        return sb.ToString();
     }
 
     private static string RenderList(JsonElement data)

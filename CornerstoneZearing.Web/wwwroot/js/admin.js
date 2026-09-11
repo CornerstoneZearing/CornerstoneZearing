@@ -11,7 +11,8 @@
         ["Embed", "https://cdn.jsdelivr.net/npm/@editorjs/embed@2.7.4/dist/embed.umd.min.js"],
         ["Marker", "https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0/dist/marker.umd.min.js"],
         ["InlineCode", "https://cdn.jsdelivr.net/npm/@editorjs/inline-code@1.5.1/dist/inline-code.umd.min.js"],
-        ["ImageTool", "https://cdn.jsdelivr.net/npm/@editorjs/image@2.9.3/dist/image.umd.min.js"]
+        ["ImageTool", "https://cdn.jsdelivr.net/npm/@editorjs/image@2.9.3/dist/image.umd.min.js"],
+        ["BootstrapCardTool", "/js/editorjs-bootstrap-card.js"]
     ];
 
     function loadScript(src) {
@@ -58,7 +59,8 @@
                         endpoints: { byFile: opts.uploadUrl, byUrl: opts.uploadByUrl },
                         additionalRequestHeaders: opts.antiForgery ? { "RequestVerificationToken": opts.antiForgery } : {}
                     }
-                }
+                },
+                bootstrapCard: BootstrapCardTool
             }
         });
 
@@ -82,8 +84,9 @@
                 "<strong>Media library</strong><button type='button' class='btn btn-sm btn-ghost' id='media-modal-close'>Close</button></div>" +
                 "<div id='media-modal-body' class='muted'>Loading…</div></div>";
             document.body.appendChild(modal);
-            modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
-            modal.querySelector("#media-modal-close").addEventListener("click", () => modal.remove());
+            // These fire at most once per open, resolved via modal._onDismiss set by whoever opened it.
+            modal.addEventListener("click", e => { if (e.target === modal) dismissMediaModal(modal); });
+            modal.querySelector("#media-modal-close").addEventListener("click", () => dismissMediaModal(modal));
         }
         const body = modal.querySelector("#media-modal-body");
         const res = await fetch("/Admin/Media/Picker");
@@ -91,17 +94,40 @@
         return modal;
     }
 
-    window.pickMedia = async function (fieldId) {
+    function dismissMediaModal(modal) {
+        if (modal._onDismiss) modal._onDismiss();
+        modal.remove();
+    }
+
+    // Opens the media library modal and resolves with { id, url, alt } for the
+    // tile the user clicks, or null if they dismiss the modal without picking one.
+    window.openMediaPicker = async function () {
         const modal = await openMediaModal();
-        modal.querySelectorAll("[data-media-id]").forEach(el => {
-            el.style.cursor = "pointer";
-            el.onclick = () => {
-                document.getElementById(fieldId).value = el.getAttribute("data-media-id");
-                const preview = document.querySelector(".media-picker[data-field='" + fieldId + "'] .media-picker-preview");
-                if (preview) { preview.src = el.getAttribute("data-media-url"); preview.style.display = "block"; }
-                modal.remove();
-            };
+        return new Promise(resolve => {
+            let settled = false;
+            const finish = value => { if (!settled) { settled = true; resolve(value); } };
+            modal._onDismiss = () => finish(null);
+            modal.querySelectorAll("[data-media-id]").forEach(el => {
+                el.style.cursor = "pointer";
+                el.onclick = () => {
+                    const img = el.querySelector("img");
+                    finish({
+                        id: el.getAttribute("data-media-id"),
+                        url: el.getAttribute("data-media-url"),
+                        alt: img ? img.getAttribute("alt") || "" : ""
+                    });
+                    modal.remove();
+                };
+            });
         });
+    };
+
+    window.pickMedia = async function (fieldId) {
+        const media = await window.openMediaPicker();
+        if (!media) return;
+        document.getElementById(fieldId).value = media.id;
+        const preview = document.querySelector(".media-picker[data-field='" + fieldId + "'] .media-picker-preview");
+        if (preview) { preview.src = media.url; preview.style.display = "block"; }
     };
 
     window.clearMedia = function (fieldId) {
