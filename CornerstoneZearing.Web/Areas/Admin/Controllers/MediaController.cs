@@ -104,38 +104,4 @@ public class MediaController : BaseAdminController
         Success("Media deleted.");
         return RedirectToIndex();
     }
-
-    // Editor.js image tool endpoints.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [HasPermission(Permissions.Media.Upload)]
-    [RequestSizeLimit(60_000_000)]
-    public async Task<IActionResult> UploadByFile(IFormFile image)
-    {
-        if (image is null || image.Length == 0 || !_storage.IsAllowedImage(image.FileName))
-            return Json(new { success = 0 });
-
-        var stored = await _storage.SaveAsync(image, "media");
-        var media = new Media
-        {
-            OriginalFileName = stored.OriginalFileName,
-            StoredFileName = stored.StoredFileName,
-            ContentType = stored.ContentType,
-            Width = stored.Width,
-            Height = stored.Height,
-            SizeBytes = (int)Math.Min(stored.SizeBytes, int.MaxValue),
-            DateCreated = DateTime.UtcNow,
-            DateModified = DateTime.UtcNow,
-        };
-        _db.Media.Add(media);
-        await _db.SaveChangesAsync();
-
-        return Json(new { success = 1, file = new { url = Url.Action("File", "MediaFiles", new { area = "", id = media.MediaID }) } });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [HasPermission(Permissions.Media.Upload)]
-    public IActionResult UploadByUrl(string url) =>
-        Json(new { success = string.IsNullOrWhiteSpace(url) ? 0 : 1, file = new { url } });
 }

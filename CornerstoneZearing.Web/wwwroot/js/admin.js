@@ -11,7 +11,7 @@
         ["Embed", "https://cdn.jsdelivr.net/npm/@editorjs/embed@2.7.4/dist/embed.umd.min.js"],
         ["Marker", "https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0/dist/marker.umd.min.js"],
         ["InlineCode", "https://cdn.jsdelivr.net/npm/@editorjs/inline-code@1.5.1/dist/inline-code.umd.min.js"],
-        ["ImageTool", "https://cdn.jsdelivr.net/npm/@editorjs/image@2.9.3/dist/image.umd.min.js"],
+        ["MediaImageTool", "/js/editorjs-media-image.js"],
         ["BootstrapCardTool", "/js/editorjs-bootstrap-card.js"]
     ];
 
@@ -53,13 +53,7 @@
                 embed: Embed,
                 marker: Marker,
                 inlineCode: InlineCode,
-                image: {
-                    class: ImageTool,
-                    config: {
-                        endpoints: { byFile: opts.uploadUrl, byUrl: opts.uploadByUrl },
-                        additionalRequestHeaders: opts.antiForgery ? { "RequestVerificationToken": opts.antiForgery } : {}
-                    }
-                },
+                image: MediaImageTool,
                 bootstrapCard: BootstrapCardTool
             }
         });
