@@ -24,7 +24,7 @@ public class EventsController : BaseAdminController
     [HasPermission(Permissions.Events.Create)]
     public IActionResult Create()
     {
-        ViewData["Title"] = "New event";
+        ViewData["Title"] = "New Event";
         return View("Edit", new EventEditViewModel());
     }
 
@@ -50,7 +50,7 @@ public class EventsController : BaseAdminController
         var e = await _db.Events.FindAsync(id);
         if (e is null) return NotFound();
 
-        ViewData["Title"] = "Edit event";
+        ViewData["Title"] = "Edit Event";
         return View(new EventEditViewModel
         {
             EventID = e.EventID,

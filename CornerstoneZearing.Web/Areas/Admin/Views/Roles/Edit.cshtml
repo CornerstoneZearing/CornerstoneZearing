@@ -1,12 +1,11 @@
 @model RoleEditViewModel
 @{
     var isNew = Model.Id == 0;
-    ViewData["Title"] = isNew ? "New role" : "Edit role";
+    ViewData["Title"] = isNew ? "New Role" : "Edit Role";
     var selected = Model.Permissions.ToHashSet(StringComparer.OrdinalIgnoreCase);
 }
 <div class="page-header">
     <h1>@ViewData["Title"]</h1>
-    <a class="btn btn-ghost" asp-action="Index">Back to roles</a>
 </div>
 <form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post">
     @Html.AntiForgeryToken()
@@ -43,7 +42,7 @@
     </div></div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save role</button>
+        <button type="submit" class="btn btn-primary">Save Role</button>
         <a class="btn btn-ghost" asp-action="Index">Cancel</a>
     </div>
 </form>

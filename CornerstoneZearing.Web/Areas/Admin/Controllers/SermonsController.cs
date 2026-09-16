@@ -32,7 +32,7 @@ public class SermonsController : BaseAdminController
     [HasPermission(Permissions.Sermons.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "New sermon";
+        ViewData["Title"] = "New Sermon";
         var vm = new SermonEditViewModel();
         await PopulateAsync(vm);
         return View("Edit", vm);
@@ -59,7 +59,7 @@ public class SermonsController : BaseAdminController
         var s = await _db.Sermons.FindAsync(id);
         if (s is null) return NotFound();
 
-        ViewData["Title"] = "Edit sermon";
+        ViewData["Title"] = "Edit Sermon";
         var vm = new SermonEditViewModel
         {
             SermonID = s.SermonID,

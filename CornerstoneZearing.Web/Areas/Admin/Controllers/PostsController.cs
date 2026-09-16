@@ -35,7 +35,7 @@ public class PostsController : BaseAdminController
     [HasPermission(Permissions.Posts.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "New post";
+        ViewData["Title"] = "New Post";
         var vm = new PostEditViewModel();
         await PopulateAsync(vm);
         return View("Edit", vm);
@@ -62,7 +62,7 @@ public class PostsController : BaseAdminController
         var post = await _db.Posts.FindAsync(id);
         if (post is null) return NotFound();
 
-        ViewData["Title"] = "Edit post";
+        ViewData["Title"] = "Edit Post";
         var vm = new PostEditViewModel
         {
             PostID = post.PostID,

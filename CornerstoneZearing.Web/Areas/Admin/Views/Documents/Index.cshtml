@@ -1,11 +1,11 @@
 @model List<Document>
 @{ ViewData["Title"] = "Documents"; }
-<div class="page-header"><h1>Document library</h1></div>
+<div class="page-header"><h1>Document Library</h1></div>
 <div class="card"><div class="card-body">
     <form asp-action="Upload" method="post" enctype="multipart/form-data" class="stack">
         @Html.AntiForgeryToken()
         <input type="file" name="files" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" multiple required />
-        <button type="submit" class="btn btn-primary btn-sm">Upload documents</button>
+        <button type="submit" class="btn btn-primary btn-sm">Upload Documents</button>
         <div class="hint">Allowed: PDF, Word, Excel, PowerPoint.</div>
     </form>
 </div></div>

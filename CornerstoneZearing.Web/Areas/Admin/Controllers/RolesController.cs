@@ -24,7 +24,7 @@ public class RolesController : BaseAdminController
 
     public IActionResult Create()
     {
-        ViewData["Title"] = "New role";
+        ViewData["Title"] = "New Role";
         return View("Edit", new RoleEditViewModel());
     }
 
@@ -52,7 +52,7 @@ public class RolesController : BaseAdminController
         var role = await _roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();
 
-        ViewData["Title"] = "Edit role";
+        ViewData["Title"] = "Edit Role";
         var claims = await _roleManager.GetClaimsAsync(role);
         return View(new RoleEditViewModel
         {

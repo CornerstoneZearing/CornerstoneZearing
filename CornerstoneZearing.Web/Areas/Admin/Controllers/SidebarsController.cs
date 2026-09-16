@@ -29,7 +29,7 @@ public class SidebarsController : BaseAdminController
     [HasPermission(Permissions.Sidebars.Create)]
     public IActionResult Create()
     {
-        ViewData["Title"] = "New sidebar";
+        ViewData["Title"] = "New Sidebar";
         return View("Edit", new SidebarEditViewModel());
     }
 
@@ -58,7 +58,7 @@ public class SidebarsController : BaseAdminController
     {
         var s = await _db.Sidebars.FindAsync(id);
         if (s is null) return NotFound();
-        ViewData["Title"] = "Edit sidebar";
+        ViewData["Title"] = "Edit Sidebar";
         return View(new SidebarEditViewModel { SidebarID = s.SidebarID, Title = s.Title, ContentJson = s.ContentJson });
     }
 

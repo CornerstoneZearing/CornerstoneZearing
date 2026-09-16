@@ -41,7 +41,7 @@ public class PagesController : BaseAdminController
     [HasPermission(Permissions.Pages.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "New page";
+        ViewData["Title"] = "New Page";
         var vm = new PageEditViewModel();
         await PopulateOptionsAsync(vm, null);
         return View("Edit", vm);
@@ -73,7 +73,7 @@ public class PagesController : BaseAdminController
         var page = await _db.Pages.FindAsync(id);
         if (page is null) return NotFound();
 
-        ViewData["Title"] = "Edit page";
+        ViewData["Title"] = "Edit Page";
         var vm = new PageEditViewModel
         {
             PageID = page.PageID,

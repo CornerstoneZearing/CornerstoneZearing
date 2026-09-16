@@ -22,14 +22,14 @@ public class SermonCategoriesController : BaseAdminController
 
     public async Task<IActionResult> Index()
     {
-        ViewData["Title"] = "Sermon categories";
+        ViewData["Title"] = "Sermon Categories";
         var categories = await _db.SermonCategories.OrderBy(c => c.Name).ToListAsync();
         return View("CategoryIndex", categories);
     }
 
     public IActionResult Create()
     {
-        ViewData["Title"] = "New sermon category";
+        ViewData["Title"] = "New Sermon Category";
         return View("CategoryEdit", new CategoryEditViewModel());
     }
 
@@ -58,7 +58,7 @@ public class SermonCategoriesController : BaseAdminController
     {
         var c = await _db.SermonCategories.FindAsync(id);
         if (c is null) return NotFound();
-        ViewData["Title"] = "Edit sermon category";
+        ViewData["Title"] = "Edit Sermon Category";
         return View("CategoryEdit", new CategoryEditViewModel { Id = c.SermonCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
     }
 

@@ -40,7 +40,7 @@ public class UsersController : BaseAdminController
 
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "New user";
+        ViewData["Title"] = "New User";
         return View("Edit", new UserEditViewModel { Roles = await RoleCheckboxesAsync(Array.Empty<string>()) });
     }
 
@@ -84,7 +84,7 @@ public class UsersController : BaseAdminController
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
 
-        ViewData["Title"] = "Edit user";
+        ViewData["Title"] = "Edit User";
         var roles = await _userManager.GetRolesAsync(user);
         return View(new UserEditViewModel
         {

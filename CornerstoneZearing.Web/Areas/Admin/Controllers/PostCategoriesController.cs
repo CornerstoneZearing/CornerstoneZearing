@@ -22,14 +22,14 @@ public class PostCategoriesController : BaseAdminController
 
     public async Task<IActionResult> Index()
     {
-        ViewData["Title"] = "Post categories";
+        ViewData["Title"] = "Post Categories";
         var categories = await _db.PostCategories.OrderBy(c => c.Name).ToListAsync();
         return View("CategoryIndex", categories);
     }
 
     public IActionResult Create()
     {
-        ViewData["Title"] = "New post category";
+        ViewData["Title"] = "New Post Category";
         return View("CategoryEdit", new CategoryEditViewModel());
     }
 
@@ -58,7 +58,7 @@ public class PostCategoriesController : BaseAdminController
     {
         var c = await _db.PostCategories.FindAsync(id);
         if (c is null) return NotFound();
-        ViewData["Title"] = "Edit post category";
+        ViewData["Title"] = "Edit Post Category";
         return View("CategoryEdit", new CategoryEditViewModel { Id = c.PostCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
     }
 
