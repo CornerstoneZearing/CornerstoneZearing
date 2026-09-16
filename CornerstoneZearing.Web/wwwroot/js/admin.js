@@ -6,13 +6,13 @@
         ["List", "https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js"],
         ["Quote", "https://cdn.jsdelivr.net/npm/@editorjs/quote@2.6.0/dist/quote.umd.min.js"],
         ["Table", "https://cdn.jsdelivr.net/npm/@editorjs/table@2.3.0/dist/table.umd.min.js"],
-        ["Delimiter", "https://cdn.jsdelivr.net/npm/@editorjs/delimiter@1.4.0/dist/delimiter.umd.min.js"],
         ["CodeTool", "https://cdn.jsdelivr.net/npm/@editorjs/code@2.9.0/dist/code.umd.min.js"],
         ["Embed", "https://cdn.jsdelivr.net/npm/@editorjs/embed@2.7.4/dist/embed.umd.min.js"],
         ["Marker", "https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0/dist/marker.umd.min.js"],
         ["InlineCode", "https://cdn.jsdelivr.net/npm/@editorjs/inline-code@1.5.1/dist/inline-code.umd.min.js"],
         ["MediaImageTool", "/js/editorjs-media-image.js"],
-        ["BootstrapCardTool", "/js/editorjs-bootstrap-card.js"]
+        ["BootstrapCardTool", "/js/editorjs-bootstrap-card.js"],
+        ["BootstrapGridTool", "/js/editorjs-bootstrap-grid.js"]
     ];
 
     function loadScript(src) {
@@ -48,13 +48,13 @@
                 list: { class: List, inlineToolbar: true },
                 quote: { class: Quote, inlineToolbar: true },
                 table: { class: Table, inlineToolbar: true },
-                delimiter: Delimiter,
+                image: MediaImageTool,
+                bootstrapCard: BootstrapCardTool,
+                bootstrapGrid: BootstrapGridTool,
                 code: CodeTool,
                 embed: Embed,
                 marker: Marker,
-                inlineCode: InlineCode,
-                image: MediaImageTool,
-                bootstrapCard: BootstrapCardTool
+                inlineCode: InlineCode
             }
         });
 

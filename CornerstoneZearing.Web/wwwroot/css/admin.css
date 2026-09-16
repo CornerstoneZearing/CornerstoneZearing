@@ -430,6 +430,44 @@ textarea {
         max-width: 200px;
     }
 
+.editorjs-grid-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.editorjs-grid-column {
+    flex: 1 1 240px;
+    min-width: 220px;
+    border: 1px solid var(--border-strong, #ccc);
+    border-radius: 5px;
+    background: var(--surface);
+    padding: 5px;
+}
+
+.editorjs-grid-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.editorjs-grid-sizing {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    width: auto;
+}
+
+.editorjs-grid-column-holder {
+    margin-top: 5px;
+    min-height: 60px;
+}
+
 .media-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

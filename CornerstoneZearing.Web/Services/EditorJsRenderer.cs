@@ -107,14 +107,7 @@ public class EditorJsRenderer
             case "table":
                 return RenderTable(data);
             case "image":
-            {
-                var url = GetString(data, "url");
-                if (url.Length == 0 && data.TryGetProperty("file", out var file) && file.ValueKind == JsonValueKind.Object)
-                    url = file.TryGetProperty("url", out var fu) ? fu.GetString() ?? "" : "";
-                if (url.Length == 0) return string.Empty;
-                var alt = GetString(data, "alt");
-                return $"<figure class=\"editorjs-image\"><img src=\"{Encode(url)}\" alt=\"{Encode(alt)}\" class=\"img-fluid rounded\" /></figure>";
-            }
+                return RenderImage(data);
             case "embed":
             {
                 var embed = GetString(data, "embed");
@@ -125,9 +118,58 @@ public class EditorJsRenderer
                 return $"<div class=\"editorjs-warning\"><strong>{Encode(GetString(data, "title"))}</strong><p>{Inline(data, "message")}</p></div>";
             case "bootstrapCard":
                 return RenderBootstrapCard(data);
+            case "bootstrapGrid":
+                return RenderBootstrapGrid(data);
             default:
                 return string.Empty;
         }
+    }
+
+    private static string RenderBootstrapGrid(JsonElement data)
+    {
+        if (!data.TryGetProperty("columns", out var columns) || columns.ValueKind != JsonValueKind.Array)
+            return string.Empty;
+
+        var sb = new StringBuilder("<div class=\"row\">");
+        foreach (var column in columns.EnumerateArray())
+        {
+            sb.Append($"<div class=\"{RenderColumnClasses(column)}\">");
+            if (column.TryGetProperty("blocks", out var blocks) && blocks.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var block in blocks.EnumerateArray())
+                {
+                    var blockType = block.TryGetProperty("type", out var t) ? t.GetString() : null;
+                    var blockData = block.TryGetProperty("data", out var d) ? d : default;
+                    sb.Append(RenderBlock(blockType, blockData));
+                }
+            }
+            sb.Append("</div>");
+        }
+        sb.Append("</div>");
+        return sb.ToString();
+    }
+
+    private static string RenderColumnClasses(JsonElement column)
+    {
+        var colSize = GetString(column, "colSize");
+        var parts = colSize.Split('-', 2);
+        if (parts.Length == 2 &&
+            (parts[0] == "sm" || parts[0] == "md" || parts[0] == "lg") &&
+            int.TryParse(parts[1], out var n) && n >= 1 && n <= 12)
+        {
+            return $"col-{parts[0]}-{n}";
+        }
+        return "col";
+    }
+
+    private static string RenderImage(JsonElement data)
+    {
+        var url = GetString(data, "url");
+        if (url.Length == 0 && data.TryGetProperty("file", out var file) && file.ValueKind == JsonValueKind.Object)
+            url = file.TryGetProperty("url", out var fu) ? fu.GetString() ?? "" : "";
+        if (url.Length == 0) return string.Empty;
+        var alt = GetString(data, "alt");
+        return $"<figure class=\"editorjs-image\"><img src=\"{Encode(url)}\" alt=\"{Encode(alt)}\" class=\"img-fluid rounded\" /></figure>";
     }
 
     private static string RenderBootstrapCard(JsonElement data)

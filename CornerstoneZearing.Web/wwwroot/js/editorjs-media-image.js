@@ -53,7 +53,7 @@ class MediaImageTool {
         });
         const clearBtn = document.createElement("button");
         clearBtn.type = "button";
-        clearBtn.className = "btn btn-sm btn-ghost";
+        clearBtn.className = "btn btn-sm";
         clearBtn.textContent = "Remove image";
         clearBtn.addEventListener("click", () => {
             this.data.mediaId = "";
