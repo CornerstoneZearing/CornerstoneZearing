@@ -112,11 +112,8 @@ public class EditorJsRenderer
                 if (url.Length == 0 && data.TryGetProperty("file", out var file) && file.ValueKind == JsonValueKind.Object)
                     url = file.TryGetProperty("url", out var fu) ? fu.GetString() ?? "" : "";
                 if (url.Length == 0) return string.Empty;
-                var caption = GetString(data, "caption");
                 var alt = GetString(data, "alt");
-                if (alt.Length == 0) alt = caption;
-                var fig = string.IsNullOrWhiteSpace(caption) ? "" : $"<figcaption>{Encode(caption)}</figcaption>";
-                return $"<figure class=\"editorjs-image\"><img src=\"{Encode(url)}\" alt=\"{Encode(alt)}\" class=\"img-fluid rounded\" />{fig}</figure>";
+                return $"<figure class=\"editorjs-image\"><img src=\"{Encode(url)}\" alt=\"{Encode(alt)}\" class=\"img-fluid rounded\" /></figure>";
             }
             case "embed":
             {

@@ -1,8 +1,7 @@
 // Editor.js block plugin: an image picked from the media library (replaces
 // the stock @editorjs/image tool, which uploaded its own files instead of
 // reusing the shared library). Renders as block type "image" — the shape
-// { url, alt, caption } is what EditorJsRenderer.RenderBlock's "image" case
-// expects, so no server-side change is needed beyond the alt/caption split.
+// { url, alt } is what EditorJsRenderer.RenderBlock's "image" case expects.
 class MediaImageTool {
     static get toolbox() {
         return {
@@ -20,24 +19,22 @@ class MediaImageTool {
         this.data = {
             mediaId: data.mediaId || "",
             url: data.url || "",
-            alt: data.alt || "",
-            caption: data.caption || ""
+            alt: data.alt || ""
         };
         this.wrapper = null;
     }
 
     render() {
         const wrapper = document.createElement("div");
-        wrapper.className = "media-image-tool";
-        wrapper.style.cssText = "border:1px dashed var(--border-strong, #ccc);border-radius:8px;padding:14px;";
+        wrapper.className = "editorjs-component";
 
         const imageRow = document.createElement("div");
-        imageRow.className = "form-row";
+        imageRow.className = "editorjs-row";
         const preview = document.createElement("img");
         preview.className = "media-picker-preview";
         preview.alt = this.data.alt;
         preview.src = this.data.url;
-        preview.style.cssText = "max-width:100%;border-radius:6px;display:" + (this.data.url ? "block" : "none") + ";margin-bottom:8px";
+        preview.style.cssText = "display:" + (this.data.url ? "block" : "none") + ";";
         const chooseBtn = document.createElement("button");
         chooseBtn.type = "button";
         chooseBtn.className = "btn btn-sm";
@@ -68,18 +65,7 @@ class MediaImageTool {
         });
         imageRow.append(preview, chooseBtn, clearBtn);
 
-        const captionRow = document.createElement("div");
-        captionRow.className = "form-row";
-        const captionLabel = document.createElement("label");
-        captionLabel.textContent = "Caption";
-        const captionInput = document.createElement("input");
-        captionInput.type = "text";
-        captionInput.placeholder = "Optional caption shown below the image";
-        captionInput.value = this.data.caption;
-        captionInput.addEventListener("input", () => { this.data.caption = captionInput.value; });
-        captionRow.append(captionLabel, captionInput);
-
-        wrapper.append(imageRow, captionRow);
+        wrapper.append(imageRow);
         this.wrapper = wrapper;
         return wrapper;
     }

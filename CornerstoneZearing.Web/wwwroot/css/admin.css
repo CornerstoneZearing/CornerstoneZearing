@@ -408,6 +408,28 @@ textarea {
     background: var(--surface);
 }
 
+.editorjs-component {
+    background: #eeeeee;
+    border: 1px dashed var(--border-strong, #ccc);
+    border-radius: 5px;
+    padding: 5px 5px 0 5px;
+    margin: 10px 0;
+}
+
+    .editorjs-component .btn {
+        margin-right: 5px;
+    }
+
+    .editorjs-component .editorjs-row {
+        margin-bottom: 5px;
+    }
+
+    .editorjs-component .media-picker-preview {
+        border-radius: 5px;
+        margin-bottom: 5px;
+        max-width: 200px;
+    }
+
 .media-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

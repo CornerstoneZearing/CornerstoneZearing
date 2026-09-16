@@ -31,17 +31,16 @@ class BootstrapCardTool {
 
     render() {
         const wrapper = document.createElement("div");
-        wrapper.className = "bootstrap-card-tool";
-        wrapper.style.cssText = "border:1px dashed var(--border-strong, #ccc);border-radius:8px;padding:14px;";
+        wrapper.className = "editorjs-component";
 
         // Image
         const imageRow = document.createElement("div");
-        imageRow.className = "form-row";
+        imageRow.className = "editorjs-row";
         const preview = document.createElement("img");
         preview.className = "media-picker-preview";
         preview.alt = this.data.imageAlt;
         preview.src = this.data.imageUrl;
-        preview.style.cssText = "max-width:220px;border-radius:6px;display:" + (this.data.imageUrl ? "block" : "none") + ";margin-bottom:8px";
+        preview.style.cssText = "display:" + (this.data.imageUrl ? "block" : "none") + ";";
         const chooseBtn = document.createElement("button");
         chooseBtn.type = "button";
         chooseBtn.className = "btn btn-sm";
@@ -60,7 +59,7 @@ class BootstrapCardTool {
         });
         const clearBtn = document.createElement("button");
         clearBtn.type = "button";
-        clearBtn.className = "btn btn-sm btn-ghost";
+        clearBtn.className = "btn btn-sm";
         clearBtn.textContent = "Remove image";
         clearBtn.addEventListener("click", () => {
             this.data.imageId = "";
@@ -74,52 +73,43 @@ class BootstrapCardTool {
 
         // Title
         const titleRow = document.createElement("div");
-        titleRow.className = "form-row";
-        const titleLabel = document.createElement("label");
-        titleLabel.textContent = "Title";
+        titleRow.className = "editorjs-row";
         const titleInput = document.createElement("input");
         titleInput.type = "text";
-        titleInput.placeholder = "Card title";
+        titleInput.placeholder = "Title";
         titleInput.value = this.data.title;
         titleInput.addEventListener("input", () => { this.data.title = titleInput.value; });
-        titleRow.append(titleLabel, titleInput);
+        titleRow.append(titleInput);
 
         // Text
         const textRow = document.createElement("div");
-        textRow.className = "form-row";
-        const textLabel = document.createElement("label");
-        textLabel.textContent = "Text";
+        textRow.className = "editorjs-row";
+        textRow.style.cssText = "margin-bottom: 0;";
         const textArea = document.createElement("textarea");
         textArea.placeholder = "Card text";
         textArea.value = this.data.text;
         textArea.addEventListener("input", () => { this.data.text = textArea.value; });
-        textRow.append(textLabel, textArea);
+        textRow.append(textArea);
 
         // Link (URL + text) — button only renders when both are filled in
         const linkRow = document.createElement("div");
-        linkRow.className = "form-row";
-        const linkLabel = document.createElement("label");
-        linkLabel.textContent = "Button";
+        linkRow.className = "editorjs-row";
         const linkFields = document.createElement("div");
-        linkFields.style.cssText = "display:flex;gap:8px;";
+        linkFields.style.cssText = "display:flex;gap:5px;";
         const linkUrlInput = document.createElement("input");
         linkUrlInput.type = "text";
-        linkUrlInput.placeholder = "URL";
+        linkUrlInput.placeholder = "Button URL";
         linkUrlInput.value = this.data.linkUrl;
-        linkUrlInput.style.flex = "1 1 60%";
+        linkUrlInput.style.flex = "1 1 50%";
         linkUrlInput.addEventListener("input", () => { this.data.linkUrl = linkUrlInput.value; });
         const linkTextInput = document.createElement("input");
         linkTextInput.type = "text";
-        linkTextInput.placeholder = "Button text";
+        linkTextInput.placeholder = "Button Text";
         linkTextInput.value = this.data.linkText;
-        linkTextInput.style.flex = "1 1 40%";
+        linkTextInput.style.flex = "1 1 50%";
         linkTextInput.addEventListener("input", () => { this.data.linkText = linkTextInput.value; });
         linkFields.append(linkUrlInput, linkTextInput);
-        const linkHint = document.createElement("div");
-        linkHint.className = "hint";
-        linkHint.textContent = "Both fields are required for the button to appear.";
-        linkRow.append(linkLabel, linkFields, linkHint);
-
+        linkRow.append(linkFields);
         wrapper.append(imageRow, titleRow, textRow, linkRow);
         this.wrapper = wrapper;
         return wrapper;
