@@ -35,6 +35,7 @@ public class PagesController : BaseAdminController
             .Include(p => p.ParentPage)
             .OrderBy(p => p.SortOrder).ThenBy(p => p.Title)
             .ToListAsync();
+        ViewBag.Paths = PagePaths.Build(pages.Select(p => (p.PageID, p.ParentPageID, p.Slug)));
         return View(pages);
     }
 
@@ -140,11 +141,11 @@ public class PagesController : BaseAdminController
     {
         var now = DateTime.UtcNow;
         page.Title = vm.Title.Trim();
+        page.ParentPageID = vm.ParentPageID;
+        // Slugs only need to be unique among siblings, since the URL includes the parent path.
         page.Slug = await _slugs.UniqueSlugAsync(
             string.IsNullOrWhiteSpace(vm.Slug) ? vm.Title : vm.Slug!,
-            async slug => !await _db.Pages.AnyAsync(p => p.Slug == slug && p.PageID != page.PageID),
-            isNew ? null : page.Slug);
-        page.ParentPageID = vm.ParentPageID;
+            async slug => !await _db.Pages.AnyAsync(p => p.ParentPageID == vm.ParentPageID && p.Slug == slug && p.PageID != page.PageID));
         page.SidebarID = vm.SidebarID;
         page.FeaturedMediaID = vm.FeaturedMediaID;
         page.Template = vm.Template;

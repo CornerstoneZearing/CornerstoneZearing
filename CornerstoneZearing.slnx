@@ -3,6 +3,7 @@
   <Folder Name="/Solution Items/SQL/">
     <File Path="SQL/2026-09-08 Initial Schema.sql" />
     <File Path="SQL/2026-09-15 All-Day Events.sql" />
+    <File Path="SQL/2026-10-02 Hierarchical Page Slugs.sql" />
   </Folder>
   <Project Path="CornerstoneZearing.Data/CornerstoneZearing.Data.csproj" />
   <Project Path="CornerstoneZearing.Web/CornerstoneZearing.Web.csproj" />

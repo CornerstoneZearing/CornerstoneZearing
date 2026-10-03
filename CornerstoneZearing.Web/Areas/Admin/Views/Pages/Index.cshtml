@@ -15,7 +15,7 @@
     {
         <tr>
             <td><a asp-action="Edit" asp-route-id="@p.PageID">@p.Title</a></td>
-            <td class="muted">/@p.Slug</td>
+            <td class="muted">/@(((Dictionary<int, string>)ViewBag.Paths)[p.PageID])</td>
             <td class="muted">@(p.ParentPage?.Title ?? "—")</td>
             <td><partial name="_StatusBadge" model="p.Status" /></td>
             <td>@(p.ShowInNavigation ? "Yes" : "—")</td>

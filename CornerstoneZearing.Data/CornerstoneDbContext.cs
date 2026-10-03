@@ -73,7 +73,7 @@ public class CornerstoneDbContext : IdentityDbContext<
             b.Property(p => p.Status).HasConversion<int>();
             b.Property(p => p.MetaTitle).HasMaxLength(200);
             b.Property(p => p.MetaDescription).HasMaxLength(500);
-            b.HasIndex(p => p.Slug).IsUnique();
+            b.HasIndex(p => new { p.ParentPageID, p.Slug }).IsUnique();
 
             b.HasOne(p => p.ParentPage)
                 .WithMany(p => p.ChildPages)

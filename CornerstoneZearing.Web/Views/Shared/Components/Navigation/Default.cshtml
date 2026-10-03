@@ -5,17 +5,17 @@
     {
         if (node.Children.Count == 0)
         {
-            <li class="nav-item"><a class="nav-link" href="/@node.Slug">@node.Title</a></li>
+            <li class="nav-item"><a class="nav-link" href="/@node.Path">@node.Title</a></li>
         }
         else
         {
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">@node.Title</a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/@node.Slug">@node.Title</a></li>
+                    <li><a class="dropdown-item" href="/@node.Path">@node.Title</a></li>
                     @foreach (var child in node.Children)
                     {
-                        <li><a class="dropdown-item" href="/@child.Slug">@child.Title</a></li>
+                        <li><a class="dropdown-item" href="/@child.Path">@child.Title</a></li>
                     }
                 </ul>
             </li>
