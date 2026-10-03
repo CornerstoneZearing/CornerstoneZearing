@@ -2,7 +2,10 @@
 @{ ViewData["Title"] = "Sermons"; }
 <div class="page-header">
     <h1>Sermons</h1>
-    <a class="btn btn-primary" asp-action="Create">New Sermon</a>
+    <div style="display:flex;gap:8px">
+        <a class="btn" asp-action="Categories">Categories</a>
+        <a class="btn btn-primary" asp-action="Create">New Sermon</a>
+    </div>
 </div>
 <table class="data">
     <thead><tr><th>Title</th><th>Date</th><th>Speaker</th><th>Category</th><th>Status</th><th></th></tr></thead>

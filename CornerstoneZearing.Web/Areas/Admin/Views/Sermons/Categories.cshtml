@@ -1,7 +1,11 @@
-@model IEnumerable<CornerstoneZearing.Data.Entities.ICategoryEntity>
+@model IEnumerable<SermonCategory>
+@{ ViewData["Title"] = "Sermon Categories"; }
 <div class="page-header">
-    <h1>@ViewData["Title"]</h1>
-    <a class="btn btn-primary" asp-action="Create">New Category</a>
+    <h1>Sermon Categories</h1>
+    <div style="display:flex;gap:8px">
+        <a class="btn" href="~/Admin/Sermons">Back to Sermons</a>
+        <a class="btn btn-primary" asp-action="CategoryCreate">New Category</a>
+    </div>
 </div>
 <table class="data">
     <thead><tr><th>Name</th><th>Slug</th><th>Description</th><th></th></tr></thead>
@@ -13,8 +17,8 @@
             <td class="muted">@c.Slug</td>
             <td class="muted">@c.Description</td>
             <td style="text-align:right">
-                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@c.CategoryId" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
-                <form asp-action="Delete" asp-route-id="@c.CategoryId" method="post" onsubmit="return confirm('Delete this category?');" style="display:inline">
+                <a class="btn btn-sm" asp-action="CategoryEdit" asp-route-id="@c.SermonCategoryID" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
+                <form asp-action="CategoryDelete" asp-route-id="@c.SermonCategoryID" method="post" onsubmit="return confirm('Delete this category?');" style="display:inline">
                     <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                 </form>
             </td>

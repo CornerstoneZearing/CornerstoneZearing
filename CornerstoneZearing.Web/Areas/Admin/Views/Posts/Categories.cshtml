@@ -1,0 +1,32 @@
+@model IEnumerable<PostCategory>
+@{ ViewData["Title"] = "Post Categories"; }
+<div class="page-header">
+    <h1>Post Categories</h1>
+    <div style="display:flex;gap:8px">
+        <a class="btn" asp-action="Index">Back to Posts</a>
+        <a class="btn btn-primary" asp-action="CategoryCreate">New Category</a>
+    </div>
+</div>
+<table class="data">
+    <thead><tr><th>Name</th><th>Slug</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var c in Model)
+    {
+        <tr>
+            <td>@c.Name</td>
+            <td class="muted">@c.Slug</td>
+            <td class="muted">@c.Description</td>
+            <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="CategoryEdit" asp-route-id="@c.PostCategoryID" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
+                <form asp-action="CategoryDelete" asp-route-id="@c.PostCategoryID" method="post" onsubmit="return confirm('Delete this category?');" style="display:inline">
+                    <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
+                </form>
+            </td>
+        </tr>
+    }
+    @if (!Model.Any())
+    {
+        <tr><td colspan="4" class="muted">No categories yet.</td></tr>
+    }
+    </tbody>
+</table>

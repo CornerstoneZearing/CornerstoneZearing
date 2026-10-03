@@ -110,6 +110,83 @@ public class PostsController : BaseAdminController
         return RedirectToIndex();
     }
 
+    [HasPermission(Permissions.Categories.Manage)]
+    public async Task<IActionResult> Categories()
+    {
+        var categories = await _db.PostCategories.OrderBy(c => c.Name).ToListAsync();
+        return View(categories);
+    }
+
+    [HasPermission(Permissions.Categories.Manage)]
+    public IActionResult CategoryCreate()
+    {
+        ViewData["Title"] = "New Post Category";
+        return View("CategoryEdit", new CategoryEditViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Permissions.Categories.Manage)]
+    public async Task<IActionResult> CategoryCreate(CategoryEditViewModel vm)
+    {
+        if (!ModelState.IsValid) return View("CategoryEdit", vm);
+
+        var now = DateTime.UtcNow;
+        _db.PostCategories.Add(new PostCategory
+        {
+            Name = vm.Name.Trim(),
+            Slug = await _slugs.UniqueSlugAsync(string.IsNullOrWhiteSpace(vm.Slug) ? vm.Name : vm.Slug!,
+                async s => !await _db.PostCategories.AnyAsync(c => c.Slug == s)),
+            Description = vm.Description,
+            DateCreated = now,
+            DateModified = now,
+        });
+        await _db.SaveChangesAsync();
+        Success("Category created.");
+        return RedirectToAction(nameof(Categories));
+    }
+
+    [HasPermission(Permissions.Categories.Manage)]
+    public async Task<IActionResult> CategoryEdit(int id)
+    {
+        var c = await _db.PostCategories.FindAsync(id);
+        if (c is null) return NotFound();
+        ViewData["Title"] = "Edit Post Category";
+        return View("CategoryEdit", new CategoryEditViewModel { Id = c.PostCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Permissions.Categories.Manage)]
+    public async Task<IActionResult> CategoryEdit(int id, CategoryEditViewModel vm)
+    {
+        var c = await _db.PostCategories.FindAsync(id);
+        if (c is null) return NotFound();
+        if (!ModelState.IsValid) return View("CategoryEdit", vm);
+
+        c.Name = vm.Name.Trim();
+        c.Slug = await _slugs.UniqueSlugAsync(string.IsNullOrWhiteSpace(vm.Slug) ? vm.Name : vm.Slug!,
+            async s => !await _db.PostCategories.AnyAsync(x => x.Slug == s && x.PostCategoryID != id), c.Slug);
+        c.Description = vm.Description;
+        c.DateModified = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+        Success("Category saved.");
+        return RedirectToAction(nameof(Categories));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [HasPermission(Permissions.Categories.Manage)]
+    public async Task<IActionResult> CategoryDelete(int id)
+    {
+        var c = await _db.PostCategories.FindAsync(id);
+        if (c is null) return NotFound();
+        _db.PostCategories.Remove(c);
+        await _db.SaveChangesAsync();
+        Success("Category deleted.");
+        return RedirectToAction(nameof(Categories));
+    }
+
     private async Task ApplyAsync(PostEditViewModel vm, Post post, bool isNew)
     {
         var now = DateTime.UtcNow;

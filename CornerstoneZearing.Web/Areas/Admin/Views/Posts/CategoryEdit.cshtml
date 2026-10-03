@@ -5,7 +5,7 @@
 <div class="page-header">
     <h1>@ViewData["Title"]</h1>
 </div>
-<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.Id" method="post">
+<form asp-action="@(isNew ? "CategoryCreate" : "CategoryEdit")" asp-route-id="@Model.Id" method="post">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="validation-summary-errors"></div>
     <div class="card" style="max-width:560px"><div class="card-body">
@@ -25,6 +25,6 @@
     </div></div>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save this Page</button>
-        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
+        <a class="btn btn-ghost" asp-action="Categories">Cancel</a>
     </div>
 </form>
