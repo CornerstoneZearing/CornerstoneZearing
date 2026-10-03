@@ -11,7 +11,7 @@
     {
         <tr>
             <td><a asp-action="Edit" asp-route-id="@e.EventID">@e.Title</a></td>
-            <td class="muted">@e.StartDateTime.ToString("MMM d, yyyy h:mm tt")</td>
+            <td class="muted">@(e.AllDay ? e.StartDateTime.ToString("MMM d, yyyy") + " (all day)" : e.StartDateTime.ToString("MMM d, yyyy h:mm tt"))</td>
             <td class="muted">@(e.Location ?? "—")</td>
             <td class="muted">@(string.IsNullOrWhiteSpace(e.RecurrenceRule) ? "—" : "Yes")</td>
             <td>@(e.Private ? "Private" : "Public")</td>

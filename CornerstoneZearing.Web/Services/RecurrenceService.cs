@@ -8,7 +8,7 @@ using Ical.Net.Serialization;
 
 namespace CornerstoneZearing.Web.Services;
 
-public record EventOccurrence(int EventID, string Title, string? Location, string? Description, bool Private, DateTime Start, DateTime End);
+public record EventOccurrence(int EventID, string Title, string? Location, string? Description, bool Private, bool AllDay, DateTime Start, DateTime End);
 
 public class RecurrenceService
 {
@@ -119,5 +119,5 @@ public class RecurrenceService
     }
 
     private static EventOccurrence ToOccurrence(Event ev, DateTime start, DateTime end) =>
-        new(ev.EventID, ev.Title, ev.Location, ev.Description, ev.Private, start, end);
+        new(ev.EventID, ev.Title, ev.Location, ev.Description, ev.Private, ev.AllDay, start, end);
 }

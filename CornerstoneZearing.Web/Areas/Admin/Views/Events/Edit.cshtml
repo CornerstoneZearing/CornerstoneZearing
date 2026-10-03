@@ -1,78 +1,419 @@
 @model EventEditViewModel
 @{
-    var isNew = Model.EventID == 0;
-    ViewData["Title"] = isNew ? "New Event" : "Edit Event";
+	var isNew = Model.EventID == 0;
+	ViewData["Title"] = isNew ? "New Event" : "Edit Event";
 }
+
 <div class="page-header">
-    <h1>@ViewData["Title"]</h1>
+	<h1>@ViewData["Title"]</h1>
 </div>
-<form asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.EventID" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="All" class="validation-summary-errors"></div>
-    <div class="form-grid">
-        <div class="card"><div class="card-body">
-            <div class="form-row">
-                <label asp-for="Title"></label>
-                <input asp-for="Title" />
-                <span asp-validation-for="Title" class="field-validation-error"></span>
-            </div>
-            <div class="form-row">
-                <label asp-for="StartDateTime">Start</label>
-                <input asp-for="StartDateTime" type="datetime-local" />
-            </div>
-            <div class="form-row">
-                <label asp-for="EndDateTime">End</label>
-                <input asp-for="EndDateTime" type="datetime-local" />
-                <span asp-validation-for="EndDateTime" class="field-validation-error"></span>
-            </div>
-            <div class="form-row">
-                <label asp-for="Location"></label>
-                <input asp-for="Location" />
-            </div>
-            <div class="form-row">
-                <label asp-for="Description"></label>
-                <textarea asp-for="Description"></textarea>
-            </div>
-        </div></div>
-        <div class="card"><div class="card-body">
-            <div class="form-row checkbox-row">
-                <input asp-for="Private" />
-                <label asp-for="Private" style="margin:0">Private (hidden from public calendar)</label>
-            </div>
-            <h4 style="margin:16px 0 8px">Recurrence</h4>
-            <div class="form-row">
-                <label>Pattern</label>
-                <select id="recurrence-preset" onchange="applyPreset(this.value)">
-                    <option value="">Does not repeat</option>
-                    <option value="FREQ=DAILY">Daily</option>
-                    <option value="FREQ=WEEKLY">Weekly</option>
-                    <option value="FREQ=WEEKLY;INTERVAL=2">Every 2 weeks</option>
-                    <option value="FREQ=MONTHLY">Monthly</option>
-                    <option value="FREQ=YEARLY">Yearly</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label asp-for="RecurrenceRule">RRULE (RFC 5545)</label>
-                <input asp-for="RecurrenceRule" placeholder="FREQ=WEEKLY;BYDAY=SU" />
-                <div class="hint">Leave blank for a one-time event. Presets above fill this in; edit freely.</div>
-            </div>
-            <div class="form-row">
-                <label asp-for="RecurrenceEndDate">Repeat until</label>
-                <input asp-for="RecurrenceEndDate" type="date" />
-            </div>
-            <div class="form-row">
-                <label asp-for="RecurrenceExceptions">Skip dates</label>
-                <textarea asp-for="RecurrenceExceptions" placeholder="One date per line, e.g. 2026-12-25T09:00:00"></textarea>
-            </div>
-        </div></div>
-    </div>
-    <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Event</button>
-        <a class="btn btn-ghost" asp-action="Index">Cancel</a>
-    </div>
+
+<form asp-area="Admin" asp-controller="Events" asp-action="@(isNew ? "Create" : "Edit")" asp-route-id="@Model.EventID" method="post">
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="All" class="validation-summary-errors"></div>
+	<div class="form-grid">
+		<div class="card">
+			<div class="card-body">
+				<div class="form-row">
+					<label asp-for="Title"></label>
+					<input asp-for="Title" />
+					<span asp-validation-for="Title" class="field-validation-error"></span>
+				</div>
+                <div class="form-row checkbox-row">
+                    <input asp-for="AllDay" id="AllDay" />
+                    <label asp-for="AllDay" style="margin:0">All day event</label>
+                </div>
+				<div class="form-row">
+					<div class="col-6">
+					    <label asp-for="StartDateTime">Start</label>
+					    <input asp-for="StartDateTime" type="datetime-local" />
+					</div>
+					<div class="col-6">
+					    <label asp-for="EndDateTime" id="EndDateTimeLabel">End</label>
+					    <input asp-for="EndDateTime" type="datetime-local" />
+					    <span asp-validation-for="EndDateTime" class="field-validation-error"></span>
+					</div>
+				</div>
+				<div class="form-row">
+					<label asp-for="Location"></label>
+					<input asp-for="Location" />
+				</div>
+				<div class="form-row">
+					<label asp-for="Description"></label>
+					<textarea asp-for="Description"></textarea>
+				</div>
+                <div class="form-row checkbox-row">
+                    <input asp-for="Private" />
+                    <label asp-for="Private" style="margin:0">Private (Hidden from public calendar)</label>
+                </div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="form-row">
+					<label>Repeats</label>
+					<select id="rec-freq">
+						<option value="">None</option>
+						<option value="DAILY">Daily</option>
+						<option value="WEEKLY">Weekly</option>
+						<option value="MONTHLY">Monthly</option>
+						<option value="YEARLY">Yearly</option>
+					</select>
+				</div>
+				<div id="rec-details" hidden>
+					<div class="form-row">
+						<label>Every</label>
+						<input type="number" id="rec-interval" min="1" value="1" style="width:70px" />
+						<span id="rec-interval-unit"></span>
+					</div>
+					<div class="form-row" id="rec-weekdays" hidden>
+						<label>On</label>
+						<div class="checkbox-group" style="display:flex;gap:10px;flex-wrap:wrap">
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SU" /> Sun</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="MO" /> Mon</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TU" /> Tue</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="WE" /> Wed</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TH" /> Thu</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="FR" /> Fri</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SA" /> Sat</label>
+						</div>
+					</div>
+					<div class="form-row" id="rec-monthly-pattern" hidden>
+						<label>Pattern</label>
+						<div style="display:flex;flex-direction:column;gap:6px">
+							<label class="checkbox-row">
+								<input type="radio" name="rec-month-mode" value="day" checked /> On day 
+								<input type="number" id="rec-monthday" min="1" max="31" value="1" style="width:60px" /> of the month
+							</label>
+							<label class="checkbox-row">
+								<input type="radio" name="rec-month-mode" value="nth" /> On the
+								<select id="rec-nth-ordinal">
+									<option value="1">first</option>
+									<option value="2">second</option>
+									<option value="3">third</option>
+									<option value="4">fourth</option>
+									<option value="-1">last</option>
+								</select>
+								<select id="rec-nth-weekday">
+									<option value="SU">Sunday</option>
+									<option value="MO">Monday</option>
+									<option value="TU">Tuesday</option>
+									<option value="WE">Wednesday</option>
+									<option value="TH">Thursday</option>
+									<option value="FR">Friday</option>
+									<option value="SA">Saturday</option>
+								</select>
+							</label>
+						</div>
+					</div>
+					<div class="form-row" id="rec-end-row">
+						<label>Ends</label>
+						<div style="display:flex;flex-direction:column;gap:6px">
+							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="never" checked /> Never</label>
+							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="date" /> On date <input asp-for="RecurrenceEndDate" type="date" id="rec-end-date" /></label>
+							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="count" /> After <input type="number" id="rec-count" min="1" value="1" style="width:60px" /> occurrences</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-row">
+					<label>Skip Dates</label>
+					<div style="display:flex;gap:8px;align-items:center">
+						<input type="date" id="rec-skip-date" />
+						<button type="button" id="rec-skip-add" class="btn btn-ghost">Add</button>
+					</div>
+					<ul id="rec-skip-list" style="list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:4px"></ul>
+					<input asp-for="RecurrenceExceptions" id="RecurrenceExceptions" type="hidden" />
+					<div class="hint">Specific dates to exclude from a repeating event</div>
+				</div>
+				<input asp-for="RecurrenceRule" id="RecurrenceRule" type="hidden" />
+			</div>
+		</div>
+	</div>
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary">Save this Page</button>
+		<a class="btn btn-ghost" asp-action="Index" asp-area="Admin">Cancel</a>
+	</div>
 </form>
+
 @section Scripts {
-<script>
-    function applyPreset(v) { if (v) document.getElementById("RecurrenceRule").value = v; }
-</script>
+    <script>
+        (function() {
+            var freqEl = document.getElementById("rec-freq");
+            var detailsEl = document.getElementById("rec-details");
+            var intervalEl = document.getElementById("rec-interval");
+            var intervalUnitEl = document.getElementById("rec-interval-unit");
+            var weekdaysRow = document.getElementById("rec-weekdays");
+            var monthlyRow = document.getElementById("rec-monthly-pattern");
+            var monthdayEl = document.getElementById("rec-monthday");
+            var nthOrdinalEl = document.getElementById("rec-nth-ordinal");
+            var nthWeekdayEl = document.getElementById("rec-nth-weekday");
+            var endDateEl = document.getElementById("rec-end-date");
+            var countEl = document.getElementById("rec-count");
+            var ruleEl = document.getElementById("RecurrenceRule");
+            var byDayBoxes = Array.prototype.slice.call(document.querySelectorAll(".rec-byday"));
+            var keepAdvancedRule = false;
+
+            var startEl = document.getElementById("StartDateTime");
+            var endEl = document.getElementById("EndDateTime");
+            var allDayEl = document.getElementById("AllDay");
+            var endLabelEl = document.getElementById("EndDateTimeLabel");
+
+            function applyAllDayMode() {
+                if (allDayEl.checked) {
+                    endLabelEl.textContent = "End (last day)";
+                    if (startEl.type !== "date") {
+                        startEl.value = (startEl.value || "").slice(0, 10);
+                        startEl.type = "date";
+                    }
+                    if (endEl.type !== "date") {
+                        endEl.value = (endEl.value || "").slice(0, 10);
+                        endEl.type = "date";
+                    }
+                } else {
+                    endLabelEl.textContent = "End";
+                    if (startEl.type !== "datetime-local") {
+                        startEl.type = "datetime-local";
+                        if (startEl.value && startEl.value.length === 10) startEl.value += "T09:00";
+                    }
+                    if (endEl.type !== "datetime-local") {
+                        endEl.type = "datetime-local";
+                        if (endEl.value && endEl.value.length === 10) endEl.value += "T10:00";
+                    }
+                }
+            }
+            allDayEl.addEventListener("change", applyAllDayMode);
+            applyAllDayMode();
+
+            var skipDateEl = document.getElementById("rec-skip-date");
+            var skipAddEl = document.getElementById("rec-skip-add");
+            var skipListEl = document.getElementById("rec-skip-list");
+            var skipHiddenEl = document.getElementById("RecurrenceExceptions");
+            var skipDates = [];
+
+            function startTimePart() {
+                var v = startEl.value;
+                var i = v.indexOf("T");
+                return i === -1 ? "00:00" : v.slice(i + 1);
+            }
+
+            function renderSkipList() {
+                skipListEl.innerHTML = "";
+                skipDates.slice().sort().forEach(function(iso) {
+                    var li = document.createElement("li");
+                    li.style.display = "flex";
+                    li.style.alignItems = "center";
+                    li.style.gap = "8px";
+                    var span = document.createElement("span");
+                    span.textContent = iso.slice(0, 10);
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "btn btn-ghost";
+                    btn.textContent = "Remove";
+                    btn.addEventListener("click", function() {
+                        skipDates = skipDates.filter(function(d) {
+                            return d !== iso;
+                        });
+                        renderSkipList();
+                    });
+                    li.appendChild(span);
+                    li.appendChild(btn);
+                    skipListEl.appendChild(li);
+                });
+                skipHiddenEl.value = skipDates.join("\n");
+            }
+
+            skipAddEl.addEventListener("click", function() {
+                if (!skipDateEl.value) return;
+                var iso = skipDateEl.value + "T" + startTimePart() + ":00";
+                if (skipDates.indexOf(iso) === -1) skipDates.push(iso);
+                skipDateEl.value = "";
+                renderSkipList();
+            });
+
+            (function loadSkipDates() {
+                var raw = (skipHiddenEl.value || "").trim();
+                if (!raw) return;
+                skipDates = raw.split(/\r?\n/).map(function(s) {
+                    return s.trim();
+                }).filter(Boolean);
+                renderSkipList();
+            })();
+
+            var UNITS = {
+                DAILY: "day(s)",
+                WEEKLY: "week(s)",
+                MONTHLY: "month(s)",
+                YEARLY: "year(s)"
+            };
+
+            function monthMode() {
+                var el = document.querySelector('input[name="rec-month-mode"]:checked');
+                return el ? el.value : "day";
+            }
+
+            function setMonthMode(v) {
+                var el = document.querySelector('input[name="rec-month-mode"][value="' + v + '"]');
+                if (el) el.checked = true;
+            }
+
+            function endMode() {
+                var el = document.querySelector('input[name="rec-end-mode"]:checked');
+                return el ? el.value : "never";
+            }
+
+            function setEndMode(v) {
+                var el = document.querySelector('input[name="rec-end-mode"][value="' + v + '"]');
+                if (el) el.checked = true;
+            }
+
+            function updateVisibility() {
+                var freq = freqEl.value;
+                detailsEl.hidden = !freq;
+                if (!freq) return;
+                intervalUnitEl.textContent = UNITS[freq] || "";
+                weekdaysRow.hidden = freq !== "WEEKLY";
+                monthlyRow.hidden = freq !== "MONTHLY";
+            }
+
+            function parseRule(rule) {
+                var parts = {};
+                rule.split(";").forEach(function(p) {
+                    var i = p.indexOf("=");
+                    if (i > 0) parts[p.slice(0, i).toUpperCase()] = p.slice(i + 1);
+                });
+                return parts;
+            }
+
+            function loadFromRule() {
+                var raw = (ruleEl.value || "").trim();
+                if (raw.toUpperCase().indexOf("RRULE:") === 0) raw = raw.slice(6);
+                if (!raw) {
+                    freqEl.value = "";
+                    updateVisibility();
+                    return;
+                }
+
+                var parts = parseRule(raw);
+                var freq = (parts.FREQ || "").toUpperCase();
+                if (["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].indexOf(freq) === -1) {
+                    // Rule uses something the picker can't represent (e.g. multiple BYMONTH, BYSETPOS
+                    // combos, SECONDLY/MINUTELY/HOURLY). Leave the picker collapsed to "Does not repeat"
+                    // and remember not to overwrite the advanced field on submit.
+                    keepAdvancedRule = true;
+                    freqEl.value = "";
+                    updateVisibility();
+                    return;
+                }
+                freqEl.value = freq;
+                intervalEl.value = parts.INTERVAL ? parseInt(parts.INTERVAL, 10) || 1 : 1;
+
+                byDayBoxes.forEach(function(b) {
+                    b.checked = false;
+                });
+                if (freq === "WEEKLY" && parts.BYDAY) {
+                    parts.BYDAY.split(",").forEach(function(d) {
+                        var box = byDayBoxes.filter(function(b) {
+                            return b.value === d;
+                        })[0];
+                        if (box) box.checked = true;
+                    });
+                }
+
+                if (freq === "MONTHLY") {
+                    if (parts.BYMONTHDAY) {
+                        setMonthMode("day");
+                        monthdayEl.value = parseInt(parts.BYMONTHDAY, 10) || 1;
+                    } else if (parts.BYDAY) {
+                        var m = /^(-?\d+)([A-Z]{2})$/.exec(parts.BYDAY.split(",")[0]);
+                        if (m) {
+                            setMonthMode("nth");
+                            nthOrdinalEl.value = m[1];
+                            nthWeekdayEl.value = m[2];
+                        } else {
+                            setMonthMode("day");
+                        }
+                    } else {
+                        setMonthMode("day");
+                    }
+                }
+
+                if (parts.COUNT) {
+                    setEndMode("count");
+                    countEl.value = parseInt(parts.COUNT, 10) || 1;
+                } else if (endDateEl.value) {
+                    setEndMode("date");
+                } else {
+                    setEndMode("never");
+                }
+
+                updateVisibility();
+            }
+
+            function buildRule() {
+                var freq = freqEl.value;
+                if (!freq) return "";
+
+                var interval = Math.max(1, parseInt(intervalEl.value, 10) || 1);
+                var rule = "FREQ=" + freq;
+                if (interval > 1) rule += ";INTERVAL=" + interval;
+
+                if (freq === "WEEKLY") {
+                    var days = byDayBoxes.filter(function(b) {
+                        return b.checked;
+                    }).map(function(b) {
+                        return b.value;
+                    });
+                    if (days.length) rule += ";BYDAY=" + days.join(",");
+                }
+
+                if (freq === "MONTHLY") {
+                    if (monthMode() === "nth") {
+                        rule += ";BYDAY=" + nthOrdinalEl.value + nthWeekdayEl.value;
+                    } else {
+                        rule += ";BYMONTHDAY=" + (parseInt(monthdayEl.value, 10) || 1);
+                    }
+                }
+
+                if (endMode() === "count") {
+                    rule += ";COUNT=" + Math.max(1, parseInt(countEl.value, 10) || 1);
+                }
+
+                return rule;
+            }
+
+            freqEl.addEventListener("change", function() {
+                keepAdvancedRule = false;
+                updateVisibility();
+            });
+            document.querySelectorAll('input[name="rec-end-mode"]').forEach(function(el) {
+                el.addEventListener("change", function() {
+                    if (endMode() !== "date") endDateEl.value = "";
+                });
+            });
+            endDateEl.addEventListener("change", function() {
+                if (endDateEl.value) setEndMode("date");
+            });
+
+            loadFromRule();
+
+            document.querySelector("form").addEventListener("submit", function() {
+                if (allDayEl.checked && endEl.value) {
+                    var parts = endEl.value.split("-").map(Number);
+                    var lastDay = new Date(parts[0], parts[1] - 1, parts[2]);
+                    lastDay.setDate(lastDay.getDate() + 1);
+                    var pad = function(n) {
+                        return n < 10 ? "0" + n : "" + n;
+                    };
+                    endEl.value = lastDay.getFullYear() + "-" + pad(lastDay.getMonth() + 1) + "-" + pad(lastDay.getDate());
+                }
+                if (freqEl.value) {
+                    ruleEl.value = buildRule();
+                    if (endMode() !== "date") endDateEl.value = "";
+                } else if (!keepAdvancedRule) {
+                    ruleEl.value = "";
+                    endDateEl.value = "";
+                }
+            });
+        })();
+    </script>
 }

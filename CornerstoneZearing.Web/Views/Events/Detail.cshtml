@@ -5,7 +5,23 @@
 <article class="col-lg-8 mx-auto">
     <h1 class="mb-2">@Model.Title</h1>
     <p class="text-muted mb-1">
-        @Model.StartDateTime.ToString("dddd, MMMM d, yyyy · h:mm tt") &ndash; @Model.EndDateTime.ToString("h:mm tt")
+        @if (Model.AllDay)
+        {
+            var lastDay = Model.EndDateTime.Date.AddDays(-1);
+            if (lastDay > Model.StartDateTime.Date)
+            {
+                @($"{Model.StartDateTime:dddd, MMMM d, yyyy} – {lastDay:dddd, MMMM d, yyyy}")
+            }
+            else
+            {
+                @Model.StartDateTime.ToString("dddd, MMMM d, yyyy")
+            }
+            <span class="badge text-bg-light">All day</span>
+        }
+        else
+        {
+            @($"{Model.StartDateTime:dddd, MMMM d, yyyy · h:mm tt} – {Model.EndDateTime:h:mm tt}")
+        }
     </p>
     @if (!string.IsNullOrEmpty(Model.Location))
     {

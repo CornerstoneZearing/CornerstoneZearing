@@ -6,6 +6,7 @@ public class Event
     public string Title { get; set; } = string.Empty;
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; }
+    public bool AllDay { get; set; }
     public string? Location { get; set; }
     public string? Description { get; set; }
     public bool Private { get; set; }

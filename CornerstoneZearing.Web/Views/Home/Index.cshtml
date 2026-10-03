@@ -31,7 +31,7 @@
             {
                 <li class="mb-2">
                     <a href="/events/@e.EventID" class="text-decoration-none fw-medium">@e.Title</a><br />
-                    <span class="text-muted small">@e.Start.ToString("ddd, MMM d · h:mm tt")@(string.IsNullOrEmpty(e.Location) ? "" : " · " + e.Location)</span>
+                    <span class="text-muted small">@(e.AllDay ? e.Start.ToString("ddd, MMM d") : e.Start.ToString("ddd, MMM d · h:mm tt"))@(string.IsNullOrEmpty(e.Location) ? "" : " · " + e.Location)</span>
                 </li>
             }
             @if (Model.UpcomingEvents.Count == 0)

@@ -56,7 +56,8 @@ public class EventsController : BaseAdminController
             EventID = e.EventID,
             Title = e.Title,
             StartDateTime = e.StartDateTime,
-            EndDateTime = e.EndDateTime,
+            EndDateTime = e.AllDay ? e.EndDateTime.AddDays(-1) : e.EndDateTime,
+            AllDay = e.AllDay,
             Location = e.Location,
             Description = e.Description,
             Private = e.Private,
@@ -108,6 +109,7 @@ public class EventsController : BaseAdminController
         ev.Title = vm.Title.Trim();
         ev.StartDateTime = vm.StartDateTime;
         ev.EndDateTime = vm.EndDateTime;
+        ev.AllDay = vm.AllDay;
         ev.Location = vm.Location;
         ev.Description = vm.Description;
         ev.Private = vm.Private;

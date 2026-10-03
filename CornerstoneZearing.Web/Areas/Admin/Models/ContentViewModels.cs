@@ -141,6 +141,8 @@ public class EventEditViewModel
     [Required, DataType(DataType.DateTime)]
     public DateTime EndDateTime { get; set; } = DateTime.Today.AddHours(10);
 
+    public bool AllDay { get; set; }
+
     [StringLength(100)]
     public string? Location { get; set; }
 

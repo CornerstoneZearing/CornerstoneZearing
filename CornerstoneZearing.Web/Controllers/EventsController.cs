@@ -36,8 +36,9 @@ public class EventsController : Controller
         {
             id = o.EventID,
             title = o.Title,
-            start = o.Start.ToString("s"),
-            end = o.End.ToString("s"),
+            start = o.AllDay ? o.Start.ToString("yyyy-MM-dd") : o.Start.ToString("s"),
+            end = o.AllDay ? o.End.ToString("yyyy-MM-dd") : o.End.ToString("s"),
+            allDay = o.AllDay,
             url = Url.Action("Detail", new { id = o.EventID }),
             extendedProps = new { location = o.Location, isPrivate = o.Private },
         });
