@@ -10,11 +10,12 @@
     @foreach (var u in Model)
     {
         <tr>
-            <td><a asp-action="Edit" asp-route-id="@u.Id">@u.DisplayName</a></td>
+            <td>@u.DisplayName</td>
             <td class="muted">@u.Email</td>
             <td class="muted">@(u.Roles.Count == 0 ? "—" : string.Join(", ", u.Roles))</td>
             <td>@(u.IsActive ? Html.Raw("<span class='badge badge-published'>Active</span>") : Html.Raw("<span class='badge badge-archived'>Inactive</span>"))</td>
             <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@u.Id" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
                 <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" style="display:inline">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-sm">@(u.IsActive ? "Deactivate" : "Activate")</button>

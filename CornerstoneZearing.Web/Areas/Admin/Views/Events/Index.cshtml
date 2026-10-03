@@ -10,14 +10,15 @@
     @foreach (var e in Model)
     {
         <tr>
-            <td><a asp-action="Edit" asp-route-id="@e.EventID">@e.Title</a></td>
+            <td>@e.Title</td>
             <td class="muted">@(e.AllDay ? e.StartDateTime.ToString("MMM d, yyyy") + " (all day)" : e.StartDateTime.ToString("MMM d, yyyy h:mm tt"))</td>
             <td class="muted">@(e.Location ?? "—")</td>
             <td class="muted">@(string.IsNullOrWhiteSpace(e.RecurrenceRule) ? "—" : "Yes")</td>
             <td>@(e.Private ? "Private" : "Public")</td>
             <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@e.EventID" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
                 <form asp-action="Delete" asp-route-id="@e.EventID" method="post" onsubmit="return confirm('Delete this event?');" style="display:inline">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                 </form>
             </td>
         </tr>

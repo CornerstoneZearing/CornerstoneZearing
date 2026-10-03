@@ -10,11 +10,12 @@
     @foreach (var r in Model)
     {
         <tr>
-            <td><a asp-action="Edit" asp-route-id="@r.Id">@r.Name</a></td>
+            <td>@r.Name</td>
             <td class="muted">@r.Description</td>
             <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@r.Id" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
                 <form asp-action="Delete" asp-route-id="@r.Id" method="post" onsubmit="return confirm('Delete this role?');" style="display:inline">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                 </form>
             </td>
         </tr>

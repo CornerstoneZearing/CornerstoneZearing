@@ -24,7 +24,7 @@
                     <input type="text" name="altText" value="@m.AltText" placeholder="Alt text" />
                     <div style="display:flex;gap:6px">
                         <button type="submit" class="btn btn-sm">Save</button>
-                        <button type="submit" class="btn btn-sm btn-danger" formaction="@Url.Action("Delete", new { id = m.MediaID })" onclick="return confirm('Delete this image?');">Delete</button>
+                        <button type="submit" class="btn btn-sm" formaction="@Url.Action("Delete", new { id = m.MediaID })" onclick="return confirm('Delete this image?');" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </form>
             </div>

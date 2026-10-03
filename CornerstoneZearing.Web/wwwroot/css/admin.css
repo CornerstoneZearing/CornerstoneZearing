@@ -204,6 +204,11 @@ table.data {
         background: #fcfcfd;
     }
 
+    table.data .btn-sm {
+        font-size: 15px;
+        padding: 8px 6px;
+    }
+
 .btn {
     display: inline-flex;
     align-items: center;

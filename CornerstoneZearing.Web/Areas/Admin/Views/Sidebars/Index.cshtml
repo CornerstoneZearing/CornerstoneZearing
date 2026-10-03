@@ -10,11 +10,12 @@
     @foreach (var s in Model)
     {
         <tr>
-            <td><a asp-action="Edit" asp-route-id="@s.SidebarID">@s.Title</a></td>
+            <td>@s.Title</td>
             <td class="muted">@s.DateModified.ToString("MMM d, yyyy")</td>
             <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@s.SidebarID" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
                 <form asp-action="Delete" asp-route-id="@s.SidebarID" method="post" onsubmit="return confirm('Delete this sidebar?');" style="display:inline">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                 </form>
             </td>
         </tr>

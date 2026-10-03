@@ -14,15 +14,16 @@
     @foreach (var p in Model)
     {
         <tr>
-            <td><a asp-action="Edit" asp-route-id="@p.PageID">@p.Title</a></td>
+            <td>@p.Title</td>
             <td class="muted">/@(((Dictionary<int, string>)ViewBag.Paths)[p.PageID])</td>
             <td class="muted">@(p.ParentPage?.Title ?? "—")</td>
             <td><partial name="_StatusBadge" model="p.Status" /></td>
             <td>@(p.ShowInNavigation ? "Yes" : "—")</td>
             <td>@p.SortOrder</td>
             <td style="text-align:right">
+                <a class="btn btn-sm" asp-action="Edit" asp-route-id="@p.PageID" title="Edit" aria-label="Edit"><i class="fa-solid fa-pencil"></i></a>
                 <form asp-action="Delete" asp-route-id="@p.PageID" method="post" onsubmit="return confirm('Delete this page?');" style="display:inline">
-                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-sm" type="submit" title="Delete" aria-label="Delete"><i class="fa-solid fa-trash-can"></i></button>
                 </form>
             </td>
         </tr>
