@@ -100,8 +100,6 @@ public class EditorJsRenderer
                 return RenderList(data);
             case "delimiter":
                 return "<hr />";
-            case "code":
-                return $"<pre><code>{Encode(GetString(data, "code"))}</code></pre>";
             case "raw":
                 return GetString(data, "html");
             case "table":

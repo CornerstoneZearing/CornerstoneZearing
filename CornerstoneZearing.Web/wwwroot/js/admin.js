@@ -6,7 +6,7 @@
         ["List", "https://cdn.jsdelivr.net/npm/@editorjs/list@1.10.0/dist/list.umd.min.js"],
         ["Quote", "https://cdn.jsdelivr.net/npm/@editorjs/quote@2.6.0/dist/quote.umd.min.js"],
         ["Table", "https://cdn.jsdelivr.net/npm/@editorjs/table@2.3.0/dist/table.umd.min.js"],
-        ["CodeTool", "https://cdn.jsdelivr.net/npm/@editorjs/code@2.9.0/dist/code.umd.min.js"],
+        ["RawTool", "https://cdn.jsdelivr.net/npm/@editorjs/raw@2.5.0/dist/raw.umd.min.js"],
         ["Embed", "https://cdn.jsdelivr.net/npm/@editorjs/embed@2.7.4/dist/embed.umd.min.js"],
         ["Marker", "https://cdn.jsdelivr.net/npm/@editorjs/marker@1.4.0/dist/marker.umd.min.js"],
         ["InlineCode", "https://cdn.jsdelivr.net/npm/@editorjs/inline-code@1.5.1/dist/inline-code.umd.min.js"],
@@ -51,7 +51,7 @@
                 image: MediaImageTool,
                 bootstrapCard: BootstrapCardTool,
                 bootstrapGrid: BootstrapGridTool,
-                code: CodeTool,
+                raw: RawTool,
                 embed: Embed,
                 marker: Marker,
                 inlineCode: InlineCode
