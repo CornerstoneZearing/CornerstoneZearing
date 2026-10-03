@@ -53,10 +53,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddPackages(packages =>
 {
     packages.Add(new StylePackage("/styles.css")
-        .Include("~/css/site.css")
+        .Include("~/css/theme.css")
+        .Include("~/css/events.css")
     );
     packages.Add(new ScriptPackage("/scripts.js")
-        .Include("~/js/site.js")
+        .Include("~/js/theme.js")
     );
 });
 
