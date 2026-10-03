@@ -7,7 +7,7 @@ namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 [Authorize]
 public abstract class BaseAdminController : Controller
 {
-    protected IActionResult RedirectToIndex() => RedirectToAction("Index");
+    protected IActionResult RedirectToIndex() => RedirectToAction("Index", ControllerContext.ActionDescriptor.ControllerName, new { area = "Admin" });
 
     protected void Success(string message) => TempData["Success"] = message;
 

@@ -67,26 +67,26 @@
 						<span id="rec-interval-unit"></span>
 					</div>
 					<div class="form-row" id="rec-weekdays" hidden>
-						<label>On</label>
-						<div class="checkbox-group" style="display:flex;gap:10px;flex-wrap:wrap">
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SU" /> Sun</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="MO" /> Mon</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TU" /> Tue</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="WE" /> Wed</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TH" /> Thu</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="FR" /> Fri</label>
-							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SA" /> Sat</label>
+                        <label>On Day(s)</label>
+						<div class="checkbox-group">
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SU" />Sun</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="MO" />Mon</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TU" />Tue</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="WE" />Wed</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="TH" />Thu</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="FR" />Fri</label>
+							<label class="checkbox-row"><input type="checkbox" class="rec-byday" value="SA" />Sat</label>
 						</div>
 					</div>
 					<div class="form-row" id="rec-monthly-pattern" hidden>
 						<label>Pattern</label>
 						<div style="display:flex;flex-direction:column;gap:6px">
 							<label class="checkbox-row">
-								<input type="radio" name="rec-month-mode" value="day" checked /> On day 
+								<input type="radio" name="rec-month-mode" value="day" checked />On day 
 								<input type="number" id="rec-monthday" min="1" max="31" value="1" style="width:60px" /> of the month
 							</label>
 							<label class="checkbox-row">
-								<input type="radio" name="rec-month-mode" value="nth" /> On the
+								<input type="radio" name="rec-month-mode" value="nth" />On the
 								<select id="rec-nth-ordinal">
 									<option value="1">first</option>
 									<option value="2">second</option>
@@ -108,14 +108,12 @@
 					</div>
 					<div class="form-row" id="rec-end-row">
 						<label>Ends</label>
-						<div style="display:flex;flex-direction:column;gap:6px">
-							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="never" checked /> Never</label>
-							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="date" /> On date <input asp-for="RecurrenceEndDate" type="date" id="rec-end-date" /></label>
-							<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="count" /> After <input type="number" id="rec-count" min="1" value="1" style="width:60px" /> occurrences</label>
-						</div>
-					</div>
+						<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="never" checked />Never</label>
+						<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="date" />On date <input asp-for="RecurrenceEndDate" type="date" id="rec-end-date" /></label>
+						<label class="checkbox-row"><input type="radio" name="rec-end-mode" value="count" />After <input type="number" id="rec-count" min="1" value="1" style="width:60px" /> occurrences</label>
+				    </div>
 				</div>
-				<div class="form-row">
+				<div class="form-row" id="rec-skip-row" hidden>
 					<label>Skip Dates</label>
 					<div style="display:flex;gap:8px;align-items:center">
 						<input type="date" id="rec-skip-date" />
@@ -123,7 +121,6 @@
 					</div>
 					<ul id="rec-skip-list" style="list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:4px"></ul>
 					<input asp-for="RecurrenceExceptions" id="RecurrenceExceptions" type="hidden" />
-					<div class="hint">Specific dates to exclude from a repeating event</div>
 				</div>
 				<input asp-for="RecurrenceRule" id="RecurrenceRule" type="hidden" />
 			</div>
@@ -183,6 +180,22 @@
             }
             allDayEl.addEventListener("change", applyAllDayMode);
             applyAllDayMode();
+
+            startEl.addEventListener("change", function() {
+                if (!startEl.value) return;
+                if (allDayEl.checked) {
+                    endEl.value = startEl.value;
+                    return;
+                }
+                var d = new Date(startEl.value);
+                if (isNaN(d)) return;
+                d.setHours(d.getHours() + 1);
+                var pad = function(n) {
+                    return n < 10 ? "0" + n : "" + n;
+                };
+                endEl.value = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+                    "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+            });
 
             var skipDateEl = document.getElementById("rec-skip-date");
             var skipAddEl = document.getElementById("rec-skip-add");
@@ -269,6 +282,7 @@
             function updateVisibility() {
                 var freq = freqEl.value;
                 detailsEl.hidden = !freq;
+                document.getElementById("rec-skip-row").hidden = !freq && !keepAdvancedRule;
                 if (!freq) return;
                 intervalUnitEl.textContent = UNITS[freq] || "";
                 weekdaysRow.hidden = freq !== "WEEKLY";
@@ -396,7 +410,7 @@
 
             loadFromRule();
 
-            document.querySelector("form").addEventListener("submit", function() {
+            ruleEl.form.addEventListener("submit", function() {
                 if (allDayEl.checked && endEl.value) {
                     var parts = endEl.value.split("-").map(Number);
                     var lastDay = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -412,6 +426,7 @@
                 } else if (!keepAdvancedRule) {
                     ruleEl.value = "";
                     endDateEl.value = "";
+                    skipHiddenEl.value = "";
                 }
             });
         })();

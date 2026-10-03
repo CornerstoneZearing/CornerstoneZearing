@@ -7,20 +7,67 @@
 </div>
 <div id="calendar"></div>
 
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="eventModalTitle"></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-1" id="eventModalWhen"></p>
+                <p class="text-muted mb-1" id="eventModalLocation" hidden></p>
+                <div class="mt-3" id="eventModalDescription" style="white-space:pre-wrap" hidden></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            var modalEl = document.getElementById('eventModal');
+            var modal = new bootstrap.Modal(modalEl);
+            var params = new URLSearchParams(window.location.search);
+            var pendingId = params.get('event');
+            var pendingDate = params.get('date');
+
+            function showEvent(event) {
+                var p = event.extendedProps;
+                document.getElementById('eventModalTitle').textContent = event.title;
+                document.getElementById('eventModalWhen').textContent = p.when;
+                var loc = document.getElementById('eventModalLocation');
+                loc.textContent = p.location || '';
+                loc.hidden = !p.location;
+                var desc = document.getElementById('eventModalDescription');
+                desc.textContent = p.description || '';
+                desc.hidden = !p.description;
+                modal.show();
+            }
+
             var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: 'dayGridMonth',
+                initialDate: pendingDate || undefined,
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listMonth' },
                 events: function (info, success, failure) {
                     fetch('/events/feed?start=' + encodeURIComponent(info.startStr) + '&end=' + encodeURIComponent(info.endStr))
                         .then(r => r.json()).then(success).catch(failure);
                 },
                 eventClick: function (info) {
-                    if (info.event.url) { window.location.href = info.event.url; info.jsEvent.preventDefault(); }
+                    info.jsEvent.preventDefault();
+                    showEvent(info.event);
+                },
+                eventsSet: function (events) {
+                    if (!pendingId) return;
+                    var match = events.filter(function (e) {
+                        return e.id === pendingId && (!pendingDate || e.startStr.slice(0, 10) === pendingDate);
+                    })[0];
+                    if (match) { pendingId = null; showEvent(match); }
                 }
             });
             calendar.render();

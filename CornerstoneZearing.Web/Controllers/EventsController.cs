@@ -39,19 +39,25 @@ public class EventsController : Controller
             start = o.AllDay ? o.Start.ToString("yyyy-MM-dd") : o.Start.ToString("s"),
             end = o.AllDay ? o.End.ToString("yyyy-MM-dd") : o.End.ToString("s"),
             allDay = o.AllDay,
-            url = Url.Action("Detail", new { id = o.EventID }),
-            extendedProps = new { location = o.Location, isPrivate = o.Private },
+            extendedProps = new { location = o.Location, description = o.Description, isPrivate = o.Private, when = FormatWhen(o) },
         });
 
         return Json(items);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> Detail(int id)
+    private static string FormatWhen(EventOccurrence o)
     {
-        var ev = await _db.Events.FindAsync(id);
-        if (ev is null || (ev.Private && !CanSeePrivate)) return NotFound();
-        return View(ev);
+        if (o.AllDay)
+        {
+            var lastDay = o.End.Date.AddDays(-1);
+            return lastDay > o.Start.Date
+                ? $"{o.Start:dddd, MMMM d, yyyy} – {lastDay:dddd, MMMM d, yyyy}"
+                : o.Start.ToString("dddd, MMMM d, yyyy");
+        }
+
+        return o.End.Date == o.Start.Date
+            ? $"{o.Start:dddd, MMMM d, yyyy · h:mm tt} – {o.End:h:mm tt}"
+            : $"{o.Start:dddd, MMMM d, yyyy · h:mm tt} – {o.End:dddd, MMMM d, yyyy · h:mm tt}";
     }
 
     [HttpGet("feed.ics")]
