@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./publish/
-          server-dir: /site/wwwroot/
+          server-dir: /site1/wwwroot/
           exclude: |
             **/app_offline.htm
 
@@ -56,4 +56,4 @@ jobs:
         run: |
           # Remove app_offline.htm from the server
           curl --ssl-reqd -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
-            "ftp://${{ secrets.FTP_SERVER }}/site/wwwroot/" -Q "DELE /site/wwwroot/app_offline.htm" || true
+            "ftp://${{ secrets.FTP_SERVER }}/site1/wwwroot/" -Q "DELE /site1/wwwroot/app_offline.htm" || true
