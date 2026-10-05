@@ -25,7 +25,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ./src/MyWebApp/MyWebApp.csproj --configuration Release --output ./publish --no-build
+        run: dotnet publish ./CornerstoneZearing.Web/CornerstoneZearing.Web.csproj --configuration Release --output ./publish --no-build
 
       # Take the site offline so IIS releases locked DLLs
       - name: Upload app_offline.htm
