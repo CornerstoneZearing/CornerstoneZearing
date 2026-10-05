@@ -1,5 +1,8 @@
 <Solution>
-  <Folder Name="/Solution Items/" />
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/deploy.yml" />
+    <File Path="offline/app_offline.htm" />
+  </Folder>
   <Folder Name="/Solution Items/SQL/">
     <File Path="SQL/2026-09-08 Initial Schema.sql" />
     <File Path="SQL/2026-09-15 All-Day Events.sql" />
