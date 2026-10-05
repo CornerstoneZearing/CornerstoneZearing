@@ -1,0 +1,59 @@
+name: Build and deploy via FTP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # lets you run it manually from the Actions tab
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish ./src/MyWebApp/MyWebApp.csproj --configuration Release --output ./publish --no-build
+
+      # Take the site offline so IIS releases locked DLLs
+      - name: Upload app_offline.htm
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          local-dir: ./offline/
+          server-dir: /site1/
+          state-name: .ftp-offline-state.json
+
+      - name: Deploy published files
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./publish/
+          server-dir: /site/wwwroot/
+          exclude: |
+            **/app_offline.htm
+
+      - name: Bring site back online
+        if: always()
+        run: |
+          # Remove app_offline.htm from the server
+          curl --ssl-reqd -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" \
+            "ftp://${{ secrets.FTP_SERVER }}/site/wwwroot/" -Q "DELE /site/wwwroot/app_offline.htm" || true
