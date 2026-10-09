@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           local-dir: ./offline/
-          server-dir: /site1/
+          server-dir: /site1/wwwroot/
           state-name: .ftp-offline-state.json
 
       - name: Deploy published files
@@ -47,7 +47,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./publish/
-          server-dir: /site1/wwwroot/
+          server-dir: /site1/
           exclude: |
             **/app_offline.htm
 
