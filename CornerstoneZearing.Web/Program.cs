@@ -14,6 +14,8 @@ builder.Services.AddDbContext<CornerstoneDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<CornerstoneDbContext>();
+
 // Add identity service
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
