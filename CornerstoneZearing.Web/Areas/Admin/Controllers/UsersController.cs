@@ -41,12 +41,12 @@ public class UsersController : BaseAdminController
     public async Task<IActionResult> Create()
     {
         ViewData["Title"] = "New User";
-        return View("Edit", new UserEditViewModel { Roles = await RoleCheckboxesAsync(Array.Empty<string>()) });
+        return View("Edit", new UserEditView { Roles = await RoleCheckboxesAsync(Array.Empty<string>()) });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserEditViewModel vm)
+    public async Task<IActionResult> Create(UserEditView vm)
     {
         if (string.IsNullOrWhiteSpace(vm.NewPassword))
             ModelState.AddModelError(nameof(vm.NewPassword), "A password is required for a new user.");
@@ -86,7 +86,7 @@ public class UsersController : BaseAdminController
 
         ViewData["Title"] = "Edit User";
         var roles = await _userManager.GetRolesAsync(user);
-        return View(new UserEditViewModel
+        return View(new UserEditView
         {
             Id = user.Id,
             Email = user.Email ?? "",
@@ -99,7 +99,7 @@ public class UsersController : BaseAdminController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UserEditViewModel vm)
+    public async Task<IActionResult> Edit(int id, UserEditView vm)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user is null) return NotFound();
@@ -148,7 +148,7 @@ public class UsersController : BaseAdminController
         return RedirectToIndex();
     }
 
-    private static string[] SelectedRoleNames(UserEditViewModel vm) =>
+    private static string[] SelectedRoleNames(UserEditView vm) =>
         vm.Roles.Where(r => r.Assigned).Select(r => r.Name).ToArray();
 
     private async Task<List<RoleCheckbox>> RoleCheckboxesAsync(IEnumerable<string> assigned)

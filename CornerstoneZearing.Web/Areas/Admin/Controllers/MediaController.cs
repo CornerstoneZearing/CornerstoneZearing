@@ -90,8 +90,7 @@ public class MediaController : BaseAdminController
         var media = await _db.Media.FindAsync(id);
         if (media is null) return NotFound();
 
-        if (await _db.Pages.AnyAsync(p => p.FeaturedMediaID == id) ||
-            await _db.Posts.AnyAsync(p => p.FeaturedMediaID == id) ||
+        if (await _db.Posts.AnyAsync(p => p.FeaturedMediaID == id) ||
             await _db.Sermons.AnyAsync(s => s.FeaturedMediaID == id))
         {
             Error("This image is used as a featured image. Remove those references first.");

@@ -10,13 +10,6 @@ public class HomeViewModel
     public Sermon? LatestSermon { get; set; }
 }
 
-public class PageViewModel
-{
-    public Page Page { get; set; } = null!;
-    public Sidebar? Sidebar { get; set; }
-    public Media? FeaturedMedia { get; set; }
-}
-
 public class BlogIndexViewModel
 {
     public IReadOnlyList<Post> Posts { get; set; } = Array.Empty<Post>();

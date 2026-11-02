@@ -1,20 +1,8 @@
 namespace CornerstoneZearing.Web.Authorization;
 
-/// <summary>
-/// All permission strings. Stored as role claims (type <see cref="ClaimType"/>).
-/// A user is granted a permission if any of their roles carries the matching claim.
-/// </summary>
 public static class Permissions
 {
     public const string ClaimType = "permission";
-
-    public static class Pages
-    {
-        public const string View = "Pages.View";
-        public const string Create = "Pages.Create";
-        public const string Edit = "Pages.Edit";
-        public const string Delete = "Pages.Delete";
-    }
 
     public static class Posts
     {
@@ -24,12 +12,12 @@ public static class Permissions
         public const string Delete = "Posts.Delete";
     }
 
-    public static class Sidebars
+    public static class ContentBlocks
     {
-        public const string View = "Sidebars.View";
-        public const string Create = "Sidebars.Create";
-        public const string Edit = "Sidebars.Edit";
-        public const string Delete = "Sidebars.Delete";
+        public const string View = "ContentBlocks.View";
+        public const string Create = "ContentBlocks.Create";
+        public const string Edit = "ContentBlocks.Edit";
+        public const string Delete = "ContentBlocks.Delete";
     }
 
     public static class Media
@@ -81,9 +69,8 @@ public static class Permissions
 
     public static IReadOnlyList<PermissionGroup> Groups { get; } = new List<PermissionGroup>
     {
-        new("Pages", new[] { Pages.View, Pages.Create, Pages.Edit, Pages.Delete }),
         new("Posts", new[] { Posts.View, Posts.Create, Posts.Edit, Posts.Delete }),
-        new("Sidebars", new[] { Sidebars.View, Sidebars.Create, Sidebars.Edit, Sidebars.Delete }),
+        new("ContentBlocks", new[] { ContentBlocks.View, ContentBlocks.Create, ContentBlocks.Edit, ContentBlocks.Delete }),
         new("Media", new[] { Media.View, Media.Upload, Media.Edit, Media.Delete }),
         new("Documents", new[] { Documents.View, Documents.Upload, Documents.Edit, Documents.Delete }),
         new("Events", new[] { Events.View, Events.Create, Events.Edit, Events.Delete }),

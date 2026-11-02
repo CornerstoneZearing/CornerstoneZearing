@@ -25,12 +25,12 @@ public class RolesController : BaseAdminController
     public IActionResult Create()
     {
         ViewData["Title"] = "New Role";
-        return View("Edit", new RoleEditViewModel());
+        return View("Edit", new RoleEditView());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(RoleEditViewModel vm)
+    public async Task<IActionResult> Create(RoleEditView vm)
     {
         if (!ModelState.IsValid) return View("Edit", vm);
 
@@ -54,7 +54,7 @@ public class RolesController : BaseAdminController
 
         ViewData["Title"] = "Edit Role";
         var claims = await _roleManager.GetClaimsAsync(role);
-        return View(new RoleEditViewModel
+        return View(new RoleEditView
         {
             Id = role.Id,
             Name = role.Name ?? "",
@@ -65,7 +65,7 @@ public class RolesController : BaseAdminController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, RoleEditViewModel vm)
+    public async Task<IActionResult> Edit(int id, RoleEditView vm)
     {
         var role = await _roleManager.FindByIdAsync(id.ToString());
         if (role is null) return NotFound();

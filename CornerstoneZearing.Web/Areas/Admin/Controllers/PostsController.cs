@@ -13,13 +13,11 @@ namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 public class PostsController : BaseAdminController
 {
     private readonly CornerstoneDbContext _db;
-    private readonly EditorJsRenderer _renderer;
     private readonly SlugService _slugs;
 
-    public PostsController(CornerstoneDbContext db, EditorJsRenderer renderer, SlugService slugs)
+    public PostsController(CornerstoneDbContext db, SlugService slugs)
     {
         _db = db;
-        _renderer = renderer;
         _slugs = slugs;
     }
 
@@ -36,7 +34,7 @@ public class PostsController : BaseAdminController
     public async Task<IActionResult> Create()
     {
         ViewData["Title"] = "New Post";
-        var vm = new PostEditViewModel();
+        var vm = new PostEditView();
         await PopulateAsync(vm);
         return View("Edit", vm);
     }
@@ -44,7 +42,7 @@ public class PostsController : BaseAdminController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Posts.Create)]
-    public async Task<IActionResult> Create(PostEditViewModel vm)
+    public async Task<IActionResult> Create(PostEditView vm)
     {
         if (!ModelState.IsValid) { await PopulateAsync(vm); return View("Edit", vm); }
 
@@ -63,7 +61,7 @@ public class PostsController : BaseAdminController
         if (post is null) return NotFound();
 
         ViewData["Title"] = "Edit Post";
-        var vm = new PostEditViewModel
+        var vm = new PostEditView
         {
             PostID = post.PostID,
             Title = post.Title,
@@ -85,7 +83,7 @@ public class PostsController : BaseAdminController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Posts.Edit)]
-    public async Task<IActionResult> Edit(int id, PostEditViewModel vm)
+    public async Task<IActionResult> Edit(int id, PostEditView vm)
     {
         var post = await _db.Posts.FindAsync(id);
         if (post is null) return NotFound();
@@ -121,13 +119,13 @@ public class PostsController : BaseAdminController
     public IActionResult CategoryCreate()
     {
         ViewData["Title"] = "New Post Category";
-        return View("CategoryEdit", new CategoryEditViewModel());
+        return View("CategoryEdit", new CategoryEditView());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Categories.Manage)]
-    public async Task<IActionResult> CategoryCreate(CategoryEditViewModel vm)
+    public async Task<IActionResult> CategoryCreate(CategoryEditView vm)
     {
         if (!ModelState.IsValid) return View("CategoryEdit", vm);
 
@@ -152,13 +150,13 @@ public class PostsController : BaseAdminController
         var c = await _db.PostCategories.FindAsync(id);
         if (c is null) return NotFound();
         ViewData["Title"] = "Edit Post Category";
-        return View("CategoryEdit", new CategoryEditViewModel { Id = c.PostCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
+        return View("CategoryEdit", new CategoryEditView { Id = c.PostCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Categories.Manage)]
-    public async Task<IActionResult> CategoryEdit(int id, CategoryEditViewModel vm)
+    public async Task<IActionResult> CategoryEdit(int id, CategoryEditView vm)
     {
         var c = await _db.PostCategories.FindAsync(id);
         if (c is null) return NotFound();
@@ -187,7 +185,7 @@ public class PostsController : BaseAdminController
         return RedirectToAction(nameof(Categories));
     }
 
-    private async Task ApplyAsync(PostEditViewModel vm, Post post, bool isNew)
+    private async Task ApplyAsync(PostEditView vm, Post post, bool isNew)
     {
         var now = DateTime.UtcNow;
         post.Title = vm.Title.Trim();
@@ -199,7 +197,7 @@ public class PostsController : BaseAdminController
         post.FeaturedMediaID = vm.FeaturedMediaID;
         post.Summary = vm.Summary;
         post.ContentJson = vm.ContentJson;
-        post.ContentHtml = _renderer.Render(vm.ContentJson);
+        //post.ContentHtml = _renderer.Render(vm.ContentJson);
         post.Status = vm.Status;
         post.MetaTitle = vm.MetaTitle;
         post.MetaDescription = vm.MetaDescription;
@@ -209,7 +207,7 @@ public class PostsController : BaseAdminController
         if (isNew) post.DateCreated = now;
     }
 
-    private async Task PopulateAsync(PostEditViewModel vm)
+    private async Task PopulateAsync(PostEditView vm)
     {
         var categories = await _db.PostCategories.OrderBy(c => c.Name)
             .Select(c => new { c.PostCategoryID, c.Name }).ToListAsync();

@@ -12,13 +12,11 @@ namespace CornerstoneZearing.Web.Areas.Admin.Controllers;
 public class SermonsController : BaseAdminController
 {
     private readonly CornerstoneDbContext _db;
-    private readonly EditorJsRenderer _renderer;
     private readonly SlugService _slugs;
 
-    public SermonsController(CornerstoneDbContext db, EditorJsRenderer renderer, SlugService slugs)
+    public SermonsController(CornerstoneDbContext db, SlugService slugs)
     {
         _db = db;
-        _renderer = renderer;
         _slugs = slugs;
     }
 
@@ -35,7 +33,7 @@ public class SermonsController : BaseAdminController
     public async Task<IActionResult> Create()
     {
         ViewData["Title"] = "New Sermon";
-        var vm = new SermonEditViewModel();
+        var vm = new SermonEditView();
         await PopulateAsync(vm);
         return View("Edit", vm);
     }
@@ -43,7 +41,7 @@ public class SermonsController : BaseAdminController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Sermons.Create)]
-    public async Task<IActionResult> Create(SermonEditViewModel vm)
+    public async Task<IActionResult> Create(SermonEditView vm)
     {
         if (!ModelState.IsValid) { await PopulateAsync(vm); return View("Edit", vm); }
 
@@ -62,7 +60,7 @@ public class SermonsController : BaseAdminController
         if (s is null) return NotFound();
 
         ViewData["Title"] = "Edit Sermon";
-        var vm = new SermonEditViewModel
+        var vm = new SermonEditView
         {
             SermonID = s.SermonID,
             Title = s.Title,
@@ -81,7 +79,7 @@ public class SermonsController : BaseAdminController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Sermons.Edit)]
-    public async Task<IActionResult> Edit(int id, SermonEditViewModel vm)
+    public async Task<IActionResult> Edit(int id, SermonEditView vm)
     {
         var s = await _db.Sermons.FindAsync(id);
         if (s is null) return NotFound();
@@ -117,13 +115,13 @@ public class SermonsController : BaseAdminController
     public IActionResult CategoryCreate()
     {
         ViewData["Title"] = "New Sermon Category";
-        return View("CategoryEdit", new CategoryEditViewModel());
+        return View("CategoryEdit", new CategoryEditView());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Categories.Manage)]
-    public async Task<IActionResult> CategoryCreate(CategoryEditViewModel vm)
+    public async Task<IActionResult> CategoryCreate(CategoryEditView vm)
     {
         if (!ModelState.IsValid) return View("CategoryEdit", vm);
 
@@ -148,13 +146,13 @@ public class SermonsController : BaseAdminController
         var c = await _db.SermonCategories.FindAsync(id);
         if (c is null) return NotFound();
         ViewData["Title"] = "Edit Sermon Category";
-        return View("CategoryEdit", new CategoryEditViewModel { Id = c.SermonCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
+        return View("CategoryEdit", new CategoryEditView { Id = c.SermonCategoryID, Name = c.Name, Slug = c.Slug, Description = c.Description });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Categories.Manage)]
-    public async Task<IActionResult> CategoryEdit(int id, CategoryEditViewModel vm)
+    public async Task<IActionResult> CategoryEdit(int id, CategoryEditView vm)
     {
         var c = await _db.SermonCategories.FindAsync(id);
         if (c is null) return NotFound();
@@ -188,7 +186,7 @@ public class SermonsController : BaseAdminController
         return RedirectToAction(nameof(Categories));
     }
 
-    private void Apply(SermonEditViewModel vm, Sermon sermon, bool isNew)
+    private void Apply(SermonEditView vm, Sermon sermon, bool isNew)
     {
         var now = DateTime.UtcNow;
         sermon.Title = vm.Title.Trim();
@@ -198,13 +196,13 @@ public class SermonsController : BaseAdminController
         sermon.SermonDate = vm.SermonDate;
         sermon.Speaker = vm.Speaker;
         sermon.ContentJson = vm.ContentJson;
-        sermon.ContentHtml = _renderer.Render(vm.ContentJson);
+        //sermon.ContentHtml = _renderer.Render(vm.ContentJson);
         sermon.Status = vm.Status;
         sermon.DateModified = now;
         if (isNew) sermon.DateCreated = now;
     }
 
-    private async Task PopulateAsync(SermonEditViewModel vm)
+    private async Task PopulateAsync(SermonEditView vm)
     {
         var categories = await _db.SermonCategories.OrderBy(c => c.Name)
             .Select(c => new { c.SermonCategoryID, c.Name }).ToListAsync();

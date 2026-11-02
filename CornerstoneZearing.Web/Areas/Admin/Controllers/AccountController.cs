@@ -25,13 +25,13 @@ public class AccountController : Controller
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToAction("Index", "Dashboard");
 
-        return View(new LoginViewModel { ReturnUrl = returnUrl });
+        return View(new LoginView { ReturnUrl = returnUrl });
     }
 
     [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginView model)
     {
         if (!ModelState.IsValid)
             return View(model);

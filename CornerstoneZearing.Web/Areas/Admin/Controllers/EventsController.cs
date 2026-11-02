@@ -25,13 +25,13 @@ public class EventsController : BaseAdminController
     public IActionResult Create()
     {
         ViewData["Title"] = "New Event";
-        return View("Edit", new EventEditViewModel());
+        return View("Edit", new EventEditView());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Events.Create)]
-    public async Task<IActionResult> Create(EventEditViewModel vm)
+    public async Task<IActionResult> Create(EventEditView vm)
     {
         Validate(vm);
         if (!ModelState.IsValid) return View("Edit", vm);
@@ -51,7 +51,7 @@ public class EventsController : BaseAdminController
         if (e is null) return NotFound();
 
         ViewData["Title"] = "Edit Event";
-        return View(new EventEditViewModel
+        return View(new EventEditView
         {
             EventID = e.EventID,
             Title = e.Title,
@@ -70,7 +70,7 @@ public class EventsController : BaseAdminController
     [HttpPost]
     [ValidateAntiForgeryToken]
     [HasPermission(Permissions.Events.Edit)]
-    public async Task<IActionResult> Edit(int id, EventEditViewModel vm)
+    public async Task<IActionResult> Edit(int id, EventEditView vm)
     {
         var e = await _db.Events.FindAsync(id);
         if (e is null) return NotFound();
@@ -97,13 +97,13 @@ public class EventsController : BaseAdminController
         return RedirectToIndex();
     }
 
-    private void Validate(EventEditViewModel vm)
+    private void Validate(EventEditView vm)
     {
         if (vm.EndDateTime < vm.StartDateTime)
             ModelState.AddModelError(nameof(vm.EndDateTime), "End must be on or after the start.");
     }
 
-    private static void Apply(EventEditViewModel vm, Event ev, bool isNew)
+    private static void Apply(EventEditView vm, Event ev, bool isNew)
     {
         var now = DateTime.UtcNow;
         ev.Title = vm.Title.Trim();

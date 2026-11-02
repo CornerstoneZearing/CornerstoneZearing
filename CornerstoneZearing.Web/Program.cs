@@ -33,6 +33,9 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 // Add mail service
 builder.Services.AddTransient<IMailService, MailService>();
 
+// Add Razor pages
+builder.Services.AddRazorPages();
+
 // Add controllers with views
 builder.Services.AddControllersWithViews();
 
@@ -52,6 +55,17 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add packages
 builder.Services.AddPackages(packages =>
 {
+    packages.Add(new StylePackage("/css/admin.css")
+        .Include("~/css/admin/simplebar.css")
+        .Include("~/css/admin/style.css")
+        .Include("~/css/admin/examples.css")
+    );
+    packages.Add(new ScriptPackage("/js/admin.js")
+        .Include("~/js/admin/config.js")
+        .Include("~/js/admin/colormode.js")
+        .Include("~/js/admin/coreui.js")
+        .Include("~/js/admin/simplebar.js")
+    );
     packages.Add(new StylePackage("/styles.css")
         .Include("~/css/theme.css")
         .Include("~/css/events.css")
@@ -69,18 +83,15 @@ builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler
 
 // CMS services
 builder.Services.Configure<UploadOptions>(builder.Configuration.GetSection("Uploads"));
-builder.Services.AddScoped<EditorJsRenderer>();
-builder.Services.AddScoped<SlugService>();
 builder.Services.AddScoped<FileStorageService>();
 builder.Services.AddScoped<RecurrenceService>();
-builder.Services.AddScoped<NavigationService>();
-builder.Services.AddScoped<PageTemplateService>();
+builder.Services.AddScoped<SlugService>();
 
 // Start web application
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 app.UseHttpsRedirection();
@@ -89,11 +100,13 @@ app.UsePackages();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapStaticAssets();
+app.MapRazorPages().WithStaticAssets();
 
 // Admin area route
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
 );
 
 // Default route
@@ -102,12 +115,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
 
-// Dynamic pages route
-app.MapControllerRoute(
-    name: "page",
-    pattern: "{*slug}",
-    defaults: new { controller = "Pages", action = "Show" }
-);
-
-// Go
+// Make it so
 app.Run();

@@ -19,7 +19,6 @@ public class Post
     public DateTime? DatePublished { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
-
     public PostCategory? PostCategory { get; set; }
     public Media? FeaturedMedia { get; set; }
 }

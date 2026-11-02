@@ -1,3 +1,5 @@
+using CornerstoneZearing.Data.Interfaces;
+
 namespace CornerstoneZearing.Data.Entities;
 
 public class PostCategory : ICategoryEntity
@@ -9,6 +11,5 @@ public class PostCategory : ICategoryEntity
     public string? Description { get; set; }
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
-
     public ICollection<Post> Posts { get; set; } = new List<Post>();
 }

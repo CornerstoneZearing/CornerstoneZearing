@@ -1,0 +1,137 @@
+﻿@page
+@{
+	ViewData["Title"] = "Home page";
+}
+
+<!-- Hero carousel -->
+<section class="hero" aria-label="Featured">
+	<div id="heroCarousel" class="carousel slide" data-bs-autoplay="true" aria-roledescription="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<div class="slide-bg slide-1"></div>
+				<div class="container slide-copy">
+					<span class="eyebrow">Welcome to Zearing, Iowa</span>
+					<h1>Built on Christ, the Cornerstone</h1>
+					<p>Join us Sunday morning for worship, the Word, and a community that feels like family.</p>
+					<a class="cc-btn cc-btn-light" href="#">Plan Your Visit</a>
+					<a class="cc-btn cc-btn-outline" style="color:#fff;border-color:#fff" href="#">Watch Livestream</a>
+				</div>
+			</div>
+			<div class="carousel-item">
+				<div class="slide-bg slide-2"></div>
+				<div class="container slide-copy">
+					<span class="eyebrow">This Fall</span>
+					<h2>Harvest Fellowship Dinner</h2>
+					<p>Bring a dish and a friend. Food, games, and fellowship for all ages.</p>
+					<a class="cc-btn cc-btn-light" href="#events">See Events</a>
+				</div>
+			</div>
+			<div class="carousel-item">
+				<div class="slide-bg slide-3"></div>
+				<div class="container slide-copy">
+					<span class="eyebrow">Youth</span>
+					<h2>Pioneers · Chain Reaction · Stronghold</h2>
+					<p>Growing in faith together, from kids through high school.</p>
+					<a class="cc-btn cc-btn-light" href="#">Explore Youth</a>
+				</div>
+			</div>
+		</div>
+		<div class="dots">
+			<div class="container">
+				<button type="button" class="active" data-bs-slide-to="0" aria-current="true" aria-label="Slide 1"></button>
+				<button type="button" data-bs-slide-to="1" aria-label="Slide 2"></button>
+				<button type="button" data-bs-slide-to="2" aria-label="Slide 3"></button>
+			</div>
+		</div>
+		<div class="hero-ctrl">
+			<button type="button" data-bs-slide="prev" aria-label="Previous slide">&#8249;</button>
+			<button type="button" data-bs-slide="next" aria-label="Next slide">&#8250;</button>
+		</div>
+	</div>
+</section>
+
+<!-- Welcome video -->
+<section class="section section-alt border-bottom">
+	<div class="container">
+		<div class="row gap-y-5" style="align-items:center">
+			<div class="col-12 lg:col-5">
+				<span class="section-kicker">New here?</span>
+				<h2 class="section-title">A Word of Welcome</h2>
+				<p class="meta-line" style="font-size:1.05rem">Take two minutes to meet our church family and see what to expect when you visit on a Sunday.</p>
+				<a class="cc-btn cc-btn-secondary" href="#">What to Expect</a>
+			</div>
+			<div class="col-12 lg:col-7">
+				<div class="video-frame">
+					<!-- Replace placeholder with: <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="Welcome to Cornerstone Church" allowfullscreen loading="lazy"></iframe> -->
+					<div class="video-placeholder"><div><div class="play-badge"></div><strong>Welcome video · YouTube embed (16:9)</strong></div></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Sermon + Events -->
+<section class="section section-alt" id="events">
+	<div class="container">
+		<div class="row gap-y-5">
+			<div class="col-12 lg:col-6">
+				<div class="section-head"><div><span class="section-kicker">Next Sunday</span><h2 class="section-title">Upcoming Sermon</h2></div><a href="#">All sermons &rarr;</a></div>
+				<article class="card-cc sermon-card">
+					<div class="body">
+						<span class="tag">Series: Foundations</span>
+						<h3 style="font-weight:800;margin:.6rem 0 .25rem">Building on the Rock</h3>
+						<p class="meta-line">Sunday, October 25 · 10:30 AM · Matthew 7:24–27</p>
+						<p>A look at what it means to build our lives on the teaching of Jesus when the storms come.</p>
+						<a class="cc-btn cc-btn-primary" href="#">Sermon Details</a>
+					</div>
+				</article>
+			</div>
+			<div class="col-12 lg:col-6">
+				<div class="section-head"><div><span class="section-kicker">Mark your calendar</span><h2 class="section-title">Upcoming Events</h2></div><a href="#">Full calendar &rarr;</a></div>
+				<div class="card-cc" style="padding:.5rem 1.4rem">
+					<ul class="event-list">
+						<li><div class="date-chip"><span class="m">Oct</span><span class="d">21</span></div><div><h3><a href="#">Wednesday Bible Study</a></h3><p>7:00 PM · Fellowship Hall</p></div></li>
+						<li><div class="date-chip"><span class="m">Oct</span><span class="d">25</span></div><div><h3><a href="#">Sunday Worship</a></h3><p>10:30 AM · Sanctuary &amp; Livestream</p></div></li>
+						<li><div class="date-chip"><span class="m">Oct</span><span class="d">31</span></div><div><h3><a href="#">Harvest Fellowship Dinner</a></h3><p>5:30 PM · Fellowship Hall</p></div></li>
+						<li><div class="date-chip"><span class="m">Nov</span><span class="d">07</span></div><div><h3><a href="#">Men&rsquo;s Group Breakfast</a></h3><p>8:00 AM · Fellowship Hall</p></div></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Verse + Prayer -->
+<section class="section section-alt">
+	<div class="container">
+		<div class="row gap-y-5">
+			<div class="col-12 lg:col-6">
+				<div class="verse card-cc" style="padding:2.25rem;border:0;display:flex;flex-direction:column;justify-content:center">
+					<span class="section-kicker" style="color:#bfe6dd">Verse of the Day</span>
+					<blockquote>&ldquo;Built on the foundation of the apostles and prophets, Christ Jesus himself being the cornerstone.&rdquo;</blockquote>
+					<cite>Ephesians 2:20</cite>
+				</div>
+			</div>
+			<div class="col-12 lg:col-6">
+				<div class="prayer card-cc" style="padding:2rem">
+					<span class="section-kicker">Pray with us</span>
+					<h2 class="section-title">Prayer Requests</h2>
+					<ul class="prayer-list">
+						<li>Healing and strength for those facing surgery this week</li>
+						<li>Safe travels for our mission team</li>
+						<li>Wisdom for local students and teachers</li>
+					</ul>
+					<a class="cc-btn cc-btn-secondary" href="#">Submit a Prayer Request</a>
+					<a class="cc-btn cc-btn-outline" style="border-color:var(--cc-secondary);color:var(--cc-secondary-dark)" href="#">View All</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="cta-band" style="padding-block:2.75rem">
+	<div class="container" style="display:flex;flex-wrap:wrap;gap:1.25rem;align-items:center;justify-content:space-between">
+		<div><h2 style="font-weight:800;margin:0 0 .25rem">We&rsquo;d love to meet you.</h2><p style="margin:0;opacity:.95">Sundays at 10:30 AM · Zearing, Iowa</p></div>
+		<a class="cc-btn cc-btn-light" href="#">Plan Your Visit</a>
+	</div>
+</section>

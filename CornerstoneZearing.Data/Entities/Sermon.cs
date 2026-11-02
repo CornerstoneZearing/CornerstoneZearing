@@ -16,7 +16,6 @@ public class Sermon
     public ContentStatus Status { get; set; } = ContentStatus.Draft;
     public DateTime DateCreated { get; set; }
     public DateTime DateModified { get; set; }
-
     public SermonCategory? SermonCategory { get; set; }
     public Document? FeaturedDocument { get; set; }
     public Media? FeaturedMedia { get; set; }
